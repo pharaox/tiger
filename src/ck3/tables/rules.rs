@@ -74,7 +74,7 @@ pub const SCRIPTED_RULES: &str = "
 		root = character
 		liege = character
 		landed_title = landed_title
-		government_type = government_type
+		government_type = government_type # may be unset
 	}
 
 	is_grant_government_shown = {
@@ -411,7 +411,7 @@ pub const SCRIPTED_RULES: &str = "
 		root = artifact
 		actor = character
 		holy_site = holy_site
-		replacing = artifact
+		replacing = artifact # may be unset
 	}
 
 	can_create_dynamic_holy_site = {
@@ -427,6 +427,6 @@ pub const SCRIPTED_RULES: &str = "
 		root = artifact
 		holy_site = holy_site
 		actor = character
-		replacing = artifact
+		replacing = artifact # may be unset
 	}
 ";

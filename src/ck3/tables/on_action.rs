@@ -163,7 +163,7 @@ pub const ON_ACTION_SCOPES: &str = "
 		root = character
 		council_task = council_task
 		councillor = character
-		new_councillor = character
+		new_councillor = character # may be unset
 	}
 
 	on_stress_level_reduced = {
@@ -235,7 +235,7 @@ pub const ON_ACTION_SCOPES: &str = "
 		courtier = character
 		liege = character
 		list = { characters = character }
-		destination = province
+		destination = province # may be unset
 	}
 	on_guest_arrived_from_pool = {
 		root = character
@@ -248,7 +248,7 @@ pub const ON_ACTION_SCOPES: &str = "
 		guest = character
 		host = character
 		list = { characters = character }
-		destination = province
+		destination = province # may be unset
 	}
 	on_join_court = {
 		root = character
@@ -361,20 +361,20 @@ pub const ON_ACTION_SCOPES: &str = "
 		root = artifact
 		owner = character
 		old_owner = character
-		old_holy_site = holy_site
+		old_holy_site = holy_site # may be unset
 	}
 	on_holy_site_artifact_enshrined = {
 		root = artifact
 		holy_site = holy_site
 		actor = character
-		replacing = artifact
+		replacing = artifact # may be unset
 	}
 	on_holy_site_artifact_removed = on_holy_site_artifact_enshrined
 	on_artifact_changed_holy_site_owner = {
 		root = artifact
-		holy_site = holy_site
-		old_holy_site = holy_site
-		old_owner = character
+		holy_site = holy_site # may be unset
+		old_holy_site = holy_site # may be unset
+		old_owner = character # may be unset
 	}
 	on_artifact_succession = {
 		root = artifact
@@ -390,7 +390,7 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_artifact_durability_very_low = on_artifact_broken_through_decay
 	on_artifact_durability_low = {
 		root = character
-		artifact = artifact
+		artifact = artifact # undocumented
 	}
 	on_artifact_claim_gained = {
 		root = character
@@ -450,10 +450,10 @@ pub const ON_ACTION_SCOPES: &str = "
 
 	on_faith_created = {
 		root = faith
-		founder = character
+		founder = character # may be unset
 		old_faith = faith
 		old_rite = rite
-		diverged = bool
+		diverged = bool # may be unset
 	}
 	on_faith_conversion = {
 		root = character
@@ -476,8 +476,8 @@ pub const ON_ACTION_SCOPES: &str = "
 	}
 	on_rite_updated = {
 		root = rite
-		changed_tenets_or_doctrines = bool
-		consume_rite_edit_token = bool
+		changed_tenets_or_doctrines = bool # may be unset
+		consume_rite_edit_token = bool # may be unset
 		list = { added_tenets = tenet }
 		list = { removed_tenets = tenet }
 		list = { added_doctrines = doctrine }
@@ -502,17 +502,17 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_faith_holy_site_added = {
 		root = faith
 		title = landed_title
-		holy_site = holy_site
+		holy_site = holy_site # may be unset
 		is_eminent_site = bool
 		is_new_holy_site = bool
-		actor = character
+		actor = character # may be unset
 	}
 	on_faith_holy_site_removed = {
 		root = faith
 		title = landed_title
 		holy_site = holy_site
 		is_eminent_site = bool
-		actor = character
+		actor = character # may be unset
 	}
 	on_faith_holy_site_eminence_changed = on_faith_holy_site_removed
 	on_character_holy_site_created = {
@@ -622,7 +622,7 @@ pub const ON_ACTION_SCOPES: &str = "
 	on_realm_capital_change = {
 		root = landed_title
 		holder = character
-		old_capital = landed_title
+		old_capital = landed_title # may be unset
 		transfer_type = flag
 	}
 
