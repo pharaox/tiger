@@ -796,7 +796,9 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
             ("*years", CompareValue),
         ]),
     ),
-    (Scopes::Faith, "has_county_of_faith", Scope(Scopes::Faith)),
+    // The docs say faith, but it works only in a character (in-game test, 1.20.1.2). The game
+    // still logs "Inconsistent trigger scopes (character vs. faith)" when loading such a use.
+    (Scopes::Character, "has_county_of_faith", Scope(Scopes::Faith)),
     (Scopes::Character, "has_court_language", Item(Item::Language)),
     (Scopes::Character, "has_court_language_of_culture", Scope(Scopes::Culture)),
     (

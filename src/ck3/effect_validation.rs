@@ -1798,7 +1798,8 @@ pub fn validate_set_owner(
             vd.set_case_sensitive(false);
             vd.req_field("target");
             vd.field_target("target", sc, Scopes::Character);
-            vd.multi_field_validated_block_sc("history", sc, validate_artifact_history);
+            // Only one `history` takes effect (in-game test, 1.20.1.2)
+            vd.field_validated_block_sc("history", sc, validate_artifact_history);
             vd.field_bool("generate_history");
         }
     }
@@ -2823,7 +2824,8 @@ pub fn validate_set_holy_site_owner(
 ) {
     vd.req_field("target");
     vd.field_target("target", sc, Scopes::HolySite);
-    vd.multi_field_validated_block_sc("history", sc, validate_artifact_history);
+    // Only one `history` takes effect (in-game test, 1.20.1.2)
+    vd.field_validated_block_sc("history", sc, validate_artifact_history);
     vd.field_bool("generate_history");
 }
 

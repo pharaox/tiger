@@ -444,10 +444,13 @@ pub(crate) static COMPLEX_TOOLTIPS_CK3: LazyLock<TigerHashMap<&'static str, Opti
 /// Handling of `#TOOLTIP:tag:value` formatting in localization. The table contains the tag strings
 /// and the corresponding item type of the value. If the item type is `None`, it means the value is
 /// a runtime id which cannot be validated statically.
-// LAST UPDATED CK3 VERSION 1.12.3
+// LAST UPDATED CK3 VERSION 1.20.1
 // The list of tag types can be found in localization/english/tooltip_structs_l_english.yml
 // The table entries were verified by deleting the `#TOOLTIP:` part of the entries and viewing
 // examples of them in-game.
+// Tags left out have their value checked as a localization key. That is right for `GLOSSARY`.
+// `CONTRACT` and `SITUATION_MODIFIER_NAMED_SET` get only code-supplied values in vanilla, and
+// with a database key the game shows the raw text (in-game test, 1.20.1.2).
 const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("accolade", None),
     ("accolade_type", Some(Item::AccoladeType)),
@@ -476,10 +479,12 @@ const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("faction", None),
     ("faith", Some(Item::Faith)),
     ("focus", Some(Item::Focus)),
+    ("fulfillment_level", None),
     ("game_concept", Some(Item::GameConcept)),
     ("game_trait", Some(Item::Trait)),
     ("geographical_region", Some(Item::Region)),
     ("government_type", Some(Item::GovernmentType)),
+    ("great_project", None),
     ("holding", None),
     ("holy_order", None),
     ("house_relation_level", None),
@@ -506,6 +511,7 @@ const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("scheme_type", Some(Item::Scheme)),
     ("secret", None),
     ("secret_type", Some(Item::Secret)),
+    ("situation", None),
     ("situation_participant_group_type", Some(Item::SituationParticipantGroup)),
     ("situation_phase_type", Some(Item::Situation)),
     ("situation_sub_region", None),
