@@ -112,12 +112,13 @@ impl CourtSceneSetting {
 }
 
 impl DbKind for CourtSceneSetting {
+    // undocumented: gfx/court_scene/scene_settings has no .info file
     fn validate(&self, _key: &Token, block: &Block, data: &Everything) {
         let mut vd = Validator::new(block, data);
 
         vd.field_value("name");
         vd.field_item("culture", Item::CourtSceneCulture);
-        vd.field_item("requires_dlc_flag", Item::DlcFeature); // undocumented
+        vd.field_item("requires_dlc_flag", Item::DlcFeature);
         vd.field_integer("visual_culture_level");
         vd.field_item("cubemap", Item::File);
         vd.field_item("environment", Item::File);

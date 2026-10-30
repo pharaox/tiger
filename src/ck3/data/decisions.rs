@@ -235,7 +235,7 @@ impl DbKind for Decision {
                                 || controller == "revoke_holy_order_lease"
                                 || SELECT_TITLE_CONTROLLERS.contains(&controller) =>
                         {
-                            vd.replaced_field("barony_valid", "`title_valid`");
+                            vd.replaced_field("barony_valid", "title_valid");
                             vd.field_trigger_builder("title_valid", Tooltipped::No, |key| {
                                 let mut sc = ScopeContext::new(Scopes::LandedTitle, key);
                                 sc.define_name("ruler", Scopes::Character, key);

@@ -192,13 +192,10 @@ fn validate_phase_effects(block: &Block, data: &Everything) {
         });
     }
 
-    vd.replaced_field(
-        "involved_doctrine_character_modifier",
-        "`involved_faith_character_modifier`",
-    );
+    vd.replaced_field("involved_doctrine_character_modifier", "involved_faith_character_modifier");
     vd.replaced_field(
         "interloper_doctrine_character_modifier",
-        "`interloper_faith_character_modifier`",
+        "interloper_faith_character_modifier",
     );
     for field in &["involved_faith_character_modifier", "interloper_faith_character_modifier"] {
         vd.field_validated_block(field, |block, data| {

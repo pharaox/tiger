@@ -289,7 +289,7 @@ fn validate_modifiers(vd: &mut Validator, is_duchy_capital: bool) {
         vd.field_item("parameter", Item::CultureParameter);
         validate_modifs(block, data, ModifKinds::Province, vd);
     });
-    vd.replaced_field("province_faith_modifier", "`province_rite_modifier`");
+    vd.replaced_field("province_faith_modifier", "province_rite_modifier");
     vd.multi_field_validated_block("province_rite_modifier", |block, data| {
         let mut vd = Validator::new(block, data);
         vd.req_field("parameter");
@@ -321,7 +321,7 @@ fn validate_modifiers(vd: &mut Validator, is_duchy_capital: bool) {
         vd.field_item("parameter", Item::CultureParameter);
         validate_modifs(block, data, ModifKinds::County, vd);
     });
-    vd.replaced_field("county_faith_modifier", "`county_rite_modifier`");
+    vd.replaced_field("county_faith_modifier", "county_rite_modifier");
     vd.multi_field_validated_block("county_rite_modifier", |block, data| {
         let mut vd = Validator::new(block, data);
         vd.req_field("parameter");
@@ -342,7 +342,7 @@ fn validate_modifiers(vd: &mut Validator, is_duchy_capital: bool) {
         });
         vd.replaced_field(
             "duchy_capital_county_faith_modifier",
-            "`duchy_capital_county_rite_modifier`",
+            "duchy_capital_county_rite_modifier",
         );
         vd.multi_field_validated_block("duchy_capital_county_rite_modifier", |block, data| {
             let mut vd = Validator::new(block, data);

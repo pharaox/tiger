@@ -579,9 +579,10 @@ pub const TITLE_HISTORY_TYPES: &[&str] = &[
 
 // LAST UPDATED CK3 VERSION 1.20.1
 // These are the types that can't be used in `create_title_and_vassal_change`.
-// Taken from an error.log message.
+// Taken from an error.log message, except `destroyed`,
+// which is not in the list of types that can be used according to the (binary) docs.
 pub const BANNED_TITLE_HISTORY_TYPES: &[&str] =
-    &["inheritance", "abdication", "appointment_succession"];
+    &["inheritance", "abdication", "appointment_succession", "destroyed"];
 
 // LAST UPDATED CK3 VERSION 1.20.1
 // Gathered from vanilla common/traits/

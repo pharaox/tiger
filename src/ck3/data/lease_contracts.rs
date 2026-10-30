@@ -61,8 +61,8 @@ impl DbKind for LeaseContract {
         vd.field_integer("ruler_share_min_opinion_from_lessee");
         vd.field_choice("hook_strength_max_opinion", &["none", "any", "strong"]);
 
-        vd.replaced_field("tax", "`tax_split`");
-        vd.replaced_field("levy", "`levy_split`");
+        vd.replaced_field("tax", "tax_split");
+        vd.replaced_field("levy", "levy_split");
         for field in ["tax_split", "levy_split"] {
             vd.field_validated_block(field, |block, data| {
                 // The docs say shares that add up to more than 1 are an error

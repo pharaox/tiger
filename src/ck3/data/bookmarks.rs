@@ -168,7 +168,7 @@ fn validate_bookmark_character(
         "character_design_type",
         &["default", "landless_adventurer", "noble_family", "none"],
     );
-    vd.replaced_field("bookmark_type", "`character_design_type`");
+    vd.replaced_field("bookmark_type", "character_design_type");
     vd.field_item("target_title", Item::Title);
     if let Some(start_date) = start_date
         && let Some(id) = block.get_field_value("history_id")

@@ -83,7 +83,7 @@ impl DbKind for HolySite {
             vd.unknown_value_fields(validate_parameter_value);
         });
 
-        vd.replaced_field("character_modifier", "`faith_character_modifier`");
+        vd.replaced_field("character_modifier", "faith_character_modifier");
         // The docs say `holy_site_<key>_effects` is only used if it exists
         vd.field_validated_block("faith_character_modifier", |block, data| {
             let mut vd = Validator::new(block, data);

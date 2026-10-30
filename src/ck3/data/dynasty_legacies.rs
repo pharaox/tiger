@@ -78,7 +78,7 @@ impl DbKind for DynastyPerk {
             vd.field_item("name", Item::Localization);
             validate_modifs(block, data, ModifKinds::Character, vd);
         });
-        vd.replaced_field("doctrine_character_modifier", "`faith_character_modifier`");
+        vd.replaced_field("doctrine_character_modifier", "faith_character_modifier");
         vd.multi_field_validated_block("faith_character_modifier", |block, data| {
             let mut vd = Validator::new(block, data);
             vd.field_item("name", Item::Localization);

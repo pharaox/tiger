@@ -107,10 +107,7 @@ impl DbKind for CasusBelli {
             &["on_victory_desc", "on_defeat_desc", "on_white_peace_desc", "on_invalidated_desc"]
         {
             vd.req_field(field);
-            vd.field_validated_key(field, |key, bv, data| {
-                let mut sc = sc_effect_builder(key);
-                validate_desc(bv, data, &mut sc);
-            });
+            vd.field_validated_build_sc(field, sc_effect_builder, validate_desc);
         }
 
         // undocumented scope:war. The group docs give it to the group's `should_invalidate`.

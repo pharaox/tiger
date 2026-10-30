@@ -318,8 +318,8 @@ impl DbKind for Faith {
         if let Some(doctrines) = block.get_field_list("doctrines") {
             validate_doctrine_groups(&doctrines, data);
         }
-        vd.replaced_field("doctrine", "`doctrines`");
-        vd.replaced_field("doctrine_selection_pair", "`tenet_selection_pair`");
+        vd.replaced_field("doctrine", "doctrines");
+        vd.replaced_field("doctrine_selection_pair", "tenet_selection_pair");
         vd.multi_field_validated_block("tenet_selection_pair", validate_tenet_selection_pair);
 
         vd.field_list("reserved_male_names");
@@ -402,7 +402,7 @@ impl DbKind for ReligionFamily {
         vd.field_value("graphical_faith");
         validate_piety_icon_group(vd.field_value("piety_icon_group"), data);
         validate_tenet_background_icons(data, &mut vd);
-        vd.replaced_field("doctrine_background_icon", "`tenet_background_icon`");
+        vd.replaced_field("doctrine_background_icon", "tenet_background_icon");
         vd.field_item("hostility_doctrine", Item::Doctrine);
     }
 }

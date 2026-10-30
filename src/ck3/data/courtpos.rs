@@ -81,7 +81,7 @@ impl DbKind for CourtPosition {
             vd.field_item("parameter", Item::CultureParameter);
             validate_modifs(block, data, ModifKinds::Character, vd);
         });
-        vd.replaced_field("faith_modifier", "`rite_modifier`");
+        vd.replaced_field("faith_modifier", "rite_modifier");
         vd.field_validated_block("rite_modifier", |block, data| {
             let mut vd = Validator::new(block, data);
             vd.field_item("parameter", Item::DoctrineParameter);

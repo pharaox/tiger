@@ -556,11 +556,12 @@ impl Character {
             .filter(|e| e.event == LifeEventType::Death)
             .map(|e| e.date)
             .collect();
+        let has_birth = life_events.iter().any(|e| e.event == LifeEventType::Birth);
 
         for LifeEvent { date, index: _, token, event } in life_events {
             use LifeEventType::*;
 
-            if birth.is_none() && event != Birth {
+            if birth.is_none() && event != Birth && (event != Other || has_birth) {
                 let msg = format!("{character} was not born yet on {date}");
                 let mut loc = token.loc;
                 loc.column = 0;
@@ -569,6 +570,7 @@ impl Character {
 
             if let Some((death_date, death_loc)) = death
                 && event != Posthumous
+                && (event != Other || date > death_date)
             {
                 let msg = format!(
                     "{character} was not alive on {date}, had already died on {death_date}"
@@ -631,6 +633,7 @@ impl Character {
                         warn(ErrorKey::History).msg(msg).loc(token).push();
                     }
                 }
+                Other => (),
             }
         }
     }
@@ -699,8 +702,6 @@ impl Character {
         vd.field_validated_block("portrait_override", validate_portrait_override);
 
         let mut life_events = Vec::new();
-        // Date entries without life events, which are not checked by `validate_life`
-        let mut other_entries = Vec::new();
         let gender = Gender::from_female_bool(self.block.get_field_bool("female").unwrap_or(false));
         vd.validate_history_blocks(|date, key, block, data| {
             let mut has_life_event = false;
@@ -725,27 +726,13 @@ impl Character {
             let even_if_dead =
                 block.iter_fields().all(|Field(key, _, _)| key.is("effect_even_if_dead"));
             if !has_life_event && !even_if_dead {
-                other_entries.push((date, key.clone()));
+                // Sort it after the life events of the same date
+                let event = LifeEventType::Other;
+                life_events.push(LifeEvent { date, index: usize::MAX, event, token: key.clone() });
             }
         });
 
         life_events.sort_unstable();
-        let birth = life_events.iter().find(|e| e.event == LifeEventType::Birth).map(|e| e.date);
-        let death = life_events.iter().find(|e| e.event == LifeEventType::Death).map(|e| e.date);
-        for (date, key) in other_entries {
-            if let Some(birth) = birth
-                && date < birth
-            {
-                let msg = format!("{} was not born yet on {date}", self.key);
-                warn(ErrorKey::History).msg(msg).loc(key).push();
-            } else if let Some(death) = death
-                && date > death
-            {
-                let msg =
-                    format!("{} was not alive on {date}, had already died on {death}", self.key);
-                warn(ErrorKey::History).msg(msg).loc(key).push();
-            }
-        }
         Self::validate_life(&self.key, life_events);
     }
 
@@ -840,6 +827,8 @@ enum LifeEventType {
     /// All other events must happen before death
     Death,
     Posthumous,
+    /// A date entry without life events
+    Other,
     // TODO add Effect validation, e.g. `add_trait`
 }
 

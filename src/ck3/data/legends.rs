@@ -45,7 +45,7 @@ impl DbKind for LegendType {
         let mut vd = Validator::new(block, data);
         vd.field_validated("color", validate_possibly_named_color);
         vd.field_effect_builder("on_province_spread", Tooltipped::No, build_province_legend_sc);
-        vd.replaced_field("on_province_recovered", "`on_province_removed`");
+        vd.replaced_field("on_province_recovered", "on_province_removed");
         vd.field_effect_builder("on_province_removed", Tooltipped::No, build_province_legend_sc);
         vd.field_effect_rooted("on_start", Tooltipped::No, Scopes::Legend);
         vd.field_effect_rooted("on_end", Tooltipped::No, Scopes::Legend);

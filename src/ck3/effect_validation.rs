@@ -722,8 +722,8 @@ pub fn validate_create_nomad_title(
     _tooltipped: Tooltipped,
 ) {
     vd.field_validated_sc("name", sc, validate_desc);
-    vd.replaced_field("prefix", "`pre`");
-    vd.replaced_field("adjective", "`adj`");
+    vd.replaced_field("prefix", "pre");
+    vd.replaced_field("adjective", "adj");
     vd.field_validated_sc("article", sc, validate_desc);
     vd.field_validated_sc("pre", sc, validate_desc);
     vd.field_validated_sc("adj", sc, validate_desc);
@@ -770,10 +770,9 @@ pub fn validate_create_title_and_vassal_change(
     vd.req_field("type");
     vd.req_field("save_scope_as");
     if let Some(history_type) = vd.field_value("type") {
-        // The docs' list of types for use in script leaves out `destroyed`
         let valid_types: Vec<_> = TITLE_HISTORY_TYPES
             .iter()
-            .filter(|t| !BANNED_TITLE_HISTORY_TYPES.contains(t) && **t != "destroyed")
+            .filter(|t| !BANNED_TITLE_HISTORY_TYPES.contains(t))
             .copied()
             .collect();
         if BANNED_TITLE_HISTORY_TYPES.contains(&history_type.as_str()) {
@@ -1823,10 +1822,13 @@ pub fn validate_set_relation(
             // Sometimes both are used and I don't know what that means. TODO: verify
             // vd.req_field_one_of(&["reason", "copy_reason"]);
             vd.field_target("target", sc, Scopes::Character);
-            // TODO: {reason}_corresponding is also a loca, used on the target's side.
-            // If it's missing, the game uses {reason} with CHARACTER and TARGET_CHARACTER swapped,
-            // which is only correct if the text is symmetric (verified in 1.20.1).
+            // The game uses {reason}_corresponding on the target's side if it exists. Otherwise it
+            // uses {reason} with CHARACTER and TARGET_CHARACTER swapped, which is only correct if the
+            // text is symmetric (verified in 1.20.1).
             vd.field_item("reason", Item::Localization);
+            if let Some(reason) = block.get_field_value("reason") {
+                data.mark_used(Item::Localization, &format!("{reason}_corresponding"));
+            }
             vd.field_item("copy_reason", Item::Relation);
             vd.field_target("province", sc, Scopes::Province);
             vd.field_target("involved_character", sc, Scopes::Character);
@@ -1942,8 +1944,8 @@ pub fn validate_create_adventurer_title(
     vd.req_field("holder");
     vd.field_validated_sc("name", sc, validate_desc);
     vd.field_target("holder", sc, Scopes::Character);
-    vd.replaced_field("prefix", "`pre`");
-    vd.replaced_field("adjective", "`adj`");
+    vd.replaced_field("prefix", "pre");
+    vd.replaced_field("adjective", "adj");
     vd.field_validated_sc("article", sc, validate_desc);
     vd.field_validated_sc("pre", sc, validate_desc);
     vd.field_validated_sc("adj", sc, validate_desc);
@@ -2478,6 +2480,8 @@ pub fn validate_send_interface(
     vd.field_validated_sc("desc", &mut loca_sc, validate_desc);
     vd.field_validated_sc("tooltip", &mut loca_sc, validate_desc);
     loca_sc.destroy();
+    // The docs list characters, artifacts, titles, dynasties and houses. The others are undocumented,
+    // but vanilla uses them.
     let icon_scopes = Scopes::Character
         | Scopes::LandedTitle
         | Scopes::Artifact
@@ -2549,7 +2553,6 @@ pub fn validate_holy_site_target(
         }
         BV::Block(block) => {
             let mut vd = Validator::new(block, data);
-            vd.set_case_sensitive(false);
             vd.req_field("target");
             vd.field_target("target", sc, Scopes::HolySite);
             vd.field_target("actor", sc, Scopes::Character);
@@ -2570,7 +2573,6 @@ pub fn validate_set_parent_faith(
         }
         BV::Block(block) => {
             let mut vd = Validator::new(block, data);
-            vd.set_case_sensitive(false);
             vd.req_field("target");
             vd.field_target("target", sc, Scopes::Faith);
             vd.field_bool("main");
@@ -2667,8 +2669,8 @@ pub fn validate_split_clerical_region(
 
 pub fn validate_create_domicile_title(
     _key: &Token,
-    _block: &Block,
-    _data: &Everything,
+    block: &Block,
+    data: &Everything,
     sc: &mut ScopeContext,
     mut vd: Validator,
     _tooltipped: Tooltipped,
@@ -2680,6 +2682,14 @@ pub fn validate_create_domicile_title(
     vd.field_target("holder", sc, Scopes::Character);
     vd.req_field("government");
     vd.field_item("government", Item::GovernmentType);
+    if let Some(token) = block.get_field_value("government")
+        && let Some((_, government)) =
+            data.database.get_key_block(Item::GovernmentType, token.as_str())
+        && !government.has_key("domicile_type")
+    {
+        let msg = "the government must have a `domicile_type`";
+        err(ErrorKey::Validation).msg(msg).loc(token).push();
+    }
     vd.field_validated_sc("article", sc, validate_desc);
     vd.field_validated_sc("pre", sc, validate_desc);
     vd.field_validated_sc("adj", sc, validate_desc);
@@ -2734,7 +2744,7 @@ pub fn validate_create_rite_from_type(
     _tooltipped: Tooltipped,
 ) {
     vd.req_field("type");
-    vd.field_item_or_target("type", sc, Item::RiteType, Scopes::RiteType);
+    vd.field_item("type", Item::RiteType);
     if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
         sc.define_name_token(name.as_str(), Scopes::Rite, name, Temporary::No);
     }

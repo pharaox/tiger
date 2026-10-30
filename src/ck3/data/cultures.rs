@@ -177,7 +177,7 @@ impl DbKind for Culture {
             vd.field_item("requires_dlc_flag", Item::DlcFeature);
             vd.field_item("fallback", Item::CultureTradition);
         });
-        vd.multi_field_validated_block("dlc_fallback_pillar", |block, data| {
+        vd.field_validated_block("dlc_fallback_pillar", |block, data| {
             let mut vd = Validator::new(block, data);
             vd.req_field("fallback");
             vd.req_field("requires_dlc_flag");
@@ -383,7 +383,7 @@ fn validate_culture_trait(
     }
 
     validate_modifiers(vd);
-    vd.replaced_field("doctrine_character_modifier", "`faith_character_modifier`");
+    vd.replaced_field("doctrine_character_modifier", "faith_character_modifier");
     vd.multi_field_validated_block("faith_character_modifier", |block, data| {
         let mut vd = Validator::new(block, data);
         vd.field_item("doctrine", Item::Doctrine);
