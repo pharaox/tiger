@@ -197,19 +197,17 @@ fn validate_bookmark_character(
                 name,
             );
             // `religion` is a loc key, but vanilla uses the key of the character's rite.
-            // Skip characters whose history gives only a faith, which implies its main rite.
+            // A history that gives only a faith implies the faith's main rite. Skip faiths whose
+            // main rite is created dynamically.
+            let faith = data.characters.get_faith(id, start_date);
+            let rite = data.characters.get_rite(id, start_date).or_else(|| {
+                faith.and_then(|faith| faith_main_rite(faith.as_str(), start_date, data))
+            });
             if let Some(religion) = block.get_field_value("religion")
                 && data.item_exists(Item::RiteType, religion.as_str())
-                && (data.characters.get_rite(id, start_date).is_some()
-                    || data.characters.get_faith(id, start_date).is_none())
+                && (rite.is_some() || faith.is_none())
             {
-                validate_bookmark_against_history(
-                    Some(religion),
-                    "rite",
-                    start_date,
-                    data.characters.get_rite(id, start_date),
-                    name,
-                );
+                validate_bookmark_against_history(Some(religion), "rite", start_date, rite, name);
             }
         }
     }
@@ -268,6 +266,18 @@ impl DbKind for BookmarkPortrait {
             }
         });
     }
+}
+
+/// The main rite of a faith at `date`, from the faith history or else the faith itself
+fn faith_main_rite<'a>(faith: &str, date: Date, data: &'a Everything) -> Option<&'a Token> {
+    data.database
+        .get_key_block(Item::FaithHistory, faith)
+        .and_then(|(_, block)| block.get_field_value_at_date("main_rite", date))
+        .or_else(|| {
+            data.database
+                .get_key_block(Item::Faith, faith)
+                .and_then(|(_, block)| block.get_field_value("main_rite"))
+        })
 }
 
 fn validate_bookmark_against_history(
