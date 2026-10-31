@@ -5236,7 +5236,7 @@
     ("GetFulfillmentValueBreakdown", Ck3(PersonalBeliefsWindow), Args::Args(&[DType(Unknown)]), CString),
     ("GetFullActionName", Ck3(Scheme), Args::Args(&[]), CString),
     ("GetFullDescription", Ck3(ActivityLogEntry), Args::Args(&[]), CString),
-    ("GetFullDescription", Ck3(Trait), Args::Args(&[DType(Ck3(Character)), DType(Ck3(Faith))]), CString),
+    ("GetFullDescription", Ck3(Trait), Args::Args(&[DType(Ck3(Character)), DType(Ck3(Rite))]), CString),
     ("GetFullDescription", Ck3(VirtueOrSinItem), Args::Args(&[]), CString),
     ("GetFullName", Ck3(Character), Args::Args(&[]), Unknown),
     ("GetFullName", Ck3(TenetType), Args::Args(&[DType(Unknown)]), CString),
