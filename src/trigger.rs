@@ -28,6 +28,7 @@ use crate::modif::verify_modif_exists;
 use crate::report::{ErrorKey, Severity, err, fatal, tips, warn};
 use crate::scopes::{
     ArgumentValue, Scopes, needs_prefix, scope_iterator, scope_prefix, scope_to_scope,
+    scope_to_scope_removed,
 };
 #[cfg(feature = "jomini")]
 use crate::script_value::validate_script_value;
@@ -491,7 +492,10 @@ pub fn validate_trigger_key_bv(
                     #[cfg(feature = "jomini")]
                     data.script_values.validate_call(part, data, sc);
                     sc.replace(Scopes::Value, part.clone());
-                } else if let Some((inscopes, outscope)) = scope_to_scope(part, sc.scopes(data)) {
+                } else if !(is_removed_link_last(part, part_flags)
+                    && scope_trigger(part, data).is_some())
+                    && let Some((inscopes, outscope)) = scope_to_scope(part, sc.scopes(data))
+                {
                     #[cfg(any(feature = "ck3", feature = "imperator"))]
                     if let Some((inscopes, trigger)) = scope_trigger(part, data) {
                         // If a trigger of the same name exists, and it's compatible with this
@@ -1331,6 +1335,13 @@ fn match_trigger_bv(
     side_effects
 }
 
+/// Return true if `part` is the last part of a chain and names a link that was removed.
+/// A trigger of the same name then takes its place.
+fn is_removed_link_last(part: &Token, part_flags: PartFlags) -> bool {
+    part_flags.contains(PartFlags::Last)
+        && scope_to_scope_removed(&part.as_str().to_ascii_lowercase()).is_some()
+}
+
 /// Validate that `token` is valid as the right-hand side of a field.
 ///
 /// `outscopes` is the set of scope types that this target is allowed to produce.
@@ -1421,7 +1432,10 @@ pub fn validate_target_ok_this(
                     #[cfg(feature = "jomini")]
                     data.script_values.validate_call(part, data, sc);
                     sc.replace(Scopes::Value, part.clone());
-                } else if let Some((inscopes, outscope)) = scope_to_scope(part, sc.scopes(data)) {
+                } else if !(is_removed_link_last(part, part_flags)
+                    && trigger_comparevalue(part, data).is_some())
+                    && let Some((inscopes, outscope)) = scope_to_scope(part, sc.scopes(data))
+                {
                     #[cfg(feature = "imperator")]
                     if let Some(inscopes) = trigger_comparevalue(part, data) {
                         // If a trigger of the same name exists, and it's compatible with this

@@ -483,6 +483,25 @@ pub enum ArgumentValue {
     Removed(&'static str, &'static str),
 }
 
+/// Look up a link that was removed from the game, by its lowercased name.
+///
+/// Returns the version it was removed in and an explanation.
+pub fn scope_to_scope_removed(name_lc: &str) -> Option<(&'static str, &'static str)> {
+    let scope_to_scope_removed = match Game::game() {
+        #[cfg(feature = "ck3")]
+        Game::Ck3 => crate::ck3::tables::targets::scope_to_scope_removed,
+        #[cfg(feature = "vic3")]
+        Game::Vic3 => crate::vic3::tables::targets::scope_to_scope_removed,
+        #[cfg(feature = "imperator")]
+        Game::Imperator => crate::imperator::tables::targets::scope_to_scope_removed,
+        #[cfg(feature = "eu5")]
+        Game::Eu5 => crate::eu5::tables::targets::scope_to_scope_removed,
+        #[cfg(feature = "hoi4")]
+        Game::Hoi4 => crate::hoi4::tables::targets::scope_to_scope_removed,
+    };
+    scope_to_scope_removed(name_lc)
+}
+
 /// Look up an "event link", which is a script token that looks up something related
 /// to a scope value and returns another scope value.
 ///
@@ -505,18 +524,6 @@ pub fn scope_to_scope(name: &Token, inscopes: Scopes) -> Option<(Scopes, Scopes)
         Game::Eu5 => crate::eu5::tables::targets::scope_to_scope,
         #[cfg(feature = "hoi4")]
         Game::Hoi4 => crate::hoi4::tables::targets::scope_to_scope,
-    };
-    let scope_to_scope_removed = match Game::game() {
-        #[cfg(feature = "ck3")]
-        Game::Ck3 => crate::ck3::tables::targets::scope_to_scope_removed,
-        #[cfg(feature = "vic3")]
-        Game::Vic3 => crate::vic3::tables::targets::scope_to_scope_removed,
-        #[cfg(feature = "imperator")]
-        Game::Imperator => crate::imperator::tables::targets::scope_to_scope_removed,
-        #[cfg(feature = "eu5")]
-        Game::Eu5 => crate::eu5::tables::targets::scope_to_scope_removed,
-        #[cfg(feature = "hoi4")]
-        Game::Hoi4 => crate::hoi4::tables::targets::scope_to_scope_removed,
     };
 
     let name_lc = name.as_str().to_ascii_lowercase();
