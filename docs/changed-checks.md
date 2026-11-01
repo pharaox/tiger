@@ -101,3 +101,4 @@ Checks that existed before a game update and behave differently after it: relaxe
 | `set_relation`: `<reason>_corresponding` loc counts as used | relaxed | in-game test; vanilla agrees | `3d86ed2e` |
 | Artifact `set_owner` accepts `history` once | tightened | in-game test | `8c8a2f4d` |
 | Loc `#TOOLTIP:` tags `FULFILLMENT_LEVEL`, `GREAT_PROJECT`, `SITUATION` take runtime ids | relaxed | in-game test | `8c8a2f4d` |
+| `accolade_type_tier` takes a tier name (`common`, `skilled`, `eminent`), not an accolade type | both | in-game test | `6caf8fc1` |

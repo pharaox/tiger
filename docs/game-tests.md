@@ -2,16 +2,17 @@
 
 Tests for questions that the docs, vanilla and the binary don't settle, run in game with the debug console. Each test is kept with its result, so it can be repeated after a later update; the open ones have no result yet. Tests are grouped by the occasion that raised them. T numbers are never reused, and [follow-up.md](follow-up.md) refers to them.
 
-Each test gives the files to create in a mod that is loaded anyway (so far the Unop, `~/Projects/Mods/CK3/CrusaderKings3UnofficialPatch`), as new `zz_tiger_test*` files with a UTF-8 BOM, so no existing file of that mod is changed. Each batch gets its own file prefix and event namespace (`zz_tiger_test2`, `zz_tiger_test3`, ...). Include a control in every test: a form that must work and one that must fail, so a silent result means something.
+Each test gives the files to create in the test mod, `tmp/test_mod` in the tiger checkout (outside git), as `zz_tiger_test*` files with a UTF-8 BOM. Up to T39 the files went into the Unop instead. Each batch gets its own file prefix and event namespace (`zz_tiger_test2`, `zz_tiger_test3`, ...). Include a control in every test: a form that must work and one that must fail, so a silent result means something.
 
 ## Setup
 
-- Launch CK3 with only the Unop enabled, with `-debug_mode` (for the console).
+- The test mod has its own `descriptor.mod`. The launcher file `tmp/tiger_test.mod` (the same, plus `path` to the mod) goes into `~/.local/share/Paradox Interactive/Crusader Kings III/mod/`.
+- Launch CK3 with only the test mod enabled, with `-debug_mode` (for the console).
 - Start a game as a landed ruler, a count or above.
 - Logs: `~/.local/share/Paradox Interactive/Crusader Kings III/logs/error.log` and `debug.log` (`debug_log` and `debug_log_scopes` write to `debug.log`).
 - First check: search `error.log` right after loading for `zz_tiger_test`.
 
-Cleanup afterwards: delete every `zz_tiger_test*` file and the folders that are then empty. Run `make tiger` for the Unop only after the cleanup, because tiger reports the test files.
+Cleanup afterwards: delete the files of the tests that have a result, keeping `descriptor.mod`. A run of tiger on the test mod (`ck3-tiger --game <game-dir> tmp/test_mod/descriptor.mod`) should report exactly the forms under test, which shows the files say what the tests mean.
 
 ## CK3 1.20: `TODO: verify` markers (T1 to T20)
 
@@ -910,37 +911,68 @@ Questions from the review of the upstream PR (#324). The results of T36 to T39 w
   - "skilled vs vanilla skilled-category: true" while "eminent vs skilled" is false: vanilla's `skilled` category sets the tier too, i.e. both mechanisms exist; worth a line in the reply.
   - The literal form: if `.153` logs no parse error and gives "true" twice, the trigger also takes a tier name, and tiger's upstream entry (`Scope(Scopes::AccoladeType)`) is incomplete; that is a separate follow-up.
 
+- **Result (1.20.1.2):** no error for `tier` or for either form. Literal form (`.153`): eminent_a = eminent true, vanilla = common true. Retest with mismatches (`zz_tiger_test3.253` in the test mod's literal file): eminent_a = common false, eminent_a = skilled false, skilled = skilled true, vanilla = eminent false. Scope form (`.53`): only vanilla vs vanilla true, as if the right side were `common`. So the game reads `tier` (the default is `common`), and `accolade_type_tier` takes a tier name, not an accolade type: tiger's entry `Scope(Scopes::AccoladeType)` is wrong.
+
 ## CK3 1.20: review of the Unop's vanilla-issue rules (T40 to T52)
 
-Not run yet; each settles one "Unclear" rule in the Unop conf.
+Each settles one "Unclear" rule in the Unop conf.
 
 ### T40. Interaction root outside `cost`
 
-Tiger roots interactions in none ("You're expected to use scope:actor"); only `cost` was tested. An interaction with `is_shown = { is_ai = no }` and `on_accept = { add_gold = 1 }`: does it show for the player, does the gold change, and what does `error.log` say? Medium if root is none: `populate_actor_list` in `break_betrothal_interaction`, the adoptionism `is_shown` in `00_adoption.txt`, a diarch `send_option`, the catalyst in `10_tgp_interactions.txt:11530`.
+Tiger roots interactions in none ("You're expected to use scope:actor"); only `cost` was tested. File `common/character_interactions/zz_tiger_test3_interactions.txt`, with the loc key `zz_tiger_test3_interaction`:
+
+```paradox
+zz_tiger_test3_interaction = {
+ category = interaction_category_friendly
+ auto_accept = yes
+ is_shown = { is_ai = no }
+ on_accept = {
+  debug_log = "T40 on_accept"
+  debug_log_scopes = yes
+  add_gold = 1
+ }
+}
+```
+
+Check: open the interaction menu of an AI courtier. Shown there: `is_shown` sees the player, so root is the actor. Not shown: root is the recipient or none. If shown, use it: whose gold goes up, what root does `debug.log` give, and what does `error.log` say? Medium if root is none: `populate_actor_list` in `break_betrothal_interaction`, the adoptionism `is_shown` in `00_adoption.txt`, a diarch `send_option`, the catalyst in `10_tgp_interactions.txt:11530`.
+
+**Result (1.20.1.2):** not shown on an AI courtier, and `error.log` gives "is_ai trigger [ Wrong scope for trigger: none, expected character ]" for `is_shown`. Interaction blocks have no root unless documented, as tiger says. The vanilla uses are real bugs (medium): `populate_actor_list` in `break_betrothal_interaction`, the adoption `is_shown`, a diarch `send_option` and the catalyst in `10_tgp_interactions.txt:11530`.
 
 ### T41. `if` without `limit`
 
-`effect = { if = { add_gold = 10 } }`: does the gold change? Decides the struggle holy war trigger (`00_generic_struggle_scripted_triggers.txt:386`) and the relic-removal opinions (`inventory_on_actions.txt:462`).
+`effect if = { add_gold = 10 }` in the console: does the gold change? Decides the struggle holy war trigger (`00_generic_struggle_scripted_triggers.txt:386`) and the relic-removal opinions (`inventory_on_actions.txt:462`).
+
+**Result (1.20.1.2):** the gold changes and nothing is logged: an effect `if` without `limit` runs its effects, as if the limit were true. `trigger_if` and `else_if` weren't tested. Tiger keeps reporting the missing `limit`, since it is almost always a lost condition: in `are_holy_wars_disabled_in_struggle_phase_trigger` the county check is the body of the `trigger_if`, so duchy and kingdom targets never reach `trigger_else` (if `trigger_if` behaves the same); the `else_if` in `inventory_on_actions.txt` simply acts as an `else`.
 
 ### T42. Two `save_scope_as` in `create_character`
 
-`create_character = { ... save_scope_as = zz_a save_scope_as = zz_b }`, then `debug_log_scopes`: are both set? Decides `tgp_mandala_task_contract_events.txt:665`.
+Event `zz_tiger_test3.42` in `events/zz_tiger_test3_events.txt` creates a character with `save_scope_as = zz_a save_scope_as = zz_b` and logs whether each is set, then `debug_log_scopes`. Check: `event zz_tiger_test3.42` and the `T42` lines in `debug.log`: are both set? Decides `tgp_mandala_task_contract_events.txt:665`.
+
+**Result (1.20.1.2):** only the last `save_scope_as` applies ("zz_a: not set", "zz_b: set"). Tiger's duplicate-field warning is right, and `scope:local_character` is unset in `tgp_mandala_task_contract_events.txt` .1000 (medium).
 
 ### T43. `death = Yes` in character history
 
 Start 1178 and check whether `character:33410` and `character:30218` are dead.
 
+**Result (1.20.1.2):** both are dead (`set_relation_friend` gives "target character is dead"). Both have `death = Yes` (`bavarian.txt:5856`, `saxon.txt:3182`); the game reads it as a death, either as `yes` or as an unknown death reason. `death = yrd` (`italian.txt:19610`, character 167903) and `birth = ye` (`cisalpine.txt:5276`, character 70789) weren't tested.
+
 ### T44. A `desc = { }` block in `first_valid` with no matching `triggered_desc`
 
 Hover a county in the court languages map mode whose holder has no royal court in the chain: does the fallback text show (`map_modes.txt:584`)?
+
+**Result (1.20.1.2):** the tooltip shows "Court Language: None", the `COURT_LANGUAGES_MAP_MODE_TOOLTIP_FALLBACK` text. A `desc = { }` block whose `triggered_desc`s all fail is skipped, and `first_valid` moves on. Tiger's "multiple unconditional desc in one first_valid" is a false positive for such a block.
 
 ### T45. Named `attach` in unit assets
 
 Look at a Mongol travel or turko-mongol infantry unit on the map: does the horse show and animate, and is `error.log` quiet (`attach = { name = mount root = ... }`)?
 
+**Result (1.20.1.2):** the horse is shown and animated, and nothing is logged. These assets are in `gfx/models/units/infantry/` because that folder holds the army's foot-slot models; the Mongol ones are mounted. `attach = { name = mount root = ... }` names the attached entity, so tiger's "asset mount not defined" is a false positive.
+
 ### T46. `list_size` of a missing list (F74)
 
-`"list_size(zz_none)" <= 0` in a trigger: true without an error?
+Event `zz_tiger_test3.46` in `events/zz_tiger_test3_events.txt` tests `"list_size(zz_none)" <= 0` and logs the result. Check: `event zz_tiger_test3.46`: is the `T46` line in `debug.log` true, and is `error.log` quiet?
+
+**Result (1.20.1.2):** true, with no error. `list_size` of a list that was never built is 0, so `list_size(x) > 0` works as a guard (F74).
 
 ### T47. A saved scope named like a game concept (F33)
 
@@ -957,11 +989,15 @@ zz_tiger_test3.47 = {
 }
 ```
 
-Loc (`localization/english/zz_tiger_test3_l_english.yml`): `zz_tiger_test3.47.desc:0 "A: [friend.GetFirstName] B: [friend.Self.GetFirstName]"`, plus a title and an option. Check: `event zz_tiger_test3.47`. If A shows the courtier's name like B, the saved scope wins and the reports are tiger false positives; if A is empty or wrong, or `error.log` mentions `friend`, the concept wins and the vanilla loc is broken (`friend.Self` would be the fix).
+Loc (`localization/english/zz_tiger_test3_l_english.yml`): `zz_tiger_test3.47.desc:0 "A: [friend.GetFirstName] B: [friend.Self.GetFirstName]"`, plus a title and an option. Check: `event zz_tiger_test3.47`. If A shows the courtier's name like B, the saved scope wins and the reports are tiger false positives; if A is empty or wrong, or `error.log` mentions `friend`, the concept wins and the vanilla loc is broken (`friend.Self` would be the fix). Tiger also reports B ("Self must be last in the chain"); if B shows the name, that check is wrong too.
+
+**Result (1.20.1.2):** "A: Narin B: ERROR:[friend.Self.GetFirstName]", with "Could not find promote for 'Self' in 'friend.Self.GetFirstName'". The saved scope wins over the game concept, so tiger's reports on the vanilla loc are false positives (F33). `Self` in the middle of a chain fails, so tiger's "Self must be last in the chain" is right.
 
 ### T48. The same trait portrait modifier entry in several groups (F83)
 
 Vanilla repeats `no_visuals_when_beautified` (trigger `portrait_beautified_trigger = yes`) as the first entry of 17 groups in `gfx/portraits/trait_portrait_modifiers/00_trait_modifiers.txt`, e.g. `disfigured` and `blind`. No files needed. Check `error.log` after loading for duplicate entry messages. Then give a character `disfigured` and `blind` (`add_trait`), check that the portrait shows both, make them a saint or kill them with the Beautify Deceased game rule on, and check that neither shows. Both hidden and no errors: entries belong to their group, and the 18 reports are tiger false positives.
+
+**Result (1.20.1.2):** both traits showed on the living character. After `effect root.faith = { add_saint = { character = character:<id> burial_province = root.location } }` (the first try used `target`, which the game rejects: the docs are wrong), the dead saint shows neither: no blindness, no disfigurement, a halo. So `no_visuals_when_beautified` works as the first entry of both groups: entries belong to their group, and the 18 reports are tiger false positives (F83, #335).
 
 ### T49. Artifact visuals where no asset or icon matches (F84)
 
@@ -990,9 +1026,13 @@ zz_tiger_test3.49 = {
 
 Check: `event zz_tiger_test3.49`, then compare the two chests in the inventory and the court scene, and search `error.log` for `zz_tiger_test3`. If the first has no icon or model, or the game logs an error, the check is right and vanilla visuals whose triggers don't cover every case are real (low) issues; then only the complementary `NOR` fallback (longbow, armillary sphere) needs recognising. If the game falls back to something sensible without an error, lower the check to advice.
 
+**Result (1.20.1.2):** "create_artifact effect [ Couldn't determine 'asset' visual type; all triggers returned false for zz_tiger_test3_none ]", and the same for `icon`; no artifact was created (the control wasn't either, probably because the error stopped the event). The game has no fallback, so tiger's check is right. Vanilla visuals keyed on building or unit gfx work only for cultures that have that gfx; the complementary `NOR` fallbacks are the only false positives (F84).
+
 ### T50. Which light type reads the cone angles (F34)
 
-The portrait environment template (`gfx/portraits/environments/portrait_environments_pam.txt:20-40`) says "For point lights" above `outer_cone_angle` and `inner_cone_angle`, so tiger reports them on every other light: 705 reports each, nearly all on spot lights. Cone angles normally belong to spot lights. Test: in a copy of `portrait_environments.txt` (same file name in the Unop), set `outer_cone_angle = 10` and `inner_cone_angle = 5` on the main `spot_light` of one environment that the character window uses, and look at the portrait; then restore it and do the same on a `point_light` (e.g. in `portrait_environments_pam.txt`). If the spot light's lit area shrinks to a small cone, the angles are for spot lights and the 1,410 reports are tiger false positives; if only the point light changes, the reports are template leftovers (vanilla, low).
+The portrait environment template (`gfx/portraits/environments/portrait_environments_pam.txt:20-40`) says "For point lights" above `outer_cone_angle` and `inner_cone_angle`, so tiger reports them on every other light: 705 reports each, nearly all on spot lights. Cone angles normally belong to spot lights. Test: the test mod's copy of `gfx/portraits/environments/portrait_environments.txt` narrows the key `spot_light` of `environment_standard` (which the head, shoulders, torso and body environments share) from `outer_cone_angle = 25` / `inner_cone_angle = 5` to 5 and 2. Compare a portrait in the character window with and without the test mod. If the lit area shrinks to a small spot, the angles are for spot lights and the 1,410 reports are tiger false positives. If nothing changes, repeat with a `point_light` (e.g. in `portrait_environments_pam.txt`); if that changes, the reports are template leftovers (vanilla, low).
+
+**Result (1.20.1.2):** with the narrower angles on the key `spot_light`, the lit area of the character window portrait shrinks visibly (only the near side of the face is lit; `2026_11_01_1.png` in the game's screenshots). The cone angles are read by spot lights, so the 1,410 reports are tiger false positives (F34).
 
 ### T51. Comparing a variable that holds another type (F27, tiger#329)
 
@@ -1019,6 +1059,8 @@ zz_tiger_test3.51 = {
 
 Check: `event zz_tiger_test3.51`, then the `T51` lines in `debug.log` and anything new in `error.log`. Expected if mixed types work: the three cross-type compares are false, the control is true, and `error.log` is quiet; then tiger should allow a set of types per variable. If only `=` logs an error, tiger could accept a mixed-type variable only in `?=` compares.
 
+**Result (1.20.1.2):** every cross-type compare logs "Left side and right side during comparison were of different types", with `?=` as well as `=`, and is false; the flag control is true. Storing several types in one variable is fine, but comparing it with another type is an error, so tiger's report at the compare is right and the vanilla compares in `pam_ecumenical_council_effects.txt:413,522` log errors when the variable holds a doctrine (low). This changes the premise of F27 (#329).
+
 ### T52. `exists` and `?=` on a link of an unset scope (F70, tiger#332)
 
 Tiger should treat `exists = scope:x.link` and `scope:x.link ?= { }` as guards for `scope:x`, which assumes both are false without an error when `scope:x` is unset. Event in `events/zz_tiger_test3_events.txt`:
@@ -1039,6 +1081,8 @@ zz_tiger_test3.52 = {
 ```
 
 Check: `event zz_tiger_test3.52`, then the `T52` lines in `debug.log` and `error.log`. Expected: "exists: false" and "?=: false" with no error for those lines, and an "Undefined event target" (or similar) error only for the control. If `exists` on the chain also logs an error, only the `?=` form counts as a guard, and #332 should say so.
+
+**Result (1.20.1.2):** "exists: false" and "?=: false" with nothing logged; only the control logs "Undefined event target 'zz_none'" and "Failed context switch". Both `exists = scope:x.link` and `scope:x.link ?= { }` are safe guards, as F70 (#332) assumes.
 
 ## CK3 1.20: remaining follow-ups (T54 to T60)
 
@@ -1078,6 +1122,8 @@ Check: `event zz_tiger_test3.54`, then the `T54` lines in `debug.log`, and `erro
 - A Muslim without an error: the effect takes a religion key, unlike templates; tiger is right. "Not Muslim" or an "event target link" error: it rejects the key like templates; validate it as a faith target only, as for templates.
 - C african and D not (or an error for D's `always`): the effect uses the template syntax; apply the template validation. D african and C not: the effect docs form is right; validate `ethnicities` as `{ <ethnicity> = { triggers } }`.
 - No error for E and F (and F the same as C): `default` and `template_character` work in the effect too.
+
+**Result (1.20.1.2, partial, from `error.log` at load):** `random_faith_in_religion = islam_religion` gives "Failed to find a valid event target link", so the effect takes only a faith, like templates; tiger's religion key is wrong. D (`african = { always = yes }`) gives "Unexpected token: always", so the effect uses the template syntax for `ethnicities`. No errors for C, E and F. The event wasn't run, so the ethnicities themselves weren't checked.
 
 ### T55. Several `history` blocks in `create_artifact` (F65)
 
@@ -1163,6 +1209,8 @@ Check: first `error.log` after loading for `zz_tiger_test3`, `reformed_icon`, `p
 - Unreformed: "rite-only faith: unreformed" and the reformation is offered: tiger should also read the main rite's doctrines when it computes "unreformed" (no error for `reformed_icon`, and the `_old` loc checks apply). "Reformed": tiger is right.
 - Icon fields: a cross and red banners without an "unknown field" error: faiths still read the fields; accept them in `faith_details`. Unknown-field errors and the pagan defaults: the religion docs are stale; tiger is right. An earlier test (2026-10-18, a copy of a vanilla faith with a bogus-key control) already gave "Unexpected token" for both fields at the faith level; if that copy had them in `faith_details` too, this part only repeats it.
 
+**Result (1.20.1.2, partial):** `piety_icon_group` and `tenet_background_icon` in `faith_details` give "Unexpected token": faiths reject them, and tiger is right. The unreformed part is still open.
+
 ### T58. Loc of portrait animations with `barbershop = no` (F24)
 
 No files. Tiger requires `<key>` loc for every portrait animation; the five that lack it (`grand_marshal`, `thinking_all`, `prayer_muslim`, `spiritual_fulfillment`, `menacing_wooden_sword` in `gfx/portraits/portrait_animations/animations.txt`) all have `barbershop = no`. Open the barbershop (Change appearance) and the ruler designer, and look through their animation lists: do any of the five appear, under their raw key? None: the name loc is only shown there, so tiger should require it only when `barbershop` isn't `no` (marked `TODO: verify` until another place turns up). Any of them listed: the loc is needed; these are vanilla issues.
@@ -1201,6 +1249,8 @@ zz_tiger_test3.59 = {
 
 Check: `event zz_tiger_test3.59`, then the faith window's holy sites (`debug.log` names the three baronies), and `error.log` for `zz_tiger_test3` and `create_holy_site`. The key form (valor) is the control. A holy site at the second barony: the holy site type scope works. A holy site of the Uppsala type at the third barony: a holy site scope works too. Tiger should accept exactly the forms that worked and drop the TODO.
 
+**Result (1.20.1.2, partial, from `error.log` at load):** `type = holy_site:uppsala` gives "Not found in database HolySiteTypeDatabase", and the effect fails PostValidate: a holy site scope doesn't work. No errors for the key and the holy site type scope; whether they create holy sites wasn't checked.
+
 ### T60. Holy order type `type = mendicant` (F24)
 
 `_holy_orders.info` lists `monastic` and `military` for `type`, but `create_holy_order` takes `random_holy_order_type = mendicant` and the binary has `mendicant` next to `monastic`. File `common/holy_orders/zz_tiger_test3_holy_orders.txt`:
@@ -1221,3 +1271,6 @@ zz_tiger_test3_bogus = {
 ```
 
 Check `error.log` after loading for `zz_tiger_test3` and `mendicant`. The bogus type is the control and should log an error. No error for the mendicant type: it is a valid value; accept it with `// undocumented`. The same error as the bogus type: only `monastic` and `military` exist, and `random_holy_order_type = mendicant` deserves a warning.
+
+**Result (1.20.1.2):** both test types also lacked `government` ("Field 'government' not set"), and both logged "missing type, falling back to 'military'", the message the `.info` gives for a missing type. `mendicant` fails like the bogus control: only `monastic` and `military` exist, and tiger is right. `random_holy_order_type = mendicant` in `create_holy_order` deserves a warning.
+

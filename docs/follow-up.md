@@ -72,6 +72,8 @@ The new 1.20 scripted character templates `.info` documents the shared parser: `
 
 Also `random_faith_in_religion`: the docs of both say it takes a key (a religion key for the effect, a faith key for templates) or a faith scope, but in templates the game rejects both keys as event targets (game test T4). T54 checks whether the effect behaves the same, and which `ethnicities` form it takes.
 
+Tested in game (T54, from `error.log` at load): the effect rejects `random_faith_in_religion = islam_religion` ("Failed to find a valid event target link"), like templates, so it takes only a faith target. The effect-docs form `ethnicities = { african = { always = yes } }` gives "Unexpected token: always", so the effect uses the template syntax. `ethnicity = default` and `template_character` load without errors. Apply the template validation to the effect.
+
 ## F11. Messages: default loc keys
 
 **Effort:** S. **Value:** M. **Issue:** [amtep/tiger#356](https://github.com/amtep/tiger/issues/356).
@@ -120,13 +122,12 @@ The 1.20 trigger localization docs give the fallback keys `<trigger>_<rule>` / `
 
 - Flavorization: is `target_character = yes` without `top_liege = no` an error (the docs give `top_liege` the default yes and make the two exclusive)? One vanilla rule does it. Game test T56.
 - Faiths: does a main rite with `unreformed_faith_doctrine` make `reformed_icon` valid? Game test T57.
-- Faiths: do `piety_icon_group` or `tenet_background_icon` in `faith_details` still work? Game test T57.
 - Portrait animations with `barbershop = no`: is their name loc used anywhere (5 vanilla reports)? Game test T58.
-- `create_holy_site`: does `type` take a holy site or a holy site type scope (TODO in code)? Game test T59.
-- Holy order types: does `type = mendicant` work? The `.info` lists only `monastic` and `military`, but `create_holy_order` takes `random_holy_order_type = mendicant`, and the binary has `mendicant` next to `monastic`. Game test T60.
+- `create_holy_site`: does `type` take a holy site type scope? Game test T59: a holy site scope fails ("Not found in database HolySiteTypeDatabase"), as tiger says; the key and the holy site type scope pass the game's checks at load. Whether they create holy sites is still to be seen; then drop the TODO.
 - Portrait modifier groups: warn when `portrait_group` comes after a modifier or `add_accessory_modifiers`. No game test: the `.info` says it "Must be set before any modifiers or add_accessory_modifiers, as those are read using it", which is evidence enough, and vanilla has a single portrait type group, so a test couldn't show the effect. **Issue:** [amtep/tiger#365](https://github.com/amtep/tiger/issues/365).
+- Holy orders: warn about `random_holy_order_type = mendicant` in `create_holy_order`, since `mendicant` is not a holy order type (game test T60).
 
-Settled: domicile `move_cost` is game test T29, filed as #334; `scope:new_rite` in `on_rite_created` is not set, so tiger dropped it (game test T11).
+Settled: domicile `move_cost` is game test T29, filed as #334; `scope:new_rite` in `on_rite_created` is not set, so tiger dropped it (game test T11); faiths reject `piety_icon_group` and `tenet_background_icon` (game test T57), and holy order types reject `mendicant` (game test T60), as tiger says.
 
 ## F25. Validate scripted animations at their call sites
 
@@ -138,13 +139,15 @@ The 1.20 docs say a scripted animation's trigger scopes "come from the context u
 
 **Effort:** S. **Value:** L.
 
-Open: T40 to T45 (Unop rules), T46 to T52 and T54 to T60 (follow-ups, each named in its F item), and T53 (`tier` in accolade types, from the review of #324). The results of T21 to T35 are in F46, F53 to F64 and the Unop conf; those of T36 to T39 are in #324.
+Open: T55, T56, T58, and the unreformed half of T57; the rest of T54 and T59 is optional. T40 to T53 and T60 have results (2026-11-01). The results of T21 to T35 are in F46, F53 to F64 and the Unop conf; those of T36 to T39 are in #324.
 
 ## F27. Variables that hold several scope types
 
 **Effort:** M. **Value:** H. Game test T51. **Issue:** [amtep/tiger#329](https://github.com/amtep/tiger/issues/329).
 
 Tiger deduces one type per variable or variable list from all its uses, and warns when a use doesn't match. 1.20 vanilla deliberately stores either a flag or a doctrine in `current_debate_proposal` (`pam_ecumenical_council_effects.txt:391-413`, with the comment "tenet-status compares are type-unsafe vs a doctrine"), and the other `*_debate_proposal`, `pilgrim_badge` and regency variables mix types too. Vanilla 1.20: about 970 reports, 822 from the debate proposals alone. Investigate whether mixed-type variables work in game (a `?=` compare against the other type: false, or an error in `error.log`?), and whether tiger should allow a set of types per variable and warn only about uses that match none of them. Related to F1.
+
+Tested in game (T51): storing several types in one variable works, but every compare against another type logs "Left side and right side during comparison were of different types" and is false, with `?=` as well as `=`. So tiger should allow a set of types per variable but keep reporting compares that can meet another type. Vanilla avoids most of them on purpose (`current_debate_proposal` is kept a flag when the proposal is a doctrine). Posted on #329.
 
 ## F28. Code-supplied `$PARAM$` placeholders in loc
 
@@ -172,15 +175,19 @@ The type `icon_tenet_popularity` (`gui/window_faith.gui:2670`) uses `ScriptedGui
 
 ## F33. Named scopes that are also game concepts
 
-**Effort:** S (a game test) + S. **Value:** M. Game test T47.
+**Effort:** S. **Value:** M. Game test T47. **Issue:** [amtep/tiger#370](https://github.com/amtep/tiger/issues/370).
 
 When a loc chain starts with a name that is both a saved scope and a game concept (`friend`, `rival`, `court_chaplain`, `family`), tiger warns that the game concept takes precedence, then reports "`friend` returns CString but a scope type is needed here". 168 + 161 vanilla reports, mostly 1.20 PAM loc. If the precedence claim holds, these are vanilla bugs (the text shows the concept instead of the character); if not, they are false positives. A game test settles it: an event that saves `scope:friend` and shows `[friend.GetFirstName]`.
 
+Tested in game (T47): at the start of a chain the saved scope wins, so the reports are false positives. `friend.Self.GetFirstName` fails ("Could not find promote for 'Self'"), so tiger's `.Self` advice is wrong too.
+
 ## F34. Portrait light cone angles
 
-**Effort:** S. **Value:** M. Game test T50.
+**Effort:** S. **Value:** M. Game test T50. **Issue:** [amtep/tiger#371](https://github.com/amtep/tiger/issues/371).
 
 `src/data/environment.rs` accepts `inner_cone_angle` and `outer_cone_angle` only for `point_light` and reports them as untidy elsewhere, following the vanilla comment `# For point lights` in `portrait_environments.txt`. Cone angles normally belong to spot lights, and vanilla sets them on spot lights: 705 reports each. Check the binary strings and the other Jomini games for which light type reads them; if it's spot lights, the vanilla comment is wrong and the check should follow the engine.
+
+Tested in game (T50): narrowing the cone angles of a spot light shrinks its lit area, so spot lights read them and the 1,410 reports are false positives. Whether point lights read them is untested.
 
 ## F35. Advice-level reports that 1.20 content adds
 
@@ -352,6 +359,8 @@ Scripted effects that use root only inside `if = { limit = { exists = root } ...
 
 Tiger honours `exists = scope:x` in a `limit` as a guard for `scope:x`, but not `exists = scope:x.link` or `scope:x.link ?= { ... }`, which are false (not errors) when `scope:x` is unset. Test mod (1.20.1.2 tiger): a scripted trigger with `trigger_if = { limit = { exists = scope:zz_c } scope:zz_c = { ... } }` gives no report, while the same with `exists = scope:zz_b.capital_province` or `scope:zz_a.capital_province ?= { ... }` gives "expects scope:zz_b to be set". Vanilla `pam_church_event_background_is_grand_western_trigger` uses `scope:activity.activity_location ?= { ... }` before `scope:activity.activity_location.rite`. Vanilla `artifact_should_use_gfx_type_trigger` (`00_artifact_triggers.txt:501`) guards with `exists = scope:artifact.creator.culture`, which gives "`create_artifact_weapon_effect` expects scope:artifact to be set" for vanilla callers (seen with artifact_trade and travelers). Treat both forms as guards for the scope they start from. That `exists` on a chain doesn't log an error when the scope is unset is still to be confirmed in game; `?=` is the null-safe form. The Unop conf calls these "Intended".
 
+Tested in game (T52): both forms are false with nothing logged when `scope:x` is unset; only `scope:x.link = { }` logs errors. Posted on #332.
+
 ## F71. Scope types deduced from scope names
 
 **Effort:** S. **Value:** L. **Vanilla:** none. **Issue:** [amtep/tiger#344](https://github.com/amtep/tiger/issues/344).
@@ -372,9 +381,11 @@ Tiger requires `properties` in `create_legend_seed` (`src/ck3/effect_validation.
 
 ## F74. `list_size` as a list guard
 
-**Effort:** S (a game test) + S. **Value:** L. **Vanilla:** none. Game test T46.
+**Effort:** S. **Value:** L. **Vanilla:** none. Game test T46. **Issue:** [amtep/tiger#372](https://github.com/amtep/tiger/issues/372).
 
 Pyrates guards `laamp_base_2011_desired_surveyable_holdings_per_tier_value` with `"list_size(travellable_counties_list)" <= 0` before iterating the list, and gets "expects list travellable_counties_list to exist". A game test settles whether `list_size` of a list that doesn't exist is 0 without an error; if so, tiger could treat `"list_size(x)" > 0` (and `<= 0` in the other branch) as a guard for list `x`.
+
+Tested in game (T46): `list_size` of a list that was never built is 0, with no error.
 
 ## F75. Several `apply_modifier` in a game rule setting
 
@@ -424,11 +435,15 @@ A use of `scope:y` (or list `y`) inside `trigger_if = { limit = { exists = scope
 
 `gfx/portraits/trait_portrait_modifiers/_trait_modifier.info` nests `entry = { }` blocks in a group ("The first that is valid will be applied"). Vanilla repeats `no_visuals_when_beautified` as the first entry of 17 groups and `mild` in two. Tiger adds entries as global items (`src/ck3/data/trait_portrait_modifiers.rs:22`) and reports them as redefined. Scope entry names to their group (and check `base = <entry>` within it).
 
+Tested in game (T48): a blind, disfigured character shows neither trait as a saint, so `no_visuals_when_beautified` applies in both groups. Posted on #335.
+
 ## F84. Artifact visuals: a complementary trigger as the fallback
 
 **Effort:** S. **Value:** L. **Vanilla:** part of 69 reports. Game test T49.
 
 Tiger wants one asset and one icon without a trigger in each artifact visual ("needs at least one asset without a trigger"). The `.info` doesn't require that. Some vanilla visuals cover all cases with an entry whose trigger is `NOR = { <the other triggers> }` (longbow and armillary sphere in `00_weapon_visuals.txt` and `00_court_artifacts.txt`); the rest key every entry on building or unit gfx, which cover every vanilla culture. Lower the check to advice, or recognise the complementary form.
+
+Tested in game (T49): with no matching entry the game logs "Couldn't determine 'asset' visual type; all triggers returned false" and creates no artifact, so the check is right. Only the complementary `NOR` fallback (longbow, armillary sphere) needs recognising.
 
 ## F85. Context names in tooltips the engine builds
 
@@ -500,3 +515,15 @@ From an audit of the 41 `.info` files that 1.20 didn't change. Each gap predates
 - c. Suggestions: `soundeffect` (`suggestions.rs:50`) is in neither the `.info` nor vanilla since 1.13, and the binary hit is only a tail of other strings. Test it, then remove it or mark it `TODO: verify`.
 - d. History: `_history.info:3-9` puts "basic key-value pairs that denote the beginning of time" before the dated entries in all history files, but only character and province history accept undated keys. Test an undated `discover_innovation` in `history/cultures/`.
 - e. Situation and struggle catalysts: no loc in the docs, but vanilla has `<key>` and `<key>_desc` for 267 of 269 and 122 of 127, and the GUI shows `GetCatalystType.GetName`. Check them, marked `// undocumented`, if a catalyst without loc shows its raw key. About 7 vanilla reports, mostly for unused catalysts.
+
+## F94. `desc` blocks in `first_valid` that hold only triggered descs
+
+**Effort:** S. **Value:** L. **Vanilla:** 2 reports (`map_modes.txt:584`, `bp1_yearly_events_nick.txt:2076`). Game test T44. **Issue:** [amtep/tiger#373](https://github.com/amtep/tiger/issues/373).
+
+`src/desc.rs` counts any `desc = { ... }` block in a `first_valid` as unconditional and warns "multiple unconditional desc in one first_valid" for the entries after it. In game, a block whose `triggered_desc`s all fail is skipped, and `first_valid` moves on to the fallback. Count a block as unconditional only if it contains an unconditional desc. The other 6 vanilla reports of this message follow a plain `desc = key` and are right.
+
+## F95. `name` in the `attach` blocks of asset entities
+
+**Effort:** S. **Value:** L. **Vanilla:** 6 reports. Game test T45. **Issue:** [amtep/tiger#374](https://github.com/amtep/tiger/issues/374).
+
+Unit entities attach their horse as `attach = { name = mount root = "unit_horse_4_entity" }`, and their states address it as `propagate_state = { mount = ... }`. `src/data/assets.rs` checks every value in an `attach` block as an asset and reports "asset mount not defined". In game the horse shows and animates. Treat `name` as the attachment's name.
