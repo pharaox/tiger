@@ -19,6 +19,8 @@ GitHub: [amtep/tiger](https://github.com/amtep/tiger) (upstream). Wiki: [Overvie
 
 - `src/` (crate `tiger-lib`): Nearly all the code, built for one game at a time through a cargo feature (`ck3`, `vic3`, ...).
   - `src/*.rs`: Shared code, e.g. `validator.rs` (field-by-field validation), `trigger.rs`, `effect.rs`, `everything.rs` (loading and validation order).
+  - `src/data/`: Loaders and validators shared between games (e.g. localization, CoAs, DLCs, portraits, scripted modifiers).
+  - `src/parse/`, `src/gui/`: The script parser (including reader exports) and GUI validation.
   - `src/<game>/data/`: Loaders and validators per item type.
   - `src/<game>/tables/`: The game's tables.
 - `tiger-tables/`: The `Item` enum and the datatypes generated from `dump_data_types` (`<game>/include/`).
@@ -85,8 +87,20 @@ Follow upstream's conventions for marking judgement calls:
 - **Never** add Claude or Claude Code attributions (e.g. `Co-Authored-By` trailers or "Generated with Claude Code") to commit messages, pull request descriptions, issues, or comments.
 - **Never** change the git staging area (e.g. `git stash`, `git restore --staged`, `git reset`) without asking first. The user stages changes to review them. For a baseline of the committed state, use a temporary `git worktree`.
 - **Stage by path.** Avoid `git add -A`, `git add .`, and `git commit -a`, which can sweep in local-only changes.
-- **One logical change per commit.** Use a `<game>: ` prefix and a short imperative summary, e.g. `ck3: update modifiers for 1.20`. The body says what changed and why, including any verified game behaviour.
+- **One logical change per commit.** Use a `<game>: ` prefix (none for shared code) and a short imperative summary, e.g. `ck3: update modifiers for 1.20`. The body says what changed and why, including any verified game behaviour.
 - **Push only when asked.**
+
+## Docs
+
+Notes kept across updates, in `.claude/docs/`:
+
+- [tiger-architecture.md](docs/tiger-architecture.md): How tiger works, and where each part of an update fits.
+- [info-mapping.md](docs/info-mapping.md): Every `.info` file and the tiger code that validates it.
+- [follow-up.md](docs/follow-up.md): Known gaps in tiger's CK3 support (F numbers), with their upstream issues.
+- [game-tests.md](docs/game-tests.md): In-game tests (T numbers) and their results.
+- [changed-checks.md](docs/changed-checks.md): Existing checks that each update changed, for reviewers.
+
+Keep them current: remove done follow-ups (the numbers stay), and record test results and changed checks as they happen.
 
 ## Skills
 

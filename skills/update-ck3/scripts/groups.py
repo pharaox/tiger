@@ -1,4 +1,8 @@
-"""Summarize a tiger --json report file into groups of (severity, key, normalized message)."""
+#!/usr/bin/env python3
+"""Summarize a tiger --json report file into groups of (severity, key, normalized message).
+
+Usage: groups.py RUN.json OUT.txt
+"""
 import collections, json, re, sys
 
 def norm(msg):

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Compare two tiger --json runs by group: (key, area, normalized message).
 
 Usage: python3 compare_runs.py OLD.json NEW.json [--min N] [--area PREFIX]

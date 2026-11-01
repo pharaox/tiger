@@ -102,7 +102,7 @@ Lessons from past updates, for situations that are likely to come up again.
 
 ## Stale Markers When the Docs Catch Up (1.20)
 
-- Upstream's `advice_field("x", "docs say `x` but it's `y`")` and `// undocumented` markers become wrong once the docs are fixed (1.20: `title_maa_setup`, `base_maximum_success_chance`, `modifier_named_sets`, `dna_modifier`, `investor_cooldown`, and many `// undocumented` fields). When a hunk documents a field, look for these markers in the validator and remove them; the old name becomes an ordinary unknown field, or `replaced_field` if it was once real (`vassal_contract`).
+- Upstream's `advice_field("x", "docs say`x` but it's `y`")` and `// undocumented` markers become wrong once the docs are fixed (1.20: `title_maa_setup`, `base_maximum_success_chance`, `modifier_named_sets`, `dna_modifier`, `investor_cooldown`, and many `// undocumented` fields). When a hunk documents a field, look for these markers in the validator and remove them; the old name becomes an ordinary unknown field, or `replaced_field` if it was once real (`vassal_contract`).
 
 ## Generated Modifier Formats Only When Used (1.20)
 
@@ -126,7 +126,7 @@ Lessons from past updates, for situations that are likely to come up again.
 
 ## Stale Tables Behind Old Markers (1.20)
 
-- `CUSTOM_RELIGION_LOCAS` existed twice: in `tiger-tables` (for `Faith.Custom` in loc) and in `src/ck3/tables/misc.rs` (for faith definitions). Only the second had been updated since 1.18, so loc using 18 terms was reported. `DLC_MUSIC` stopped at 1.12. Most other tables behind old markers were complete.
+- `CUSTOM_RELIGION_LOCAS` existed twice: in `tiger-tables` (for `Faith.Custom` in loc) and in `src/ck3/tables/misc.rs` (for faith definitions). Only the second had been updated since 1.18, so loc using 18 terms was reported. It is now one table, in `tiger-tables`. `DLC_MUSIC` stopped at 1.12. Most other tables behind old markers were complete.
 - A stale table gives false positives only where a mod uses values vanilla doesn't, and hides errors where the game dropped a value, so a vanilla run shows neither. Compare each table with its source.
 - Docs lists can be incomplete too: the `create_title_and_vassal_change` docs list 7 "valid types for use in script", but the same text names others, and vanilla uses 17 (`independency` 100 times). Tiger keeps the full list from the `recent_history` docs.
 

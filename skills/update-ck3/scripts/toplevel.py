@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Survey the top-level fields of the items in PDX script files.
 
 Usage: python3 toplevel.py FILE... [--field NAME]

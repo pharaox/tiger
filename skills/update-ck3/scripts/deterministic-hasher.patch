@@ -1,0 +1,56 @@
+diff --git a/src/helpers.rs b/src/helpers.rs
+index ae73d8cc..8592ca7f 100644
+--- a/src/helpers.rs
++++ b/src/helpers.rs
+@@ -1,8 +1,10 @@
+ //! Miscellaneous convenience functions.
+-use ahash::{HashMap, HashSet, RandomState};
++use ahash::{AHasher, RandomState};
+ use bimap::BiHashMap;
+ 
++use std::collections::{HashMap, HashSet};
+ use std::fmt::{Display, Formatter};
++use std::hash::BuildHasher;
+ use std::str::FromStr;
+ 
+ use crate::game::Game;
+@@ -14,15 +16,27 @@ use crate::report::{ErrorKey, tips, warn};
+ use crate::scopes::Scopes;
+ use crate::token::Token;
+ 
+-pub type TigerHashMap<K, V> = HashMap<K, V>;
++/// Builds ahash hashers with fixed seeds, so that hash map iteration order (and thus the order
++/// in which items are validated) is the same on every run.
++#[derive(Clone, Copy, Debug, Default)]
++pub struct TigerBuildHasher;
++
++impl BuildHasher for TigerBuildHasher {
++    type Hasher = AHasher;
++    fn build_hasher(&self) -> AHasher {
++        RandomState::with_seeds(1, 2, 3, 4).build_hasher()
++    }
++}
++
++pub type TigerHashMap<K, V> = HashMap<K, V, TigerBuildHasher>;
+ pub use ahash::HashMapExt as TigerHashMapExt;
+-pub type TigerHashSet<T> = HashSet<T>;
++pub type TigerHashSet<T> = HashSet<T, TigerBuildHasher>;
+ pub use ahash::HashSetExt as TigerHashSetExt;
+ 
+ #[macro_export]
+ macro_rules! set {
+     ( $x:expr ) => {
+-        ahash::AHashSet::from($x).into()
++        $x.into_iter().collect::<$crate::helpers::TigerHashSet<_>>()
+     };
+ }
+ 
+@@ -142,7 +156,7 @@ pub const BANNED_NAMES: &[&str] = &[
+     "take_hostage", // actually used by vanilla CK3
+ ];
+ 
+-pub(crate) type BiTigerHashMap<L, R> = BiHashMap<L, R, RandomState, RandomState>;
++pub(crate) type BiTigerHashMap<L, R> = BiHashMap<L, R, TigerBuildHasher, TigerBuildHasher>;
+ 
+ #[derive(Debug, Clone)]
+ pub(crate) enum ActionOrEvent {

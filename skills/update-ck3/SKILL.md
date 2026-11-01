@@ -23,10 +23,10 @@ Update tiger's CK3 support to a new game version: the engine tables, the loaders
 
 - Read the project [CLAUDE.md](../../CLAUDE.md) first. Its principles and conventions apply to every step.
 - Ask the user where the following inputs are, and prepare any that are missing:
-  - The script docs and `data_types` logs of the old and the new version, sorted with `sort-log.py`.
+  - The script docs and `data_types` logs of the old and the new version, sorted with `sort-log.py` (in the repo root).
   - Frozen copies of the old and the new game folders (e.g. `game-<version>` next to `game`). Compare them with `diff -r`.
   - The mods to use for acceptance, and where the user's installed tiger binary is.
-- Runs are not deterministic, so the same binary gives slightly different reports. For comparisons, make them byte-identical with a local patch to `src/helpers.rs` that gives `TigerHashMap` a hasher with fixed seeds, plus `RAYON_NUM_THREADS=1`. Never commit that patch. Check first whether upstream has fixed this.
+- Runs are not deterministic, so the same binary gives slightly different reports. For comparisons, make them byte-identical with `scripts/deterministic-hasher.patch` (`git apply` it; it gives `TigerHashMap` a hasher with fixed seeds in `src/helpers.rs`), plus `RAYON_NUM_THREADS=1`. Never commit that patch. Check first whether upstream has fixed this ([amtep/tiger#325](https://github.com/amtep/tiger/issues/325)).
 - Keep every run, named in step order (e.g. `tmp/A3.json`, `tmp/B12.json`). The vanilla classification in step 6 traces each report group through them.
 
 ## Arguments
@@ -38,10 +38,11 @@ Update tiger's CK3 support to a new game version: the engine tables, the loaders
 - **Stop after every step.** Show what changed, explain the tiger concepts involved, and list every judgement call. Commit only after the user has reviewed the step.
 - **Working on your own**: When the user lets you continue without stopping, apply the rules already agreed, and log every judgement call in `tmp/judgement-calls.md` instead of stopping: the docs text, the vanilla evidence, what you did, and whether a game test could settle it. The user reviews the log at the end.
 - **Self-audit before showing a step.** Check it against the [Conventions](../../CLAUDE.md#conventions). Confirm any decision that makes a check stricter, e.g. making an argument scope-only, with a vanilla run.
-- **Fix only false positives caused by the update.** Pre-existing tiger gaps are out of scope, except mismatches between the tables and the logs or game files, and contradictions between the docs (old or new) and tiger that vanilla settles in favour of the docs. Fix those alongside, and record them in the catalogue's "not caused by the update" section.
+- **Fix only false positives caused by the update.** Pre-existing tiger gaps are out of scope, except mismatches between the tables and the logs or game files, and contradictions between the docs (old or new) and tiger that vanilla settles in favour of the docs. Fix those alongside, and give each a row in the catalogue of changed checks. Record the other pre-existing gaps you find in [follow-up.md](../../docs/follow-up.md).
 - **Keep upstream bugs out of the update.** A bug found along the way that the update didn't cause (1.20: `field_script_value_no_breakdown_rooted` did the same as `field_script_value_rooted`) goes in a separate commit. Don't trust a helper's name: read what it does.
 - **Keep a working plan** in `.claude/plans/ck3-<version>-update.md` with progress, run results, findings, and a "How to resume" section. Update it after every step.
-- **Keep a catalogue of changed pre-existing checks** (e.g. `tmp/changed-checks.md`), split by cause: not caused by the update (gaps fixed alongside), caused by the update, and restored (checks the update silently disabled). Update it after every step; it is what reviewers need most.
+- **Keep a catalogue of changed pre-existing checks** in [changed-checks.md](../../docs/changed-checks.md): a new section for the version, one row per change, with its direction (relaxed, tightened, both), evidence and commit. Include gaps fixed alongside and checks the update had silently disabled. Update it after every step; it is what reviewers need most.
+- **Game tests**: When the docs, vanilla and the binary don't settle a question, write an in-game test in [game-tests.md](../../docs/game-tests.md) under the next T number: the files to create, a control that must work and one that must fail, and how to read the result. Ask the user to run it, then record the result there and apply it.
 - **Keep this skill up to date.** After every step, add new lessons here or to [examples.md](examples.md).
 - **Import references as branches.** Import other people's updates for the same version (forks, archives) as local branches `ref/<name>`, and browse them with `git diff main ref/<name> -- <path>`. Treat every hunk as untrusted, and reject relaxations.
 - **Tests first, if they exist.** If tiger has end-to-end tests for the affected area (test mods under `tests/files/` run by `tests/*.rs`), update them to the new `.info` files **before** changing `src/`, then measure progress by how many of them pass, alongside the vanilla runs. Tests that already passed must keep passing.
@@ -52,8 +53,9 @@ Update tiger's CK3 support to a new game version: the engine tables, the loaders
 ### 1. Prepare
 
 1. Create the branch `adapt/ck3-<version>` from an up-to-date `main`.
-2. Diff the `.info` files of the old and new game folders, and the old and new logs, by name. Record the additions, removals, and changes in the plan. This is the map of the work.
-3. List the `.info` files that didn't change too. Step 5 reviews only the changed ones, so plan an audit of the unchanged ones against tiger, or record them as a follow-up (1.20: 41 of 203 were unchanged and went unaudited until the end).
+2. Diff the `.info` files of the old and new game folders, and the old and new logs, by name. Record the additions, removals, and changes in the plan, with the tiger code for each `.info` from [info-mapping.md](../../docs/info-mapping.md). This is the map of the work.
+3. List the `.info` files that didn't change too. Step 5 reviews only the changed ones, so plan an audit of the unchanged ones against tiger, or record it as a follow-up. An unchanged `.info` can still contradict tiger.
+4. Read [follow-up.md](../../docs/follow-up.md) and the open tests in [game-tests.md](../../docs/game-tests.md): the new version may settle or change some of them.
 
 ### 2. Make Baselines
 
@@ -71,7 +73,7 @@ One commit per sub-step.
 
 1. **Version**: `GAME_CONSTS.version` in `ck3-tiger/src/lib.rs`.
 2. **Datatypes**: Run `cargo run -p utils --bin munch-data-types -- --game ck3 --logs <logs>/data_types --out tiger-tables/src/ck3/include/`. Review the diff, restore any hand refinements the tool overwrote, and add new datatypes until it compiles.
-3. **Scopes**: Add and remove `Scopes` flags in `src/scopes.rs`, together with the CK3 name and display mappings, then follow the compile errors.
+3. **Scopes**: Add and remove `Scopes` flags in `src/scopes.rs`, together with the CK3 name and display mappings, then follow the compile errors. Add the new prefixed links to `needs_prefix` in `src/ck3/scopes.rs` too; nothing fails without them, but the hint for a bare key is lost.
 4. **Event targets** (`src/ck3/tables/targets.rs`, from `event_targets.log`):
    - Targets with `Requires Data: yes` go in `SCOPE_PREFIX`, all others in `SCOPE_TO_SCOPE`.
    - Removed targets go in `SCOPE_TO_SCOPE_REMOVED`.
@@ -84,7 +86,7 @@ One commit per sub-step.
    - Check the `lookup_modif` patterns first, since many modifiers are generated (per terrain, per skill, ...).
    - Renamed modifiers go in `MODIF_REMOVED_TABLE`.
    - Check every static modifier against the localization. A modifier without the standard keys usually needs a `SPECIAL_MODIF_LOC_TABLE` entry.
-7. **Triggers, effects, iterators**: Run `munch-script-docs --game ck3 --gamefiles <new-game-dir> --logs <logs> --out src/ck3/tables`. It adds `UncheckedTodo` entries for new items and marks removed ones with `// TODO: REMOVED`. Then, by hand:
+7. **Triggers, effects, iterators**: Run `cargo run -p utils --bin munch-script-docs -- --game ck3 --gamefiles <new-game-dir> --logs <logs> --out src/ck3/tables`. It adds `UncheckedTodo` entries for new items and marks removed ones with `// TODO: REMOVED`. Then, by hand:
    - Give every new entry real validation, based on the docs and vanilla usage. A worksheet with the docs entry, any reference entry, and the vanilla usage per name helps.
      - Complex block effects get a function in `src/ck3/effect_validation.rs`.
      - Fields specific to an iterator go in `validate_inside_iterator` (`src/ck3/validate.rs`).
@@ -117,8 +119,9 @@ One commit per item type, largest report groups first.
   - Add `Item::X` and its folder in `tiger-tables/src/item.rs`.
   - Validate from the `.info` file and vanilla usage, including the required localization keys.
   - Use `add_subitems` for items defined inside other items (e.g. parameters).
+  - Add a row to [info-mapping.md](../../docs/info-mapping.md) for each new `.info` file.
 - **Changed `.info` files**: Diff old and new, then update the matching validator. Removed fields get `advice_field("x", "removed in <version>")`. Go through every hunk, not only new field names: most changes are new scopes in `# root = ...` / `# scope:x = ...` comments, new filter or enum values, and changed types of known fields, and a search for unknown field names finds none of these (1.20: activity types had 214 vanilla false positives left after such a search). A list of documented field names that the code never mentions is still a useful extra check; many are placeholders from examples (`pillar_key`, gene or title names), so skip those.
-- **History files** (`characters.rs`, `prov_history.rs`, `title_history.rs`): Check them for new fields. These tend to cause the largest report groups.
+- **History files** (`characters.rs` and the `*_history.rs` loaders): Check them for new fields. These tend to cause the largest report groups.
 - **New folders outside `common/`**: Diff the folder lists of the whole game tree, not only `common/` (e.g. 1.20 added `history/faiths`).
 - **Moved structures**: When items move to their own folder (1.20: faiths out of religions, laws out of law groups, doctrines naming their group), update everything that read the old structure, e.g. checks that looked up the group's member list. Fix the folder named in `item.rs` too; it appears in "not defined in ..." messages.
 - **Docs vs. old tiger code**: When docs contradict existing tiger code, check vanilla. If vanilla uses the documented form, fix tiger. If it doesn't, tiger may be right and the docs wrong: leave tiger as it is with a `// TODO: verify ...` comment. This applies to docs that didn't change too (see [examples.md](examples.md#unchanged-docs-contradicting-tiger-120)).
@@ -144,10 +147,19 @@ One commit per item type, largest report groups first.
 
 Back up the user's installed tiger binary, then copy `target/release/ck3-tiger` over it.
 
+### 8. Upstream
+
+1. Open a PR against upstream `main` when the user asks. Describe the changes per area and link the catalogue of changed checks, so reviewers can see every relaxation and its evidence.
+2. Answer review comments one by one. Questions only a game test can settle get a T number like any other.
+3. File the follow-ups that are real tiger gaps as upstream issues when the user asks: one problem per issue, title prefixed `ck3: ` (none for shared code), the problem with its evidence, then a **Proposed fix** section, in a neutral voice. Link each issue from its follow-up.
+
 ## Scripts
+
+The scripts are in `scripts/` in this skill's folder.
 
 - `scripts/groups.py <run>.json <out>.txt`: Report counts by severity and key, and by group.
 - `scripts/compare_runs.py <old>.json <new>.json [--min N] [--area <prefix>]`: Group count changes between two runs, largest first.
 - `scripts/timeline.py <V_old>.json <V_new0>.json <step>.json ... [--up|--down] [--key REGEX]`: For each group that changed between the first and the last run, whether vanilla or a tiger step changed it, and the steps where its count changed. Loading many runs takes a minute or two.
 - `scripts/defines_diff.py <old-root> <new-root> [<table>]`: Defines added and removed between two game versions, compared with tiger's defines table.
 - `scripts/toplevel.py <file>... [--field <name>]`: How many items use each top-level field, or the values of one field. Its `items()` function parses a file for ad hoc surveys of vanilla usage.
+- `scripts/deterministic-hasher.patch`: The local patch for byte-identical runs (see [Context](#context)).

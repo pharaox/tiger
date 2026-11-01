@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Attribute each changed group to vanilla or to a tiger step, from the runs made along the way.
 
 Usage: python3 timeline.py V_old.json V_new0.json STEP1.json ... CURRENT.json [--up|--down] [--key REGEX]

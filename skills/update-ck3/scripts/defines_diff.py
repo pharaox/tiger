@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Compare the defines of two game versions with tiger's defines table.
 
 Usage: python3 defines_diff.py OLD_ROOT NEW_ROOT [TABLE]
