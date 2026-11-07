@@ -66,7 +66,7 @@ Many validators pass one `ScopeContext` to several fields (e.g. subject contract
 
 ## F10. `create_character`: `ethnicity` and `ethnicities` from the template docs
 
-**Effort:** S. **Value:** M. Game test T54 (T4 settled the template side).
+**Effort:** S. **Value:** M. Game test T54 (T4 settled the template side). **Issue:** [amtep/tiger#375](https://github.com/amtep/tiger/issues/375).
 
 The new 1.20 scripted character templates `.info` documents the shared parser: `ethnicity` also takes `default` and `template_character`, and `ethnicities` is `{ <ethnicity> = { trigger weight } }`. Templates now use that; the `create_character` effect still has "TODO: Find out the syntax of this" and accepts any block. Apply the same validation there (`effect_validation.rs`).
 
@@ -123,11 +123,9 @@ The 1.20 trigger localization docs give the fallback keys `<trigger>_<rule>` / `
 - Flavorization: is `target_character = yes` without `top_liege = no` an error (the docs give `top_liege` the default yes and make the two exclusive)? One vanilla rule does it. Game test T56.
 - Faiths: does a main rite with `unreformed_faith_doctrine` make `reformed_icon` valid? Game test T57.
 - Portrait animations with `barbershop = no`: is their name loc used anywhere (5 vanilla reports)? Game test T58.
-- `create_holy_site`: does `type` take a holy site type scope? Game test T59: a holy site scope fails ("Not found in database HolySiteTypeDatabase"), as tiger says; the key and the holy site type scope pass the game's checks at load. Whether they create holy sites is still to be seen; then drop the TODO.
-- Portrait modifier groups: warn when `portrait_group` comes after a modifier or `add_accessory_modifiers`. No game test: the `.info` says it "Must be set before any modifiers or add_accessory_modifiers, as those are read using it", which is evidence enough, and vanilla has a single portrait type group, so a test couldn't show the effect. **Issue:** [amtep/tiger#365](https://github.com/amtep/tiger/issues/365).
 - Holy orders: warn about `random_holy_order_type = mendicant` in `create_holy_order`, since `mendicant` is not a holy order type (game test T60).
 
-Settled: domicile `move_cost` is game test T29, filed as #334; `scope:new_rite` in `on_rite_created` is not set, so tiger dropped it (game test T11); faiths reject `piety_icon_group` and `tenet_background_icon` (game test T57), and holy order types reject `mendicant` (game test T60), as tiger says.
+Settled: `portrait_group` after a modifier is now a warning (`f3f9879f`, closes #365 on merge); domicile `move_cost` is game test T29, filed as #334; `scope:new_rite` in `on_rite_created` is not set, so tiger dropped it (game test T11); `create_holy_site` takes a holy site type key or scope, not a holy site scope (game test T59, `ae7660b3`); faiths reject `piety_icon_group` and `tenet_background_icon` (game test T57), and holy order types reject `mendicant` (game test T60), as tiger says.
 
 ## F25. Validate scripted animations at their call sites
 
@@ -139,7 +137,7 @@ The 1.20 docs say a scripted animation's trigger scopes "come from the context u
 
 **Effort:** S. **Value:** L.
 
-Open: T55, T56, T58, and the unreformed half of T57; the rest of T54 and T59 is optional. T40 to T53 and T60 have results (2026-11-01). The results of T21 to T35 are in F46, F53 to F64 and the Unop conf; those of T36 to T39 are in #324.
+Open: T55, T56, T58, and the unreformed half of T57. T40 to T54, T59 and T60 have results (2026-11-01), T61 (2026-11-07). The results of T21 to T35 are in F46, F53 to F64 and the Unop conf; those of T36 to T39 are in #324.
 
 ## F27. Variables that hold several scope types
 
@@ -203,7 +201,7 @@ Tested in game (T50): narrowing the cone angles of a spot light shrinks its lit 
 
 ## F40. Report `this` and `prev` passed as a parameter
 
-**Effort:** M. **Value:** M. **Issue:** [amtep/tiger#353](https://github.com/amtep/tiger/issues/353).
+**Effort:** M. **Value:** M. **Issue:** [amtep/tiger#317](https://github.com/amtep/tiger/issues/317) (we filed #353, closed as its duplicate).
 
 A parameter value is substituted as text, so `this` or `prev` passed to a scripted trigger or effect (`can_be_warrior_trigger = { ARMY_OWNER = this }`, `00_compliment_custom_loc.txt:283`) means the scope at each use inside it, not the caller's. It works only while every use is at the top level of the scripted item, and breaks silently when a use moves into a nested scope. Tiger doesn't report this. (Its "target `this` makes no sense here" is a different check: a literal `this` as a target, i.e. comparing or targeting the current scope itself; after the substitution above it fires at `is_spouse_of = $ARMY_OWNER$`, 32 harmless self-comparisons.) Report `this` and `prev` as parameter values at the call site, with a message that explains the footgun, even where the scripted item uses them safely (decided in C2).
 
@@ -395,7 +393,7 @@ Tested in game (T46): `list_size` of a list that was never built is 0, with no e
 
 ## F76. Branches that are always false once the parameters are filled in
 
-**Effort:** M. **Value:** L. **Issue:** [amtep/tiger#363](https://github.com/amtep/tiger/issues/363). **Vanilla:** none seen.
+**Effort:** M. **Value:** L. **Issue:** [amtep/tiger#280](https://github.com/amtep/tiger/issues/280) (we filed #363, closed as its duplicate). **Vanilla:** none seen.
 
 Tiger validates a scripted effect's body for each call with the arguments filled in, including branches that can never run with those arguments. A common debug helper in the user's mods: `trigger_if = { limit = { $TYPE$ = flag:boolean } scope:$NAME$ = yes }`, called with `NAME = artifact TYPE = flag:artifact`, becomes `flag:artifact = flag:boolean` in the limit, which is always false, yet tiger reports "`yes` produces bool but expected artifact" (artifact_trade 2, Active Courtiers 9, Carnalitas Prostitution 1). Same with Travelers' `if = { limit = { $KILLER$ != this } death = { killer = $KILLER$ } }` called with `KILLER = this`: the limit becomes `this != this`, and tiger reports "target `this` makes no sense here" (7). When a `limit` is a comparison whose two sides are identical (`this != this`) or two different literal flags (`flag:a = flag:b`), skip the reports in that branch.
 

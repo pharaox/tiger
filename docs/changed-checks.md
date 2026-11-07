@@ -102,3 +102,6 @@ Checks that existed before a game update and behave differently after it: relaxe
 | Artifact `set_owner` accepts `history` once | tightened | in-game test | `8c8a2f4d` |
 | Loc `#TOOLTIP:` tags `FULFILLMENT_LEVEL`, `GREAT_PROJECT`, `SITUATION` take runtime ids | relaxed | in-game test | `8c8a2f4d` |
 | `accolade_type_tier` takes a tier name (`common`, `skilled`, `eminent`), not an accolade type | both | in-game test | `6caf8fc1` |
+| Custom localization keys are optional with `if_invalid_loc = return_empty` or `fallback_to_next_entry` (CK3 only) | relaxed | 1.20 docs | `abd6b31a`, `568695d1` |
+| A live trigger takes the place of a removed link of the same name at a chain's end (`house_power`; all games) | relaxed | script docs; vanilla usage | `eb5b2093`, `09712614` |
+| `maa_upgrade` `type` takes only a base men-at-arms type, no longer a men-at-arms type as well | tightened | docs; vanilla agrees | `25cf791c` |

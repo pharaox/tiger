@@ -711,7 +711,7 @@ Settled without a game test:
   - Passable, or errors about these provinces: the entry is ignored, and the 3 provinces aren't impassable (low).
 - **Result (1.20.1.2):** province 12881 is impassable, no errors. Follow-up F64.
 
-## CK3 1.20: review of the upstream PR (T36 to T39, T53)
+## CK3 1.20: review of the upstream PR (T36 to T39, T53, T61)
 
 Questions from the review of the upstream PR (#324). The results of T36 to T39 were applied in `8c8a2f4d`. Their files go into new files named `zz_tiger_test3*` (UTF-8 BOM), with the namespace `zz_tiger_test3`: `events/zz_tiger_test3_events.txt` and `localization/english/zz_tiger_test3_l_english.yml`.
 
@@ -912,6 +912,28 @@ Questions from the review of the upstream PR (#324). The results of T36 to T39 w
   - The literal form: if `.153` logs no parse error and gives "true" twice, the trigger also takes a tier name, and tiger's upstream entry (`Scope(Scopes::AccoladeType)`) is incomplete; that is a separate follow-up.
 
 - **Result (1.20.1.2):** no error for `tier` or for either form. Literal form (`.153`): eminent_a = eminent true, vanilla = common true. Retest with mismatches (`zz_tiger_test3.253` in the test mod's literal file): eminent_a = common false, eminent_a = skilled false, skilled = skilled true, vanilla = eminent false. Scope form (`.53`): only vanilla vs vanilla true, as if the right side were `common`. So the game reads `tier` (the default is `common`), and `accolade_type_tier` takes a tier name, not an accolade type: tiger's entry `Scope(Scopes::AccoladeType)` is wrong.
+
+### T61. Lengths and values of `subsequent_playback_chance`
+
+- The docs show `subsequent_playback_chance = { 1.0 0.5 ... }`, "Chance (0-1) for each subsequent track from this group to be played in a row". Tiger used to require exactly 3 numbers; since 1.20 it accepts any number of numbers (`src/data/music.rs`), following the docs and vanilla, which has 5 lists of 2, 3 of 3 and 1 of 4. The reviewer (PR #324, `music.rs:170`) asks whether that is verified and suggests allowing only 2 to 4. It replaces T7, which was never run.
+- File `music/in_game/zz_tiger_test3_music.txt`:
+
+  ```paradox
+  group_zz_tiger_test3_three = { subsequent_playback_chance = { 0.9 0.6 0.3 } } # control: must work
+  group_zz_tiger_test3_text = { subsequent_playback_chance = { 0.9 abc } } # control: must fail
+  group_zz_tiger_test3_empty = { subsequent_playback_chance = { } }
+  group_zz_tiger_test3_one = { subsequent_playback_chance = { 0.9 } }
+  group_zz_tiger_test3_six = { subsequent_playback_chance = { 0.9 0.8 0.7 0.6 0.5 0.4 } }
+  group_zz_tiger_test3_range = { subsequent_playback_chance = { 1.5 -0.5 } }
+  ```
+
+- Check: `error.log` after loading for `zz_tiger_test3_music`, `group_zz_tiger_test3` and `subsequent_playback_chance`. The test only shows what the game accepts at load, not whether it uses every value.
+  - An error for `text` only: there is no length limit at load, so tiger leaves the length open and answers the reviewer with this result. The 0 to 1 range stays a docs-based check.
+  - No error for `text` either: the game doesn't report problems here, so the test says nothing about the others, and the length stays open with a `TODO: verify`.
+  - An error for `one`, `six` or `empty`: enforce the limit that the errors show.
+  - An error for `range`: the game enforces the range too.
+
+**Result (1.20.1.2):** the only error after loading is "Malformed token: abc, near line: 3" for the text control; nothing for the empty list, the lists of 1, 3 and 6 chances, or the out-of-range 1.5 and -0.5. The game sets no length limit at load, so tiger keeps the length open. Whether it uses every value, and how it treats values outside 0 to 1, a load test can't show; the range stays a docs-based check.
 
 ## CK3 1.20: review of the Unop's vanilla-issue rules (T40 to T52)
 
@@ -1123,7 +1145,7 @@ Check: `event zz_tiger_test3.54`, then the `T54` lines in `debug.log`, and `erro
 - C african and D not (or an error for D's `always`): the effect uses the template syntax; apply the template validation. D african and C not: the effect docs form is right; validate `ethnicities` as `{ <ethnicity> = { triggers } }`.
 - No error for E and F (and F the same as C): `default` and `template_character` work in the effect too.
 
-**Result (1.20.1.2, partial, from `error.log` at load):** `random_faith_in_religion = islam_religion` gives "Failed to find a valid event target link", so the effect takes only a faith, like templates; tiger's religion key is wrong. D (`african = { always = yes }`) gives "Unexpected token: always", so the effect uses the template syntax for `ethnicities`. No errors for C, E and F. The event wasn't run, so the ethnicities themselves weren't checked.
+**Result (1.20.1.2, from `error.log` at load):** `random_faith_in_religion = islam_religion` gives "Failed to find a valid event target link", so the effect takes only a faith, like templates; tiger's religion key is wrong. D (`african = { always = yes }`) gives "Unexpected token: always", so the effect uses the template syntax for `ethnicities`. No errors for C, E and F. The event itself wasn't run (whether C gets the ethnicity was left out as not needed): the load errors settle what tiger checks.
 
 ### T55. Several `history` blocks in `create_artifact` (F65)
 
@@ -1249,7 +1271,7 @@ zz_tiger_test3.59 = {
 
 Check: `event zz_tiger_test3.59`, then the faith window's holy sites (`debug.log` names the three baronies), and `error.log` for `zz_tiger_test3` and `create_holy_site`. The key form (valor) is the control. A holy site at the second barony: the holy site type scope works. A holy site of the Uppsala type at the third barony: a holy site scope works too. Tiger should accept exactly the forms that worked and drop the TODO.
 
-**Result (1.20.1.2, partial, from `error.log` at load):** `type = holy_site:uppsala` gives "Not found in database HolySiteTypeDatabase", and the effect fails PostValidate: a holy site scope doesn't work. No errors for the key and the holy site type scope; whether they create holy sites wasn't checked.
+**Result (1.20.1.2, from `error.log` at load):** `type = holy_site:uppsala` gives "Not found in database HolySiteTypeDatabase", and the effect fails PostValidate: a holy site scope doesn't work. No errors for the key and the holy site type scope, which pass the effect's checks at load. Whether they create holy sites was left out as not needed: tiger accepts exactly these two forms.
 
 ### T60. Holy order type `type = mendicant` (F24)
 
@@ -1273,4 +1295,53 @@ zz_tiger_test3_bogus = {
 Check `error.log` after loading for `zz_tiger_test3` and `mendicant`. The bogus type is the control and should log an error. No error for the mendicant type: it is a valid value; accept it with `// undocumented`. The same error as the bogus type: only `monastic` and `military` exist, and `random_holy_order_type = mendicant` deserves a warning.
 
 **Result (1.20.1.2):** both test types also lacked `government` ("Field 'government' not set"), and both logged "missing type, falling back to 'military'", the message the `.info` gives for a missing type. `mendicant` fails like the bogus control: only `monastic` and `military` exist, and tiger is right. `random_holy_order_type = mendicant` in `create_holy_order` deserves a warning.
+
+## CK3 1.20: false positives claimed by Unop fixes (T62)
+
+### T62. Scalar `weight` in `random_traits_list`
+
+Vanilla's `ce1_hooded_figure_template` writes `weight = 30` in its `random_traits_list` entries, and tiger reports "expected block, found value": `validate_random_traits_list` accepts only a block, and the docs (`weight ( mtth )`) show only `weight = { base = 1 }`. A Unop repro (Unop issue #808) found tier-5 educations at most 25 in 200 with weights 30 and 5, against about 50 if the weights were ignored, but it lost the exact count, and a low count could have other causes. This test reverses the weights, so a high count can only come from them. File `common/scripted_character_templates/zz_tiger_test3_templates.txt`:
+
+```paradox
+zz_tiger_test3_scalar_weight = {
+	age = 30
+	gender = male
+	culture = root.culture
+	faith = root.faith
+	dynasty = none
+	random_traits = no
+	random_traits_list = {
+		count = 1
+		education_martial_2 = { weight = 1 }
+		education_martial_3 = { weight = 1 }
+		education_martial_4 = { weight = 1 }
+		education_martial_5 = { weight = 100 }
+	}
+}
+```
+
+Plus two controls that differ only in the weights: `zz_tiger_test3_block_weight` with `weight = { base = 1 }` and `weight = { base = 100 }`, and `zz_tiger_test3_no_weight` with empty entries `{}`. Event, with the same loop for each template:
+
+```paradox
+zz_tiger_test3.62 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		while = {
+			count = 100
+			create_character = { location = root.capital_province template = zz_tiger_test3_scalar_weight save_scope_as = zz_c }
+			scope:zz_c = {
+				if = { limit = { has_trait = education_martial_5 } debug_log = "T62 scalar: tier 5" }
+				else_if = { limit = { OR = { has_trait = education_martial_2 has_trait = education_martial_3 has_trait = education_martial_4 } } debug_log = "T62 scalar: tier 2-4" }
+				else = { debug_log = "T62 scalar: no list education" }
+				silent_disappearance_effect = yes
+			}
+		}
+		# The same loop for zz_tiger_test3_block_weight ("T62 block") and zz_tiger_test3_no_weight ("T62 none")
+		debug_log = "T62 done"
+	}
+}
+```
+
+Check: `event zz_tiger_test3.62`, then count each line in `debug.log` (`grep -c "T62 scalar: tier 5"`, and so on), and search `error.log` for `zz_tiger_test3_templates`. The block control should give about 97 tier 5 in 100 (100 of 103), and the no-weight control about 25. Scalar near 97: the scalar weight works, tiger should accept it (likely also in `random_culture` and `random_faith`, whose docs give the same mtth weight), and the report is a false positive. Scalar near 25, or "no list education": the scalar is ignored, and the vanilla template's education weights are a real bug.
 
