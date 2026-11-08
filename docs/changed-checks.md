@@ -105,3 +105,6 @@ Checks that existed before a game update and behave differently after it: relaxe
 | Custom localization keys are optional with `if_invalid_loc = return_empty` or `fallback_to_next_entry` (CK3 only) | relaxed | 1.20 docs | `abd6b31a`, `568695d1` |
 | A live trigger takes the place of a removed link of the same name at a chain's end (`house_power`; all games) | relaxed | script docs; vanilla usage | `eb5b2093`, `09712614` |
 | `maa_upgrade` `type` takes only a base men-at-arms type, no longer a men-at-arms type as well | tightened | docs; vanilla agrees | `25cf791c` |
+| Decisions with the `create_holy_order` controller no longer get `scope:ruler` outside `title_valid` | tightened | 1.20 docs; vanilla agrees | `b971a3b9` |
+| Diarchy `liege_modifier` and `diarch_modifier` need a `name` | tightened | 1.20 docs; binary; vanilla agrees | `77614975` |
+| A faith is unreformed if a doctrine or core tenet of the faith, its religion or its main rite makes it so, not only its own doctrines (`reformed_icon`, the `_old` locs) | both | 1.20 docs; in-game test | `027ce778`, `a15f919b` |

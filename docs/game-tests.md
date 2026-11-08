@@ -711,7 +711,7 @@ Settled without a game test:
   - Passable, or errors about these provinces: the entry is ignored, and the 3 provinces aren't impassable (low).
 - **Result (1.20.1.2):** province 12881 is impassable, no errors. Follow-up F64.
 
-## CK3 1.20: review of the upstream PR (T36 to T39, T53, T61)
+## CK3 1.20: review of the upstream PR (T36 to T39, T53, T61, T63)
 
 Questions from the review of the upstream PR (#324). The results of T36 to T39 were applied in `8c8a2f4d`. Their files go into new files named `zz_tiger_test3*` (UTF-8 BOM), with the namespace `zz_tiger_test3`: `events/zz_tiger_test3_events.txt` and `localization/english/zz_tiger_test3_l_english.yml`.
 
@@ -935,6 +935,32 @@ Questions from the review of the upstream PR (#324). The results of T36 to T39 w
 
 **Result (1.20.1.2):** the only error after loading is "Malformed token: abc, near line: 3" for the text control; nothing for the empty list, the lists of 1, 3 and 6 chances, or the out-of-range 1.5 and -0.5. The game sets no length limit at load, so tiger keeps the length open. Whether it uses every value, and how it treats values outside 0 to 1, a load test can't show; the range stays a docs-based check.
 
+### T63. Bare names in culture trait `parameters`
+
+- Since 1.20, `validate_parameters` in `src/ck3/data/cultures.rs` accepts bare names next to `name = yes`: the 1.20 `_cultural_traits.info` changed its example from `param_name = yes/no` and `param_name = 0.5` to a bare `param_name` ("list of flags"). All 742 vanilla culture parameters still use `name = yes`. Tenets (315) and holy sites (6) use bare names in 1.20 vanilla, and the holy site docs say the `= yes` form is legacy. The reviewer (PR #324, review set 7, `cultures.rs`) asks whether bare names work in cultures, with an example.
+- File `common/culture/traditions/zz_tiger_test3_traditions.txt`, a tradition that is never shown or picked:
+
+  ```paradox
+  zz_tiger_test3_params_tradition = {
+  	category = ritual
+  	layers = { 0 = learning 1 = western 4 = knight.dds }
+  	is_shown = { always = no }
+  	can_pick = { always = no }
+  	parameters = {
+  		zz_tiger_test3_bare_param
+  		zz_tiger_test3_yes_param = yes # control
+  	}
+  	ai_will_do = { value = 0 }
+  }
+  ```
+
+- Event `zz_tiger_test3.63` adds the tradition to the player's culture if it's missing, then logs `T63 tradition: present/missing`, `T63 bare name: set/not set` and `T63 control name = yes: set/not set` (`has_cultural_parameter`).
+- Check: `event zz_tiger_test3.63`, then the `T63` lines in `debug.log`, and `error.log` for `zz_tiger_test3_traditions` and `zz_tiger_test3_bare_param`. If the control is "not set" too, the parameters may update later: run the event again a day later.
+  - "bare name: set" with the control set: bare names work in cultures. Keep them and reply "Tested in game".
+  - "bare name: not set" with the control set, or a parse error at the bare name: the culture docs are wrong. Accept only `name = yes` in culture parameters, and add a "Known docs issue".
+
+**Result (1.20.1.2):** no errors; on the first run the tradition was added and present, and both "bare name: set" and "control name = yes: set". Bare names work in culture trait parameters and take effect at once, so tiger keeps accepting both forms.
+
 ## CK3 1.20: review of the Unop's vanilla-issue rules (T40 to T52)
 
 Each settles one "Unclear" rule in the Unop conf.
@@ -1108,7 +1134,7 @@ Check: `event zz_tiger_test3.52`, then the `T52` lines in `debug.log` and `error
 
 ## CK3 1.20: remaining follow-ups (T54 to T60)
 
-Not run yet; each settles a question in [follow-up.md](follow-up.md). Files go with the others in `zz_tiger_test3*` (UTF-8 BOM, namespace `zz_tiger_test3`). Missing loc for the test keys is expected and can be ignored.
+Each settles a question in [follow-up.md](follow-up.md). Files go with the others in `zz_tiger_test3*` (UTF-8 BOM, namespace `zz_tiger_test3`). Missing loc for the test keys is expected and can be ignored.
 
 ### T54. `create_character`: `random_faith_in_religion` and the template forms of `ethnicity` (F10)
 
@@ -1172,9 +1198,13 @@ zz_tiger_test3.55 = {
 
 Check: `event zz_tiger_test3.55`, open the new chest in the inventory and look at its history, and `error.log` for `zz_tiger_test3` and `history`. Only "purchased" (as in T39): one block takes effect; accept `history` once, as in `set_owner`. Both entries: several work in this effect, and tiger is right.
 
+**Result (1.20.1.2):** no errors, and the chest's history shows only "Purchased": as in T39, only the last `history` block takes effect. Tiger should accept `history` once in `create_artifact`, as in `set_owner`.
+
 ### T56. Flavorization `target_character = yes` without `top_liege = no` (F24)
 
 No files. The docs give `top_liege` the default yes and make it exclusive with `target_character`; tiger reports only an explicit `top_liege = yes`. Vanilla `monastery_christian` (`common/flavorization/20_pam_flavorization.txt:398-410`) sets `target_character = yes` alone. Check `error.log` after loading for `flavo`, `monastery_christian`, `target_character` and `top_liege`. An error there: the default conflicts; tiger should report it (1 vanilla report). Nothing: leave the check as it is and drop the question.
+
+**Result (1.20.1.2):** no errors. The default doesn't conflict, so the check stays as it is.
 
 ### T57. Faiths: the unreformed doctrine from the main rite, and faith-level icon fields (F24)
 
@@ -1233,9 +1263,38 @@ Check: first `error.log` after loading for `zz_tiger_test3`, `reformed_icon`, `p
 
 **Result (1.20.1.2, partial):** `piety_icon_group` and `tenet_background_icon` in `faith_details` give "Unexpected token": faiths reject them, and tiger is right. The unreformed part is still open.
 
+**Result (1.20.1.2, unreformed half, first run):**
+- The test faith shows no tenets, so its main rite wasn't applied. The `baltic_pagan` rite belongs to the faith `baltic_pagan` (its `faith` field). The rite type docs say a faith without scripted rites gets a dynamic rite of its own name.
+- The log has "rite-only faith: reformed" and "control baltic_pagan: unreformed". The faith window's rite button reads "Create Branched ... Rite". `CREATE_REFORM_RITE_BUTTON` shows that when `GetFaith.IsUnreformed` is false, and "Reform the ... Rite" otherwise.
+- The control has `unreformed_faith_doctrine` in both its faith and its rite, so it only shows that the trigger works.
+- The run doesn't settle the question.
+
+Rerun with the faith's own rite: `common/religion/rite_types/zz_tiger_test3_rite_types.txt`, with the faith's `main_rite = zz_tiger_test3_pagan_rite` (the icon faith is gone):
+
+```paradox
+zz_tiger_test3_pagan_rite = {
+ faith = zz_tiger_test3_rite_pagan
+ color = { 0.2 0.8 0.2 }
+ tenets = { tenet_sacred_childbirth tenet_ancestor_worship tenet_sanctity_of_nature }
+ doctrines = { unreformed_faith_doctrine }
+}
+```
+
+Check:
+1. `error.log` after loading, for `zz_tiger_test3`.
+2. `event zz_tiger_test3.57`, then the `T57` lines in `debug.log`.
+3. `effect set_character_faith = faith:zz_tiger_test3_rite_pagan`, then the faith window:
+   - It must show the three Baltic tenets; if it doesn't, the rite still wasn't applied.
+   - "Reform the ... Rite" and "unreformed": the main rite makes the faith unreformed, so tiger should read it (see above).
+   - "Create Branched ... Rite" and "reformed": tiger is right.
+
+**Result (1.20.1.2, rerun):** no errors. The log has "rite-only faith: unreformed" and "control baltic_pagan: unreformed". The faith window shows the three Baltic tenets and "Reform the ... Rite". The main rite's doctrines make the faith unreformed, so tiger now reads the main rite's doctrines and tenets too. Together with the first run, the main rite applies only to a faith that owns it. The rite's `faith` field gives the owner, and faith history can assign the rite to another faith from a date on: vanilla `catholic` and `orthodox` use rites of `christian_faith` from 1054. Tiger therefore doesn't filter on the `faith` field.
+
 ### T58. Loc of portrait animations with `barbershop = no` (F24)
 
 No files. Tiger requires `<key>` loc for every portrait animation; the five that lack it (`grand_marshal`, `thinking_all`, `prayer_muslim`, `spiritual_fulfillment`, `menacing_wooden_sword` in `gfx/portraits/portrait_animations/animations.txt`) all have `barbershop = no`. Open the barbershop (Change appearance) and the ruler designer, and look through their animation lists: do any of the five appear, under their raw key? None: the name loc is only shown there, so tiger should require it only when `barbershop` isn't `no` (marked `TODO: verify` until another place turns up). Any of them listed: the loc is needed; these are vanilla issues.
+
+**Result (1.20.1.2):** the barbershop's pose list shows no raw keys, so none of the five is listed. The ruler designer has no animation list of its own (`gui/window_ruler_designer.gui`). The only other place found is the character tooltip's animation paragraph (`PORTRAIT_ANIMATION_TITLE`, `[Character.GetAnimationName]`). It is behind `ShouldShowAnimationInfo`, probably a debug option. Tiger should require `<key>` loc only when `barbershop` isn't `no`, with `TODO: verify`.
 
 ### T59. `create_holy_site` with a holy site type scope or a holy site scope (F24)
 
@@ -1344,4 +1403,6 @@ zz_tiger_test3.62 = {
 ```
 
 Check: `event zz_tiger_test3.62`, then count each line in `debug.log` (`grep -c "T62 scalar: tier 5"`, and so on), and search `error.log` for `zz_tiger_test3_templates`. The block control should give about 97 tier 5 in 100 (100 of 103), and the no-weight control about 25. Scalar near 97: the scalar weight works, tiger should accept it (likely also in `random_culture` and `random_faith`, whose docs give the same mtth weight), and the report is a false positive. Scalar near 25, or "no list education": the scalar is ignored, and the vanilla template's education weights are a real bug.
+
+**Result (1.20.1.2):** no errors. Tier 5 came up 98 times in 100 for the scalar weights, 96 for the block control and 24 for the no-weight control, with no "no list education". The scalar weight works, so tiger's report is a false positive, as PR #840 says.
 

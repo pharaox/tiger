@@ -18,7 +18,7 @@ Narrowing `scope:target` to the type that `target_type` names (tried on 2026-10-
 
 ## F3. Event `soundeffect`: only `none` has an effect
 
-**Effort:** S. **Value:** L.
+**Effort:** S. **Value:** L. **Issue:** [amtep/tiger#383](https://github.com/amtep/tiger/issues/383).
 
 The 1.20 event docs say `soundeffect = none` mutes the event, and other values are read but not used. An untidy warning for other values. Vanilla: 19 new untidy reports (`in_the_dungeon_event`, `feast_event`), which the Unop would have to ignore. Relies on one docs sentence.
 
@@ -30,7 +30,7 @@ Graphical unit type `default`, the two guest system keys, court scene roles `rul
 
 ## F5. Geographical region loops and nesting depth
 
-**Effort:** M. **Value:** L to M.
+**Effort:** M. **Value:** L to M. **Issue:** [amtep/tiger#382](https://github.com/amtep/tiger/issues/382).
 
 The new 1.20 docs say nesting deeper than 20 levels is an error ("probable loop"). A cross-item depth-first check over regions, like `NameEquivalency::validate_all`. Tiger already reports a missing sub-region as a crash. Vanilla: 0 reports. Catches crash-class mistakes in map mods.
 
@@ -120,24 +120,15 @@ The 1.20 trigger localization docs give the fallback keys `<trigger>_<rule>` / `
 
 **Effort:** S each. **Value:** L to M.
 
-- Flavorization: is `target_character = yes` without `top_liege = no` an error (the docs give `top_liege` the default yes and make the two exclusive)? One vanilla rule does it. Game test T56.
-- Faiths: does a main rite with `unreformed_faith_doctrine` make `reformed_icon` valid? Game test T57.
-- Portrait animations with `barbershop = no`: is their name loc used anywhere (5 vanilla reports)? Game test T58.
-- Holy orders: warn about `random_holy_order_type = mendicant` in `create_holy_order`, since `mendicant` is not a holy order type (game test T60).
+- Holy orders: warn about `random_holy_order_type = mendicant` in `create_holy_order`, since `mendicant` is not a holy order type (game test T60). **Issue:** [amtep/tiger#380](https://github.com/amtep/tiger/issues/380).
 
-Settled: `portrait_group` after a modifier is now a warning (`f3f9879f`, closes #365 on merge); domicile `move_cost` is game test T29, filed as #334; `scope:new_rite` in `on_rite_created` is not set, so tiger dropped it (game test T11); `create_holy_site` takes a holy site type key or scope, not a holy site scope (game test T59, `ae7660b3`); faiths reject `piety_icon_group` and `tenet_background_icon` (game test T57), and holy order types reject `mendicant` (game test T60), as tiger says.
+Settled: `portrait_group` after a modifier is now a warning (`f3f9879f`, closes #365 on merge); domicile `move_cost` is game test T29, filed as #334; `scope:new_rite` in `on_rite_created` is not set, so tiger dropped it (game test T11); `create_holy_site` takes a holy site type key or scope, not a holy site scope (game test T59, `ae7660b3`); faiths reject `piety_icon_group` and `tenet_background_icon` (game test T57), and holy order types reject `mendicant` (game test T60), as tiger says; a main rite with `unreformed_faith_doctrine` makes its faith unreformed, so tiger now reads the main rite (game test T57); flavorization `target_character = yes` without `top_liege = no` is no error, so tiger is right not to report it (game test T56); the loc of portrait animations with `barbershop = no` is F96 (game test T58).
 
 ## F25. Validate scripted animations at their call sites
 
 **Effort:** M. **Value:** M. **Issue:** [amtep/tiger#359](https://github.com/amtep/tiger/issues/359).
 
 The 1.20 docs say a scripted animation's trigger scopes "come from the context using the animation" (event portraits, court scene roles, activity windows). Tiger therefore validates named scripted animations with non-strict scopes and a character or activity root, so a misspelled `scope:` in their triggers is never reported. Validating each named animation with the scopes of each place that refers to it, as tiger does for scripted triggers, would bring strictness back.
-
-## F26. Open game tests
-
-**Effort:** S. **Value:** L.
-
-Open: T55, T56, T58, and the unreformed half of T57. T40 to T54, T59 and T60 have results (2026-11-01), T61 (2026-11-07). The results of T21 to T35 are in F46, F53 to F64 and the Unop conf; those of T36 to T39 are in #324.
 
 ## F27. Variables that hold several scope types
 
@@ -323,9 +314,9 @@ Tiger reports `format_override` names that no `textformatting` block in `gui/` d
 
 ## F65. Several `history` blocks in `create_artifact`
 
-**Effort:** S. **Value:** L. Game test T55.
+**Effort:** S. **Value:** L. **Vanilla:** 0 reports expected. Game test T55. **Issue:** [amtep/tiger#376](https://github.com/amtep/tiger/issues/376).
 
-`create_artifact` accepts several `history` blocks (`effect_validation.rs`, upstream). Game test T39 (1.20.1.2) showed that `set_owner` and `set_holy_site_owner` use only the last `history` block, so tiger now accepts one there. `create_artifact` wasn't tested; game test T55 tests it the same way.
+`create_artifact` accepts several `history` blocks (`src/ck3/effect_validation.rs:544`, upstream). Game test T39 (1.20.1.2) showed that `set_owner` and `set_holy_site_owner` use only the last `history` block, so tiger now accepts one there. Game test T55 (1.20.1.2) shows the same for `create_artifact`: with `given` and then `purchased`, the chest's history has only "Purchased". Accept `history` once, as in `set_owner`.
 
 ## F66. Loc keys validated without their scope context
 
@@ -437,9 +428,9 @@ Tested in game (T48): a blind, disfigured character shows neither trait as a sai
 
 ## F84. Artifact visuals: a complementary trigger as the fallback
 
-**Effort:** S. **Value:** L. **Vanilla:** part of 69 reports. Game test T49.
+**Effort:** S. **Value:** L. **Vanilla:** 8 of 69 reports. Game test T49. **Issue:** [amtep/tiger#379](https://github.com/amtep/tiger/issues/379).
 
-Tiger wants one asset and one icon without a trigger in each artifact visual ("needs at least one asset without a trigger"). The `.info` doesn't require that. Some vanilla visuals cover all cases with an entry whose trigger is `NOR = { <the other triggers> }` (longbow and armillary sphere in `00_weapon_visuals.txt` and `00_court_artifacts.txt`); the rest key every entry on building or unit gfx, which cover every vanilla culture. Lower the check to advice, or recognise the complementary form.
+Tiger wants one asset and one icon without a trigger in each artifact visual ("needs at least one asset without a trigger"). The `.info` doesn't require that. Some vanilla visuals cover all cases with an entry whose trigger is `NOR = { <the other triggers> }` (the icons of `axe`, `mace`, `axe_court`, `mace_court` and `crown`, the assets of `longbow`, `composite` and `fp2_armillary_sphere`); the rest key every entry on building or unit gfx, and some miss cultures: e.g. `book` has no entry for Indian, Southeast Asian or Tibetan building gfx, and the game logs lost `book` and `animal_trophy` artifacts. Lower the check to advice, or recognise the complementary form.
 
 Tested in game (T49): with no matching entry the game logs "Couldn't determine 'asset' visual type; all triggers returned false" and creates no artifact, so the check is right. Only the complementary `NOR` fallback (longbow, armillary sphere) needs recognising.
 
@@ -525,3 +516,21 @@ From an audit of the 41 `.info` files that 1.20 didn't change. Each gap predates
 **Effort:** S. **Value:** L. **Vanilla:** 6 reports. Game test T45. **Issue:** [amtep/tiger#374](https://github.com/amtep/tiger/issues/374).
 
 Unit entities attach their horse as `attach = { name = mount root = "unit_horse_4_entity" }`, and their states address it as `propagate_state = { mount = ... }`. `src/data/assets.rs` checks every value in an `attach` block as an asset and reports "asset mount not defined". In game the horse shows and animates. Treat `name` as the attachment's name.
+
+## F96. Loc of portrait animations with `barbershop = no`
+
+**Effort:** S. **Value:** L. **Vanilla:** 5 reports (`grand_marshal`, `thinking_all`, `prayer_muslim`, `spiritual_fulfillment`, `menacing_wooden_sword` in `animations.txt`). Game test T58. **Issue:** [amtep/tiger#377](https://github.com/amtep/tiger/issues/377).
+
+`src/data/portrait.rs` requires `<key>` loc for every portrait animation. The CK3 `_animations.info` says `barbershop = no` keeps an animation out of the barbershop, which is where the name is shown. In game test T58 (1.20.1.2), none of the five is listed there. The only other use found is a character tooltip paragraph behind `ShouldShowAnimationInfo`, probably a debug option. Require the loc only when `barbershop` isn't `no`, with `TODO: verify`. The code is shared, so check the other games' `barbershop` docs first.
+
+## F97. Scalar `weight` in `random_traits_list`
+
+**Effort:** S. **Value:** L. **Vanilla:** 8 reports (`05_ce1_character_templates.txt:15-22`, unchanged since 1.19). Game test T62. **Issue:** [amtep/tiger#378](https://github.com/amtep/tiger/issues/378).
+
+`validate_random_traits_list` (`src/ck3/validate.rs`) accepts `weight` only as a block, and the docs (`weight ( mtth )`) show only `weight = { base = 1 }`. In game test T62 (1.20.1.2), a scalar `weight = 100` against three `weight = 1` gave tier 5 98 times in 100. The block control gave 96 and the no-weight control 24, so the scalar works. Accept a value as well as a block. `random_culture` and `random_faith` have the same mtth docs, but weren't tested. Unop PR #840 files the vanilla reports as tiger false positives.
+
+## F98. `main_rite` that names a rite of another faith
+
+**Effort:** S to M. **Value:** L. **Vanilla:** 0 reports expected. Game test T57. **Issue:** [amtep/tiger#381](https://github.com/amtep/tiger/issues/381).
+
+In the first run of game test T57 (1.20.1.2), a test faith with `main_rite = baltic_pagan` got none of the rite's tenets or doctrines, and nothing was logged. That rite's `faith` field names the vanilla faith `baltic_pagan`. Faith history can assign a rite to another faith from a date on: vanilla `catholic` and `orthodox` get `roman_rite` and `byzantine_rite`, whose `faith` is `christian_faith`, in `history/faiths/00_christianity.txt`. Warn when a faith's `main_rite` names a rite whose `faith` is another faith, and the faith's history never lists it as `main_rite` or in `rites`.
