@@ -108,3 +108,6 @@ Checks that existed before a game update and behave differently after it: relaxe
 | Decisions with the `create_holy_order` controller no longer get `scope:ruler` outside `title_valid` | tightened | 1.20 docs; vanilla agrees | `b971a3b9` |
 | Diarchy `liege_modifier` and `diarch_modifier` need a `name` | tightened | 1.20 docs; binary; vanilla agrees | `77614975` |
 | A faith is unreformed if a doctrine or core tenet of the faith, its religion or its main rite makes it so, not only its own doctrines (`reformed_icon`, the `_old` locs) | both | 1.20 docs; in-game test | `027ce778`, `a15f919b` |
+| Doctrine `piety_cost` no longer gets `selected_doctrines` (tenet `piety_cost` keeps it, `TODO: verify`) | tightened | 1.20 docs; vanilla agrees | `a316bc9a` |
+| Doctrine and tenet parameters need their `doctrine_parameter_<name>` loc (`TODO: verify`, T64), and `parameter_opinion_override` keys need `doctrine_parameter_<key>_opinion_active` | tightened | 1.20 docs | `a316bc9a` |
+| Dynasty and house `forced_coa_religiongroup` gets "not used by the game" | tightened | 1.20 docs | `e3ff46d7` |

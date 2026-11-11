@@ -711,7 +711,7 @@ Settled without a game test:
   - Passable, or errors about these provinces: the entry is ignored, and the 3 provinces aren't impassable (low).
 - **Result (1.20.1.2):** province 12881 is impassable, no errors. Follow-up F64.
 
-## CK3 1.20: review of the upstream PR (T36 to T39, T53, T61, T63)
+## CK3 1.20: review of the upstream PR (T36 to T39, T53, T61, T63, T64)
 
 Questions from the review of the upstream PR (#324). The results of T36 to T39 were applied in `8c8a2f4d`. Their files go into new files named `zz_tiger_test3*` (UTF-8 BOM), with the namespace `zz_tiger_test3`: `events/zz_tiger_test3_events.txt` and `localization/english/zz_tiger_test3_l_english.yml`.
 
@@ -960,6 +960,14 @@ Questions from the review of the upstream PR (#324). The results of T36 to T39 w
   - "bare name: not set" with the control set, or a parse error at the bare name: the culture docs are wrong. Accept only `name = yes` in culture parameters, and add a "Known docs issue".
 
 **Result (1.20.1.2):** no errors; on the first run the tradition was added and present, and both "bare name: set" and "control name = yes: set". Bare names work in culture trait parameters and take effect at once, so tiger keeps accepting both forms.
+
+### T64. Doctrine parameters without `doctrine_parameter_<name>` loc
+
+- The doctrine docs say "Effects are localized based on the parameter name. "doctrine_parameter_" plus the name.", and the tenet docs refer to the doctrine docs. The reviewer (PR #324, review set 8, `doctrines.rs`) asks tiger to check that loc. `verify_parameter_loca` in `src/ck3/data/doctrines.rs` now does, for doctrine and tenet parameters (`TODO: verify`, `a316bc9a`). 27 of the 399 vanilla parameter names have no such loc (30 places, 22 in doctrines and 8 in tenets), among them `doctrine_monogamy` and `doctrine_polygamy`; 9 others have an empty `""` loc.
+- No files: vanilla only.
+- Start as a Catholic ruler and open the faith view. Hover the Monogamous doctrine (Marriage): the control line "Rulers get a significant bonus when they marry for the first time" (`marriage_event`) must be among its effects. Look for a raw key like `doctrine_parameter_doctrine_monogamy`. If possible, also check an Islamic faith's Polygamous doctrine: control "Having too few spouses will incur a piety penalty" (`spouse_piety_loss`), check `doctrine_parameter_doctrine_polygamy`.
+  - Raw key shown: the loc is required. Remove the `TODO`; the vanilla reports are real.
+  - Nothing shown for the parameter, with the control shown: the game skips parameters without loc. Replace the check with `mark_used`, and reply to the reviewer why.
 
 ## CK3 1.20: review of the Unop's vanilla-issue rules (T40 to T52)
 
