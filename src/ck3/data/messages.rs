@@ -20,13 +20,19 @@ impl Message {
 }
 
 impl DbKind for Message {
-    fn validate(&self, _key: &Token, block: &Block, data: &Everything) {
+    fn validate(&self, key: &Token, block: &Block, data: &Everything) {
         let mut vd = Validator::new(block, data);
 
         vd.field_choice("display", &["feed", "toast", "popup", "hidden"]);
         vd.field_item("message_filter_type", Item::MessageFilterType);
-        vd.field_item("title", Item::Localization);
-        vd.field_item("desc", Item::Localization);
+        // The docs say the title defaults to the message key, and the desc to the key plus `_desc`
+        if !vd.field_item("title", Item::Localization) {
+            data.verify_exists(Item::Localization, key);
+        }
+        if !vd.field_item("desc", Item::Localization) {
+            let loca = format!("{key}_desc");
+            data.verify_exists_implied(Item::Localization, &loca, key);
+        }
         vd.field_item("tooltip", Item::Localization);
         vd.field_item("soundeffect", Item::Sound);
         vd.field_icon("icon", "NGameIcons|MESSAGE_ICON_PATH", ".dds");
