@@ -115,3 +115,6 @@ Checks that existed before a game update and behave differently after it: relaxe
 | Holy site `faith_character_modifier` no longer accepts `name` (it came from the old `character_modifier`) | tightened | 1.20 docs; vanilla agrees | `c00bb8fb` |
 | A message without `title` or `desc` needs the `<key>` or `<key>_desc` loc | tightened | 1.20 docs; vanilla agrees | `7064d9e7` |
 | Scheme `phases_per_agent_charge` is an integer, not a script value | tightened | 1.20 docs; vanilla agrees | `6aa9390f` |
+| Subject contract: the default obligation level (marked, or else the first) must not have `is_valid` or `is_shown` | tightened | 1.20 docs; vanilla agrees | `26e3bf37`, `58c380fd` |
+| Tax slot type `aptitude_level_breakpoints` must be numbers, each higher than the previous one | tightened | 1.20 docs; vanilla agrees | `26e3bf37`, `58c380fd` |
+| Tax obligation `tax_factor` and `levies_factor` are script values with the subject contract obligation scopes, not numbers | relaxed | 1.20 docs | `26e3bf37`, `58c380fd` |
