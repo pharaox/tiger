@@ -57,7 +57,8 @@ Follow upstream's conventions for marking judgement calls:
 
 - **Docs mismatch**: ``vd.advice_field("x", "docs say `x` but it's `y`")``.
 - **Removed field**: `vd.advice_field("x", "removed in <version>")`. **Renamed field**: `vd.replaced_field("old", "new")`.
-- **Deprecated form** (the docs call it old, legacy or a compatibility option, but it still works): `warn(ErrorKey::Deprecated)` with "should use `new` instead of `old`". Keep mappings from old to new values in a table. Not for alternative forms that the docs merely stop showing, such as `name = yes` in parameter lists.
+- **Deprecated form** (the docs call it deprecated or old, or say not to use it anymore, but it still works): `warn(ErrorKey::Deprecated)` with "should use `new` instead of `old`". Keep mappings from old to new values in a table. Not for alternative forms that the docs merely stop showing, such as `name = yes` in parameter lists.
+- **Alias** (the docs say an old field name is still read as an alias of a new one, e.g. a "legacy alias" or a "compatibility option"): the same, but `untidy`, since it works just like the new name.
 - **Dropped from the docs** (a field, value, scope or root the new docs no longer mention, and vanilla doesn't use): stop accepting it, so it is reported as unknown. Keep it only if tiger has evidence that it still works, such as a comment or TODO in the code. If the docs or vanilla name a successor, use `replaced_field`.
 - **Removed trigger or effect**: `Removed("<version>", "<replacement or empty>")`. Removed targets, iterators and modifiers go in the matching `*_REMOVED` tables.
 - **Undocumented** but used by vanilla: `// undocumented` (`# undocumented` in `on_action.rs`).

@@ -113,3 +113,5 @@ Checks that existed before a game update and behave differently after it: relaxe
 | Dynasty and house `forced_coa_religiongroup` gets "not used by the game" | tightened | 1.20 docs | `e3ff46d7` |
 | A name in two name equivalency lists of the same gender is an error; a name listed twice in one list is untidy | tightened | 1.20 docs | `1ee72102`, `35155926` |
 | Holy site `faith_character_modifier` no longer accepts `name` (it came from the old `character_modifier`) | tightened | 1.20 docs; vanilla agrees | `c00bb8fb` |
+| A message without `title` or `desc` needs the `<key>` or `<key>_desc` loc | tightened | 1.20 docs; vanilla agrees | `7064d9e7` |
+| Scheme `phases_per_agent_charge` is an integer, not a script value | tightened | 1.20 docs; vanilla agrees | `6aa9390f` |
