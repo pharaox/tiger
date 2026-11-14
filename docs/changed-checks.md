@@ -70,7 +70,7 @@ Checks that existed before a game update and behave differently after it: relaxe
 | Law `<key>_effects` loc is optional | relaxed | 1.20 docs | `abd6b31a` |
 | Opinion modifiers: `decaying` needs `monthly_change` or a duration; no negative `monthly_change` | tightened | 1.20 docs | `abd6b31a` |
 | Undocumented scripted costs reported | tightened | 1.20 docs; vanilla agrees | `abd6b31a` |
-| Game concept aliases that clash with a concept or alias are errors | tightened | 1.20 docs | `abd6b31a` |
+| Game concept aliases that clash with a concept or another concept's alias are errors; an alias repeated in its own concept is a warning | tightened | 1.20 docs | `abd6b31a`, `eb8b06e9` |
 | Interactions with `target_type = court_position_type` get `scope:target` | relaxed | 1.20 docs; vanilla agrees | `abd6b31a` |
 | Struggles: an ending phase counts as an ending | relaxed | 1.20 docs | `abd6b31a` |
 | Effect loc fallbacks `_global_past`/`_first_past` (typo fixed) | relaxed | 1.20 docs; vanilla agrees | `abd6b31a` |
@@ -111,3 +111,5 @@ Checks that existed before a game update and behave differently after it: relaxe
 | Doctrine `piety_cost` no longer gets `selected_doctrines` (tenet `piety_cost` keeps it, `TODO: verify`) | tightened | 1.20 docs; vanilla agrees | `a316bc9a` |
 | Doctrine and tenet parameters need their `doctrine_parameter_<name>` loc (`TODO: verify`, T64), and `parameter_opinion_override` keys need `doctrine_parameter_<key>_opinion_active` | tightened | 1.20 docs | `a316bc9a` |
 | Dynasty and house `forced_coa_religiongroup` gets "not used by the game" | tightened | 1.20 docs | `e3ff46d7` |
+| A name in two name equivalency lists of the same gender is an error; a name listed twice in one list is untidy | tightened | 1.20 docs | `1ee72102`, `35155926` |
+| Holy site `faith_character_modifier` no longer accepts `name` (it came from the old `character_modifier`) | tightened | 1.20 docs; vanilla agrees | `c00bb8fb` |
