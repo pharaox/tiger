@@ -1,0 +1,7 @@
+﻿# An alias repeated in its own concept is a warning; an alias of two concepts is an error
+zz_tiger_test_concept = {
+	alias = { zz_tiger_test_alias zz_tiger_test_alias zz_tiger_test_other }
+}
+zz_tiger_test_concept2 = {
+	alias = { zz_tiger_test_other }
+}

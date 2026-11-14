@@ -1,0 +1,2 @@
+warning missing-localization common/messages/zz_tiger_test.txt:2:1: missing english localization key zz_tiger_test_msg_no_loc
+warning missing-localization common/messages/zz_tiger_test.txt:2:1: missing english localization key zz_tiger_test_msg_no_loc_desc

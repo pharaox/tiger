@@ -1,0 +1,4 @@
+﻿# Each breakpoint must be higher than the previous one: the second 20 and the 10 are wrong
+zz_tiger_test_slot = {
+	aptitude_level_breakpoints = { 20 20 45 10 }
+}

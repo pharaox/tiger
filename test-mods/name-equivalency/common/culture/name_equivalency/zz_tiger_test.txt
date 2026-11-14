@@ -1,0 +1,2 @@
+﻿# A name listed twice in one list is untidy; a name in two lists of the same gender is an error
+zz_tiger_test_male = { Zzrnine Zzrnine Aaron }

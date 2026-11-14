@@ -1,0 +1,5 @@
+error validation common/tax_slots/types/zz_tiger_test.txt:3:36: each breakpoint must be higher than the previous one
+error validation common/tax_slots/types/zz_tiger_test.txt:3:42: each breakpoint must be higher than the previous one
+warning missing-file common/tax_slots/obligations/zz_tiger_test.txt:2:1: file gfx/interface/icons/tax_slot_obligations/zz_tiger_test_obligation.dds does not exist
+warning missing-localization common/tax_slots/obligations/zz_tiger_test.txt:2:1: missing english localization key zz_tiger_test_obligation
+warning missing-localization common/tax_slots/obligations/zz_tiger_test.txt:2:1: missing english localization key zz_tiger_test_obligation_flavor_desc

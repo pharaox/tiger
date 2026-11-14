@@ -56,17 +56,30 @@ GitHub: [amtep/tiger](https://github.com/amtep/tiger) (upstream). Wiki: [Overvie
 Follow upstream's conventions for marking judgement calls:
 
 - **Docs mismatch**: ``vd.advice_field("x", "docs say `x` but it's `y`")``.
-- **Removed field**: `vd.advice_field("x", "removed in <version>")`. **Renamed field**: `vd.replaced_field("old", "new")`.
+- **Removed field**: `vd.advice_field("x", "removed in <version>")`. **Renamed field**: `vd.replaced_field("old", "new")`, with the new name bare (no backticks), unless it's a description such as ``"`new` in faiths and rites"``.
 - **Deprecated form** (the docs call it deprecated or old, or say not to use it anymore, but it still works): `warn(ErrorKey::Deprecated)` with "should use `new` instead of `old`". Keep mappings from old to new values in a table. Not for alternative forms that the docs merely stop showing, such as `name = yes` in parameter lists.
 - **Alias** (the docs say an old field name is still read as an alias of a new one, e.g. a "legacy alias" or a "compatibility option"): the same, but `untidy`, since it works just like the new name.
 - **Dropped from the docs** (a field, value, scope or root the new docs no longer mention, and vanilla doesn't use): stop accepting it, so it is reported as unknown. Keep it only if tiger has evidence that it still works, such as a comment or TODO in the code. If the docs or vanilla name a successor, use `replaced_field`.
 - **Removed trigger or effect**: `Removed("<version>", "<replacement or empty>")`. Removed targets, iterators and modifiers go in the matching `*_REMOVED` tables.
-- **Undocumented** but used by vanilla: `// undocumented` (`# undocumented` in `on_action.rs`).
+- **Undocumented** but used by vanilla: `// undocumented` (`# undocumented` in `on_action.rs`). Search all `.info` files first: a field can be documented in another folder's file. Keep a field that neither the docs nor vanilla use only if the game binary has it: `// undocumented, but in the game binary`.
+- **Optional scope** in the on_action and rule tables, when the docs say it may not be set: `# may be unset`.
 - **Guess**: `TODO: verify ...` (`# TODO: verify scope type` in `on_action.rs`). This includes following vanilla where the docs are silent and vanilla uses the form only a few times (e.g. an undocumented root), which only a game test can settle.
 - **Version markers**: `LAST UPDATED <GAME> VERSION <version>` above a table means the whole table was checked against the source its comment names, for that version. Update the marker only after such a check.
 - **Argument types** in the trigger and effect tables:
   - Triggers follow the `Traits:` line of the docs: "Database key" means `Item`, scope or target means `Scope`, both mean `ScopeOrItem`.
   - Effects follow the docs examples plus vanilla usage. If vanilla uses bare keys anywhere, use `ScopeOrItem`. Confirm with a vanilla run.
+
+### Idioms
+
+- **Scope contexts per field**: use `field_*_rooted` when a field needs only a root, and `field_*_builder` otherwise, so that reports point at the field. For several fields with the same scopes, pass one closure that captures nothing (it is `Copy`) to each. Don't build a context up front for a single field.
+- **`field_item`** rather than `field_value` plus `data.verify_exists`.
+- **Repeats and clashes**: find them in one pass with a `TigerHashSet` or `TigerHashMap`, and report each once, with a `loc_msg` to the first. A repeat within one list is `untidy`, a clash between items an error. Checks across all items of a type go in a `validate_all` hook (registered in `everything.rs`), in load order (sorted by `key.loc`), so that reports point at the later item.
+- **Table lookups per item**: a `static LazyLock<TigerHashMap>` next to the table, behind a lookup function (like `scope_to_scope` in `targets.rs`), rather than a search of the table.
+- **Loc keys the docs name**, including the default key of an absent field: `if !vd.field_item(...) { data.verify_exists(...) }`. Use `mark_used` only for keys the docs call optional.
+- **Script value fields**: a range or sum check applies only when the value is a plain number (`get_number()`); `field_numeric_range` on the same field would reject blocks. Don't make a field that the docs and vanilla show as a number a script value without evidence.
+- **Reports**: choose the severity by the definitions in `src/report/report_struct.rs` (a warning is something the player will notice), and an `ErrorKey` that names the problem (`MissingItem` only for an item that doesn't exist). Name the clashing value in the message, and point at it with `loc_msg`.
+- **No duplication**: put a scope context or logic used twice in one function, after the `impl` that uses it, and don't add a second item type for the same thing.
+- **Names**: `loca` for loc keys, `loc` for file locations.
 
 ### Style
 
@@ -88,7 +101,7 @@ Follow upstream's conventions for marking judgement calls:
 - **Never** add Claude or Claude Code attributions (e.g. `Co-Authored-By` trailers or "Generated with Claude Code") to commit messages, pull request descriptions, issues, or comments.
 - **Never** change the git staging area (e.g. `git stash`, `git restore --staged`, `git reset`) without asking first. The user stages changes to review them. For a baseline of the committed state, use a temporary `git worktree`.
 - **Stage by path.** Avoid `git add -A`, `git add .`, and `git commit -a`, which can sweep in local-only changes.
-- **One logical change per commit.** Use a `<game>: ` prefix (none for shared code) and a short imperative summary, e.g. `ck3: update modifiers for 1.20`. The body says what changed and why, including any verified game behaviour.
+- **One logical change per commit.** Use a `<game>:` prefix (none for shared code) and a short imperative summary, e.g. `ck3: update modifiers for 1.20`. The body says what changed and why, including any verified game behaviour.
 - **Push only when asked.**
 
 ## Docs

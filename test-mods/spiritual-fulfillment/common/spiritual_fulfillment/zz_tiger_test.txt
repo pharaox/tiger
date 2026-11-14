@@ -1,0 +1,12 @@
+﻿# A religion listed twice, a religion in vanilla's types, repeated thresholds (10 and 10.0,
+# -0 and 0), and a second type without religions
+zz_tiger_test_fulfillment = {
+	religions = { christianity_religion islam_religion islam_religion }
+	level = { threshold = 10 icon = "gfx/x.dds" }
+	level = { threshold = 10.0 icon = "gfx/x.dds" }
+	level = { threshold = -0 icon = "gfx/x.dds" }
+	level = { threshold = 0 icon = "gfx/x.dds" }
+}
+zz_tiger_test_fallback = {
+	level = { threshold = 5 icon = "gfx/x.dds" }
+}

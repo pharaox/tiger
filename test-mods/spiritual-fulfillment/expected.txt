@@ -1,0 +1,15 @@
+error conflict common/spiritual_fulfillment/zz_tiger_test.txt:4:16: religion christianity_religion is in more than one spiritual fulfillment type
+    common/spiritual_fulfillment/00_spiritual_fulfillment_types.txt:2:16 (other type)
+error duplicate-field common/spiritual_fulfillment/zz_tiger_test.txt:6:10: levels must have unique thresholds
+    common/spiritual_fulfillment/zz_tiger_test.txt:5:10 (other level)
+error duplicate-field common/spiritual_fulfillment/zz_tiger_test.txt:8:10: levels must have unique thresholds
+    common/spiritual_fulfillment/zz_tiger_test.txt:7:10 (other level)
+untidy duplicate-item common/spiritual_fulfillment/zz_tiger_test.txt:4:53: religion islam_religion is listed twice
+    common/spiritual_fulfillment/zz_tiger_test.txt:4:38 (earlier listing)
+warning conflict common/spiritual_fulfillment/zz_tiger_test.txt:10:1: more than one spiritual fulfillment type without religions
+    common/spiritual_fulfillment/00_spiritual_fulfillment_types.txt:116:1 (other type)
+warning missing-file common/spiritual_fulfillment/zz_tiger_test.txt:11:34: file gfx/x.dds does not exist
+warning missing-file common/spiritual_fulfillment/zz_tiger_test.txt:5:35: file gfx/x.dds does not exist
+warning missing-file common/spiritual_fulfillment/zz_tiger_test.txt:6:37: file gfx/x.dds does not exist
+warning missing-file common/spiritual_fulfillment/zz_tiger_test.txt:7:35: file gfx/x.dds does not exist
+warning missing-file common/spiritual_fulfillment/zz_tiger_test.txt:8:34: file gfx/x.dds does not exist

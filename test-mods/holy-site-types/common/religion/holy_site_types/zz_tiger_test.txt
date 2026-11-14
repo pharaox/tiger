@@ -1,0 +1,8 @@
+﻿# faith_character_modifier takes no name
+zz_tiger_test_site = {
+	county = c_roma
+	faith_character_modifier = {
+		name = zz_tiger_test_name
+		monthly_piety = 1
+	}
+}

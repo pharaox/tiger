@@ -1,0 +1,10 @@
+error conflict common/game_concepts/zz_tiger_test.txt:6:12: alias zz_tiger_test_other is also an alias of game concept zz_tiger_test_concept
+warning duplicate-item common/game_concepts/zz_tiger_test.txt:3:32: alias zz_tiger_test_alias is listed twice
+warning missing-localization common/game_concepts/zz_tiger_test.txt:2:1: missing english localization key game_concept_zz_tiger_test_concept
+warning missing-localization common/game_concepts/zz_tiger_test.txt:2:1: missing english localization key game_concept_zz_tiger_test_concept_desc
+warning missing-localization common/game_concepts/zz_tiger_test.txt:3:12: missing english localization key game_concept_zz_tiger_test_alias
+warning missing-localization common/game_concepts/zz_tiger_test.txt:3:32: missing english localization key game_concept_zz_tiger_test_alias
+warning missing-localization common/game_concepts/zz_tiger_test.txt:3:52: missing english localization key game_concept_zz_tiger_test_other
+warning missing-localization common/game_concepts/zz_tiger_test.txt:5:1: missing english localization key game_concept_zz_tiger_test_concept2
+warning missing-localization common/game_concepts/zz_tiger_test.txt:5:1: missing english localization key game_concept_zz_tiger_test_concept2_desc
+warning missing-localization common/game_concepts/zz_tiger_test.txt:6:12: missing english localization key game_concept_zz_tiger_test_other

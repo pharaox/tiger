@@ -1,0 +1,6 @@
+error conflict common/culture/name_equivalency/zz_tiger_test.txt:2:40: name Aaron is in two name equivalency lists
+    common/culture/name_equivalency/00_names.txt:1:16 (other list)
+untidy duplicate-item common/culture/name_equivalency/zz_tiger_test.txt:2:32: name Zzrnine is listed twice
+    common/culture/name_equivalency/zz_tiger_test.txt:2:24 (earlier listing)
+warning missing-localization common/culture/name_equivalency/zz_tiger_test.txt:2:24: missing english localization key Zzrnine
+warning missing-localization common/culture/name_equivalency/zz_tiger_test.txt:2:32: missing english localization key Zzrnine

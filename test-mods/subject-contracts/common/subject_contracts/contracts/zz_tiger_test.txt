@@ -1,0 +1,8 @@
+﻿# A level keyed `default` is the default by being first, so it must not have is_valid
+zz_tiger_test_obligations = {
+	obligation_levels = {
+		default = {
+			is_valid = { always = yes }
+		}
+	}
+}

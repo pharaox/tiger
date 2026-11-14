@@ -1,0 +1,28 @@
+﻿# Shares that are plain numbers must be from 0 to 1 and add up to at most 1
+zz_tiger_test_lease = {
+	government = theocracy_government
+	tax_split = {
+		ruler = 1.5
+	}
+	levy_split = {
+		ruler = -0.2
+		ruler_max = 0.5
+	}
+}
+# Overrides vanilla: tax shares add up to 1.1; the levy shares are fine, since a block adds at least 0
+theocracy_lease = {
+	hierarchy = {
+		type = vassal
+		lessee = cp:councillor_court_chaplain
+	}
+	government = theocracy_government
+	tax_split = {
+		lease_liege = 0.6
+		top_lease_liege_direct = 0.3
+		ruler = 0.2
+	}
+	levy_split = {
+		lease_liege = 0.5
+		ruler = { value = 0.9 }
+	}
+}

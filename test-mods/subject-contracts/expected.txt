@@ -1,0 +1,2 @@
+error validation common/subject_contracts/contracts/zz_tiger_test.txt:5:4: the default obligation level must not have `is_valid`
+warning missing-localization common/subject_contracts/contracts/zz_tiger_test.txt:2:1: missing english localization key zz_tiger_test_obligations

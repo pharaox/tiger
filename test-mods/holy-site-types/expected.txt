@@ -1,0 +1,2 @@
+error unknown-field common/religion/holy_site_types/zz_tiger_test.txt:5:3: unknown modifier `name`
+warning missing-localization common/religion/holy_site_types/zz_tiger_test.txt:2:1: missing english localization key holy_site_zz_tiger_test_site_name

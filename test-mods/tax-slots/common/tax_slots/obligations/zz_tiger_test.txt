@@ -1,0 +1,10 @@
+﻿# The contribution values have the subject contract scopes, including scope:subject
+zz_tiger_test_obligation = {
+	tax = {
+		value = 0
+		if = {
+			limit = { scope:subject = { is_adult = yes } }
+			add = 0.1
+		}
+	}
+}

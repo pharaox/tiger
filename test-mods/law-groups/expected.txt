@@ -1,0 +1,2 @@
+error conflict common/law_groups/zz_tiger_test.txt:3:12: law male_preference_law is in law group succession_gender_laws
+    common/laws/00_succession_laws.txt:2025:19 (law group)

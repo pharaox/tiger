@@ -39,7 +39,7 @@ Update tiger's CK3 support to a new game version: the engine tables, the loaders
 - **Working on your own**: When the user lets you continue without stopping, apply the rules already agreed, and log every judgement call in `tmp/judgement-calls.md` instead of stopping: the docs text, the vanilla evidence, what you did, and whether a game test could settle it. The user reviews the log at the end.
 - **Self-audit before showing a step.** Check it against the [Conventions](../../CLAUDE.md#conventions). Confirm any decision that makes a check stricter, e.g. making an argument scope-only, with a vanilla run.
 - **Fix only false positives caused by the update.** Pre-existing tiger gaps are out of scope, except mismatches between the tables and the logs or game files, and contradictions between the docs (old or new) and tiger that vanilla settles in favour of the docs. Fix those alongside, and give each a row in the catalogue of changed checks. Record the other pre-existing gaps you find in [follow-up.md](../../docs/follow-up.md).
-- **Keep upstream bugs out of the update.** A bug found along the way that the update didn't cause (1.20: `field_script_value_no_breakdown_rooted` did the same as `field_script_value_rooted`) goes in a separate commit. Don't trust a helper's name: read what it does.
+- **Keep upstream bugs out of the update.** A bug found along the way that the update didn't cause goes in a separate commit. Don't trust a helper's name: read what it does.
 - **Keep a working plan** in `.claude/plans/ck3-<version>-update.md` with progress, run results, findings, and a "How to resume" section. Update it after every step.
 - **Keep a catalogue of changed pre-existing checks** in [changed-checks.md](../../docs/changed-checks.md): a new section for the version, one row per change, with its direction (relaxed, tightened, both), evidence and commit. Include gaps fixed alongside and checks the update had silently disabled. Update it after every step; it is what reviewers need most.
 - **Game tests**: When the docs, vanilla and the binary don't settle a question, write an in-game test in [game-tests.md](../../docs/game-tests.md) under the next T number: the files to create, a control that must work and one that must fail, and how to read the result. Ask the user to run it, then record the result there and apply it.
@@ -73,14 +73,14 @@ One commit per sub-step.
 
 1. **Version**: `GAME_CONSTS.version` in `ck3-tiger/src/lib.rs`.
 2. **Datatypes**: Run `cargo run -p utils --bin munch-data-types -- --game ck3 --logs <logs>/data_types --out tiger-tables/src/ck3/include/`. Review the diff, restore any hand refinements the tool overwrote, and add new datatypes until it compiles.
-3. **Scopes**: Add and remove `Scopes` flags in `src/scopes.rs`, together with the CK3 name and display mappings, then follow the compile errors. Add the new prefixed links to `needs_prefix` in `src/ck3/scopes.rs` too; nothing fails without them, but the hint for a bare key is lost.
+3. **Scopes**: Add and remove `Scopes` flags in `src/scopes.rs`, together with the CK3 name and display mappings, then follow the compile errors. Give new flags the bits that removed flags freed, so that no gaps remain. Add the new prefixed links to `needs_prefix` in `src/ck3/scopes.rs` too; nothing fails without them, but the hint for a bare key is lost.
 4. **Event targets** (`src/ck3/tables/targets.rs`, from `event_targets.log`):
    - Targets with `Requires Data: yes` go in `SCOPE_PREFIX`, all others in `SCOPE_TO_SCOPE`.
    - Removed targets go in `SCOPE_TO_SCOPE_REMOVED`.
    - Check existing targets for changed input or output scopes.
 5. **On actions** (`src/ck3/tables/on_action.rs`, from `on_actions.log`):
    - Add the `From Code: Yes` entries, with scopes from the comments in vanilla `common/on_action`.
-   - Mark scopes that are used but undocumented with `# undocumented`, and guessed scope types with `# TODO: verify scope type`.
+   - Mark scopes that are used but undocumented with `# undocumented`, scopes the docs say may not be set with `# may be unset`, and guessed scope types with `# TODO: verify scope type`.
    - Check for code on_actions that tiger never had.
 6. **Modifiers** (`src/ck3/tables/modifs.rs`, from `modifiers.log`):
    - Check the `lookup_modif` patterns first, since many modifiers are generated (per terrain, per skill, ...).
@@ -126,7 +126,7 @@ One commit per item type, largest report groups first.
 - **Moved structures**: When items move to their own folder (1.20: faiths out of religions, laws out of law groups, doctrines naming their group), update everything that read the old structure, e.g. checks that looked up the group's member list. Fix the folder named in `item.rs` too; it appears in "not defined in ..." messages.
 - **Docs vs. old tiger code**: When docs contradict existing tiger code, check vanilla. If vanilla uses the documented form, fix tiger. If it doesn't, tiger may be right and the docs wrong: leave tiger as it is with a `// TODO: verify ...` comment. This applies to docs that didn't change too (see [examples.md](examples.md#unchanged-docs-contradicting-tiger-120)).
 - **Forms the new docs drop**: A field, value, scope or root that the new docs no longer mention, and that vanilla doesn't use, is most likely gone or was a docs error. Stop accepting it, unless tiger's code has evidence that it works (see the [Conventions](../../CLAUDE.md#conventions)). Confirm with a vanilla run that nothing uses it.
-- **Shared structures**: When an `.info` file says its items share a structure documented elsewhere (1.20: culture pillars and traditions, `_cultural_traits.info`), validate the shared part with one function and only the extras per item type, and audit all the related `.info` files together.
+- **Shared structures**: When an `.info` file says its items share a structure documented elsewhere (1.20: culture pillars and traditions, `_cultural_traits.info`), validate the shared part with one function and only the extras per item type, and audit all the related `.info` files together. A reference such as "same format as" another file's items brings the scopes documented there too.
 - **Rules in the docs**: Check them against vanilla before adding them. Some apply only at the top level (bookmark characters), and some are contradicted by consistent vanilla use; ask the user before dropping one.
 - **Legacy forms**: Search all `.info` files for "still work", "legacy", "deprecated" and "compatibility", and report each such form as deprecated (see [Conventions](../../CLAUDE.md#conventions)).
 - **Checks without a vanilla signal**: Confirm every new or changed check that vanilla doesn't exercise (new loaders, fields vanilla doesn't use, error sides vanilla never trips) with a scratchpad test mod: one deliberate mistake per check, plus the valid and legacy forms, which must give no report (or only the deprecated report). Give the files a UTF-8 BOM, or tiger skips them, and give the mod its own localization file, or missing-loc reports don't appear.
@@ -151,6 +151,8 @@ Back up the user's installed tiger binary, then copy `target/release/ck3-tiger` 
 
 1. Open a PR against upstream `main` when the user asks. Describe the changes per area and link the catalogue of changed checks, so reviewers can see every relaxation and its evidence.
 2. Answer review comments one by one. Questions only a game test can settle get a T number like any other.
+   - When a comment points out a mistake, look for the same mistake across the PR before replying, and fix those too.
+   - Draft the replies with the hashes of the fixing commits, and post them only after the user has pushed.
 3. File the follow-ups that are real tiger gaps as upstream issues when the user asks: one problem per issue, title prefixed `ck3: ` (none for shared code), the problem with its evidence, then a **Proposed fix** section, in a neutral voice. Link each issue from its follow-up.
 
 ## Scripts

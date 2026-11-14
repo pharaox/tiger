@@ -1,0 +1,4 @@
+﻿# Without title and desc, the message needs the <key> and <key>_desc loc
+zz_tiger_test_msg_no_loc = {
+	display = feed
+}

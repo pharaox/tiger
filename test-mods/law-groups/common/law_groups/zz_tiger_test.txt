@@ -1,0 +1,5 @@
+﻿# The default law is from another law group
+zz_tiger_test_law_group = {
+	default = male_preference_law
+	flag = zz_tiger_test_law_group
+}
