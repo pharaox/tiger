@@ -7,7 +7,7 @@ use crate::everything::Everything;
 use crate::game::GameFlags;
 use crate::item::{Item, ItemLoader};
 use crate::modif::{validate_modifs, verify_modif_exists};
-use crate::report::{ErrorKey, Severity, warn};
+use crate::report::{ErrorKey, Severity, untidy, warn};
 use crate::scopes::Scopes;
 use crate::token::Token;
 use crate::tooltipped::Tooltipped;
@@ -152,7 +152,7 @@ impl DbKind for ArtifactVisual {
         // The docs say `pedestal` is an old alias of `support_type`
         if let Some(key) = block.get_key("pedestal") {
             let msg = "should use `support_type` instead of `pedestal`";
-            warn(ErrorKey::Deprecated).msg(msg).loc(key).push();
+            untidy(ErrorKey::Deprecated).msg(msg).loc(key).push();
         }
         vd.field_choice("pedestal", SUPPORT_TYPES);
         vd.field_choice("support_type", SUPPORT_TYPES);

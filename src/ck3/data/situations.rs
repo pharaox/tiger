@@ -7,7 +7,7 @@ use crate::game::GameFlags;
 use crate::item::{Item, ItemLoader, LoadAsFile, Recursive};
 use crate::modif::validate_modifs;
 use crate::pdxfile::PdxEncoding;
-use crate::report::{ErrorKey, err, warn};
+use crate::report::{ErrorKey, err, untidy, warn};
 use crate::scopes::Scopes;
 use crate::script_value::validate_script_value_no_breakdown;
 use crate::token::Token;
@@ -390,7 +390,7 @@ fn validate_sub_region(key: &Token, block: &Block, data: &Everything, situation:
     // The docs say this is a legacy alias of `center_province`
     if let Some(key) = block.get_key("capital_province") {
         let msg = "should use `center_province` instead of `capital_province`";
-        warn(ErrorKey::Deprecated).msg(msg).loc(key).push();
+        untidy(ErrorKey::Deprecated).msg(msg).loc(key).push();
     }
     vd.field_item("capital_province", Item::Province);
 }

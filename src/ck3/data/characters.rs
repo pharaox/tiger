@@ -792,7 +792,7 @@ impl Character {
 /// The docs say `religion` is only supported as a compatibility option
 fn deprecated_religion(key: &Token) {
     let msg = "should use `faith` instead of `religion`";
-    warn(ErrorKey::Deprecated).msg(msg).loc(key).push();
+    untidy(ErrorKey::Deprecated).msg(msg).loc(key).push();
 }
 
 fn validate_portrait_override(block: &Block, data: &Everything) {
