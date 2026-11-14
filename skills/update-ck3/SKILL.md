@@ -26,7 +26,7 @@ Update tiger's CK3 support to a new game version: the engine tables, the loaders
   - The script docs and `data_types` logs of the old and the new version, sorted with `sort-log.py` (in the repo root).
   - Frozen copies of the old and the new game folders (e.g. `game-<version>` next to `game`). Compare them with `diff -r`.
   - The mods to use for acceptance, and where the user's installed tiger binary is.
-- Runs are not deterministic, so the same binary gives slightly different reports. For comparisons, make them byte-identical with `scripts/deterministic-hasher.patch` (`git apply` it; it gives `TigerHashMap` a hasher with fixed seeds in `src/helpers.rs`), plus `RAYON_NUM_THREADS=1`. Never commit that patch. Check first whether upstream has fixed this ([amtep/tiger#325](https://github.com/amtep/tiger/issues/325)).
+- Runs are not deterministic, so the same binary gives slightly different reports. For comparisons, make them byte-identical with `scripts/deterministic-hasher.patch` (`git apply` it; it gives `TigerHashMap` a hasher with fixed seeds in `src/helpers.rs`), plus `RAYON_NUM_THREADS=1`. Never commit that patch. Check first whether upstream has fixed this ([amtep/tiger#325](https://github.com/amtep/tiger/issues/325)). `scripts/same_reports.py` then shows whether a change left the reports exactly as they were.
 - Keep every run, named in step order (e.g. `tmp/A3.json`, `tmp/B12.json`). The vanilla classification in step 6 traces each report group through them.
 
 ## Arguments
@@ -35,12 +35,11 @@ Update tiger's CK3 support to a new game version: the engine tables, the loaders
 
 ## Guidelines
 
-- **Stop after every step.** Show what changed, explain the tiger concepts involved, and list every judgement call. Commit only after the user has reviewed the step.
-- **Working on your own**: When the user lets you continue without stopping, apply the rules already agreed, and log every judgement call in `tmp/judgement-calls.md` instead of stopping: the docs text, the vanilla evidence, what you did, and whether a game test could settle it. The user reviews the log at the end.
+- **Stop at the end of every workflow step**, not after every sub-step. Within a step, work on your own: apply the rules already agreed, and log every judgement call in the plan instead of stopping: the docs text, the vanilla evidence, what you did, and whether a game test could settle it. At the stop, show what changed, explain the tiger concepts involved, and go through the logged calls. Commit only after the user has reviewed the step.
 - **Self-audit before showing a step.** Check it against the [Conventions](../../CLAUDE.md#conventions). Confirm any decision that makes a check stricter, e.g. making an argument scope-only, with a vanilla run.
 - **Fix only false positives caused by the update.** Pre-existing tiger gaps are out of scope, except mismatches between the tables and the logs or game files, and contradictions between the docs (old or new) and tiger that vanilla settles in favour of the docs. Fix those alongside, and give each a row in the catalogue of changed checks. Record the other pre-existing gaps you find in [follow-up.md](../../docs/follow-up.md).
 - **Keep upstream bugs out of the update.** A bug found along the way that the update didn't cause goes in a separate commit. Don't trust a helper's name: read what it does.
-- **Keep a working plan** in `.claude/plans/ck3-<version>-update.md` with progress, run results, findings, and a "How to resume" section. Update it after every step.
+- **Keep a working plan** in `.claude/plans/ck3-<version>-update.md` with progress, run results and the report group changes of each step, findings, the judgement calls, and a "How to resume" section. Update it after every step. The 1.20 plan (`.claude/plans/ck3-1.20-update.md`) shows the structure.
 - **Keep a catalogue of changed pre-existing checks** in [changed-checks.md](../../docs/changed-checks.md): a new section for the version, one row per change, with its direction (relaxed, tightened, both), evidence and commit. Include gaps fixed alongside and checks the update had silently disabled. Update it after every step; it is what reviewers need most.
 - **Game tests**: When the docs, vanilla and the binary don't settle a question, write an in-game test in [game-tests.md](../../docs/game-tests.md) under the next T number: the files to create, a control that must work and one that must fail, and how to read the result. Ask the user to run it, then record the result there and apply it.
 - **Keep this skill up to date.** After every step, add new lessons here or to [examples.md](examples.md).
@@ -56,6 +55,7 @@ Update tiger's CK3 support to a new game version: the engine tables, the loaders
 2. Diff the `.info` files of the old and new game folders, and the old and new logs, by name. Record the additions, removals, and changes in the plan, with the tiger code for each `.info` from [info-mapping.md](../../docs/info-mapping.md). This is the map of the work.
 3. List the `.info` files that didn't change too. Step 5 reviews only the changed ones, so plan an audit of the unchanged ones against tiger, or record it as a follow-up. An unchanged `.info` can still contradict tiger.
 4. Read [follow-up.md](../../docs/follow-up.md) and the open tests in [game-tests.md](../../docs/game-tests.md): the new version may settle or change some of them.
+5. Rerun the test mods of earlier updates (`.claude/test-mods/`) with the old tiger on the new vanilla, using `scripts/test_mods.py`: a difference from their `expected.txt` points to a check that the new version affects.
 
 ### 2. Make Baselines
 
@@ -129,8 +129,8 @@ One commit per item type, largest report groups first.
 - **Shared structures**: When an `.info` file says its items share a structure documented elsewhere (1.20: culture pillars and traditions, `_cultural_traits.info`), validate the shared part with one function and only the extras per item type, and audit all the related `.info` files together. A reference such as "same format as" another file's items brings the scopes documented there too.
 - **Rules in the docs**: Check them against vanilla before adding them. Some apply only at the top level (bookmark characters), and some are contradicted by consistent vanilla use; ask the user before dropping one.
 - **Legacy forms**: Search all `.info` files for "still work", "legacy", "deprecated" and "compatibility", and report each such form as deprecated (see [Conventions](../../CLAUDE.md#conventions)).
-- **Checks without a vanilla signal**: Confirm every new or changed check that vanilla doesn't exercise (new loaders, fields vanilla doesn't use, error sides vanilla never trips) with a scratchpad test mod: one deliberate mistake per check, plus the valid and legacy forms, which must give no report (or only the deprecated report). Give the files a UTF-8 BOM, or tiger skips them, and give the mod its own localization file, or missing-loc reports don't appear.
-- After each item type, run vanilla again, and explain every group that disappears. Run `cargo test -p tiger-lib` too: a new required field can break the upstream test mods under `tests/files/`, including their line-number assertions.
+- **Checks without a vanilla signal**: Confirm every new or changed check that vanilla doesn't exercise (new loaders, fields vanilla doesn't use, error sides vanilla never trips) with a scratchpad test mod: one deliberate mistake per check, plus the valid and legacy forms, which must give no report (or only the deprecated report). Give the files a UTF-8 BOM, or tiger skips them, and give the mod its own localization file, or missing-loc reports don't appear. Save each test mod under `.claude/test-mods/<area>/`, with a comment on each deliberate mistake, and write its `expected.txt` with `scripts/test_mods.py --write`, so that the next update can rerun it.
+- After each item type, run vanilla again, and record in the plan every report group that changed, with its reason (e.g. "holy sites -12: sites removed from vanilla; +3 missing loc: vanilla bug"). Every group that disappears needs a reason. Run `cargo test -p tiger-lib` too: a new required field can break the upstream test mods under `tests/files/`, including their line-number assertions.
 - **Scope uses outside the folder**: Before deciding that vanilla doesn't use a scope or list, search the whole game tree, and trust the vanilla run over the search (see [examples.md](examples.md#uses-outside-the-items-folder-120)).
 - **Markers the docs make stale**: When a hunk documents a field, remove the validator's `// undocumented` and "docs say" markers for it, and search for other uses of a renamed field's old name, e.g. in `has_key` conditions (see [examples.md](examples.md#stale-markers-when-the-docs-catch-up-120)).
 - **Generated modifiers**: Don't require modifier formats for newly documented generated modifiers; tiger checks them when a modifier is used (see [examples.md](examples.md#generated-modifier-formats-only-when-used-120)).
@@ -138,22 +138,26 @@ One commit per item type, largest report groups first.
 ### 6. Accept
 
 1. **Vanilla**: Every group that is new compared with V_old is either a tiger gap (fix it) or a new vanilla bug (keep it). The user approves the classifications. Compare exact keys too: a group can change only because a language was added to the loc, or because the new version adds content with the same old problem.
-   - Trace every changed group, grown or shrunk, through the runs with `scripts/timeline.py`. A "vanilla" group comes from new or changed vanilla content checked the way the old tiger did. A "tiger" group changed in a step, whose commit must explain it; every drop needs such an explanation, never an unexplained relaxation.
+   - Collect the group changes recorded in the plan, and check them against `scripts/timeline.py`, which traces every changed group, grown or shrunk, through the runs. A "vanilla" group comes from new or changed vanilla content checked the way the old tiger did. A "tiger" group changed in a step, which must have recorded the reason; every drop needs such a reason, never an unexplained relaxation.
    - "Vanilla" groups can still be update gaps, where the new vanilla needs engine knowledge tiger lacks. Check those families one by one: unknown sounds, GUI fields, datafunctions and cast datatypes, defines and icons (1.20: the sounds table, three GUI properties, the `int_bool` cast). See [examples.md](examples.md#vanilla-only-groups-can-be-update-gaps-120).
-   - Write the classification to a doc for the user (1.20: `tmp/vanilla-classification.md`): the fixes it proposes, the new vanilla bugs, the pre-existing tiger behaviour that new content trips, and the explained drops.
+   - Write the classification to a doc for the user: the fixes it proposes, the new vanilla bugs, the pre-existing tiger behaviour that new content trips, and the explained drops.
 2. **Mods**: The user runs the mods without the sections that hide false positives from the outdated tiger. Explain every remaining report. The goal is that those sections can be deleted.
 
 ### 7. Install
 
-Back up the user's installed tiger binary, then copy `target/release/ck3-tiger` over it.
+Back up the user's installed tiger binary, then copy `target/release/ck3-tiger` over it. Then, in the mods (ask the user where they are):
+
+- Delete the conf sections that hid false positives from the outdated tiger, once step 6.2 has explained what they covered.
+- Update the mods' tiger skill: the false positives the update fixed, the new known ones with their upstream issues, and the docs issues that in-game tests settled.
 
 ### 8. Upstream
 
-1. Open a PR against upstream `main` when the user asks. Describe the changes per area and link the catalogue of changed checks, so reviewers can see every relaxation and its evidence.
-2. Answer review comments one by one. Questions only a game test can settle get a T number like any other.
+1. **Self-review** the whole branch (`git diff main...`) before the PR: check it against the [Conventions](../../CLAUDE.md#conventions) and [Idioms](../../CLAUDE.md#idioms), which most upstream review comments are about. Search all `.info` files for each new `// undocumented`, and check that every commit that changes a pre-existing check has its row in the catalogue of changed checks.
+2. Open a PR against upstream `main` when the user asks. Describe the changes per area and link the catalogue of changed checks, so reviewers can see every relaxation and its evidence.
+3. Answer review comments one by one. Questions only a game test can settle get a T number like any other.
    - When a comment points out a mistake, look for the same mistake across the PR before replying, and fix those too.
    - Draft the replies with the hashes of the fixing commits, and post them only after the user has pushed.
-3. File the follow-ups that are real tiger gaps as upstream issues when the user asks: one problem per issue, title prefixed `ck3: ` (none for shared code), the problem with its evidence, then a **Proposed fix** section, in a neutral voice. Link each issue from its follow-up.
+4. File the follow-ups that are real tiger gaps as upstream issues when the user asks: one problem per issue, title prefixed `ck3: ` (none for shared code), the problem with its evidence, then a **Proposed fix** section, in a neutral voice. Link each issue from its follow-up.
 
 ## Scripts
 
@@ -161,6 +165,8 @@ The scripts are in `scripts/` in this skill's folder.
 
 - `scripts/groups.py <run>.json <out>.txt`: Report counts by severity and key, and by group.
 - `scripts/compare_runs.py <old>.json <new>.json [--min N] [--area <prefix>]`: Group count changes between two runs, largest first.
+- `scripts/test_mods.py <tiger> <game-dir> [--write] [<mod-dir>...]`: Runs the test mods in `.claude/test-mods/` (or the ones given) and compares their reports with their `expected.txt`, or writes it with `--write`. All of them take about two minutes.
+- `scripts/same_reports.py <old>.json <new>.json [--list N]`: Whether two runs have exactly the same reports, in the same order, and the largest groups of those that differ (including severity changes).
 - `scripts/timeline.py <V_old>.json <V_new0>.json <step>.json ... [--up|--down] [--key REGEX]`: For each group that changed between the first and the last run, whether vanilla or a tiger step changed it, and the steps where its count changed. Loading many runs takes a minute or two.
 - `scripts/defines_diff.py <old-root> <new-root> [<table>]`: Defines added and removed between two game versions, compared with tiger's defines table.
 - `scripts/toplevel.py <file>... [--field <name>]`: How many items use each top-level field, or the values of one field. Its `items()` function parses a file for ad hoc surveys of vanilla usage.
