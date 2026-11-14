@@ -151,15 +151,6 @@ fn validate_tenet_background_icons(data: &Everything, vd: &mut Validator) {
     }
 }
 
-pub(crate) fn validate_tenet_selection_pair(block: &Block, data: &Everything) {
-    let mut vd = Validator::new(block, data);
-    vd.req_field("requires_dlc_flag");
-    vd.field_item("requires_dlc_flag", Item::DlcFeature);
-    vd.req_field("tenet");
-    vd.field_item("tenet", Item::Tenet);
-    vd.field_item("fallback_tenet", Item::Tenet);
-}
-
 pub(crate) fn validate_localization(block: &Block, data: &Everything) {
     let mut vd = Validator::new(block, data);
     for field in CUSTOM_RELIGION_LOCAS {
@@ -375,6 +366,15 @@ fn validate_holy_sites(block: &Block) {
             }
         }
     }
+}
+
+pub(crate) fn validate_tenet_selection_pair(block: &Block, data: &Everything) {
+    let mut vd = Validator::new(block, data);
+    vd.req_field("requires_dlc_flag");
+    vd.field_item("requires_dlc_flag", Item::DlcFeature);
+    vd.req_field("tenet");
+    vd.field_item("tenet", Item::Tenet);
+    vd.field_item("fallback_tenet", Item::Tenet);
 }
 
 #[derive(Clone, Debug)]

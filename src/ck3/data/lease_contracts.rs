@@ -37,8 +37,6 @@ impl DbKind for LeaseContract {
             });
         if hierarchical {
             vd.req_field("hierarchy");
-        }
-        if hierarchical {
             vd.field_validated_block("hierarchy", |block, data| {
                 let mut vd = Validator::new(block, data);
                 vd.field_choice("type", &["vassal", "clerical_region"]);
@@ -65,14 +63,22 @@ impl DbKind for LeaseContract {
         vd.replaced_field("levy", "levy_split");
         for field in ["tax_split", "levy_split"] {
             vd.field_validated_block(field, |block, data| {
-                // The docs say shares that add up to more than 1 are an error
-                let shares = ["lease_liege", "top_lease_liege_direct", "ruler"];
-                let values: Vec<_> =
-                    shares.iter().filter_map(|s| block.get_field_value(s)).collect();
-                if !values.is_empty()
-                    && values.len() == shares.iter().filter(|s| block.has_key(s)).count()
-                    && values.iter().filter_map(|v| v.get_number()).sum::<f64>() > 1.0
-                {
+                // The docs say a share is from 0 to 1, and that shares that add up to more than 1
+                // are an error. A share below 0 counts as 0, so shares that are not numbers add at
+                // least 0.
+                let mut sum = 0.0;
+                for share in ["lease_liege", "top_lease_liege_direct", "ruler"] {
+                    if let Some(token) = block.get_field_value(share)
+                        && let Some(value) = token.get_number()
+                    {
+                        if !(0.0..=1.0).contains(&value) {
+                            let msg = "should be between 0 and 1";
+                            err(ErrorKey::Range).msg(msg).loc(token).push();
+                        }
+                        sum += value.max(0.0);
+                    }
+                }
+                if sum > 1.0 {
                     let msg = "the shares add up to more than 1";
                     err(ErrorKey::Range).msg(msg).loc(block).push();
                 }

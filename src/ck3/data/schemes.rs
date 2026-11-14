@@ -145,7 +145,7 @@ impl DbKind for Scheme {
         vd.field_script_value("base_progress_goal", &mut sc);
         vd.field_integer("maximum_breaches");
         vd.field_list_items("starting_agent_slots", Item::AgentType);
-        vd.field_script_value("phases_per_agent_charge", &mut sc);
+        vd.field_integer("phases_per_agent_charge");
 
         vd.advice_field("power_per_skill_point", "Replaced with `speed_per_skill_point`");
         vd.advice_field("resistance_per_skill_point", "Removed in 1.13");

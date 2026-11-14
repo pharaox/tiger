@@ -44,9 +44,7 @@ impl DbKind for ScriptedIllustration {
             BV::Value(token) => data.verify_exists(Item::PortraitEnvironment, token),
             BV::Block(block) => {
                 let mut vd = Validator::new(block, data);
-                if let Some(token) = vd.field_value("reference") {
-                    data.verify_exists(Item::PortraitEnvironment, token);
-                }
+                vd.field_item("reference", Item::PortraitEnvironment);
                 vd.field_trigger("trigger", Tooltipped::No, &mut sc);
             }
         });

@@ -39,10 +39,11 @@ impl DbKind for LawGroup {
         if let Some(token) = vd.field_value("default") {
             data.verify_exists(Item::Law, token);
             if let Some((_, block)) = data.database.get_key_block(Item::Law, token.as_str())
-                && !block.field_value_is("law_group_type", key.as_str())
+                && let Some(group) = block.get_field_value("law_group_type")
+                && !group.is(key.as_str())
             {
-                let msg = "law not defined in this group";
-                err(ErrorKey::MissingItem).msg(msg).loc(token).push();
+                let msg = format!("law {token} is in law group {group}");
+                err(ErrorKey::Conflict).msg(msg).loc(token).loc_msg(group, "law group").push();
             }
         }
         vd.field_bool("cumulative");
