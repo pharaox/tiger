@@ -1,5 +1,5 @@
 use crate::block::{BV, Block};
-use crate::ck3::tables::misc::{OLD_TARGET_FILTERS, TARGET_FILTERS};
+use crate::ck3::tables::misc::{TARGET_FILTERS, old_target_filter};
 use crate::ck3::validate::{
     validate_ai_targets, validate_cost, validate_quick_trigger, validate_theme_background,
 };
@@ -257,7 +257,7 @@ impl DbKind for CharacterInteraction {
             vd.field_script_value("scheme_preview_success_chance_max", &mut actor_sc);
             vd.field_script_value("scheme_preview_secrecy", &mut actor_sc);
 
-            // undocumented
+            // undocumented, but in the game binary
 
             vd.field_script_value("scheme_preview_speed", &mut actor_sc);
         });
@@ -365,9 +365,7 @@ impl DbKind for CharacterInteraction {
             ],
         );
         vd.field_validated_value("target_filter", |_, mut vd| {
-            if let Some((_, filter, source)) =
-                OLD_TARGET_FILTERS.iter().find(|(old, _, _)| vd.value().is(old))
-            {
+            if let Some((filter, source)) = old_target_filter(vd.value().as_str()) {
                 let msg = format!(
                     "should use `target_filter = {filter}` with `target_source = {source}` instead of `{}`",
                     vd.value()

@@ -1,5 +1,9 @@
 //! Miscellaneous tables used to back `Item` variants.
 
+use std::sync::LazyLock;
+
+use crate::helpers::TigerHashMap;
+
 pub use tiger_tables::ck3::misc::CUSTOM_RELIGION_LOCAS;
 
 // LAST UPDATED CK3 VERSION 1.20.1
@@ -94,10 +98,23 @@ pub const TARGET_FILTERS: &[&str] = &[
     "title_maa",
 ];
 
+/// The new `target_filter` and `target_source` for an old `target_filter`
+pub fn old_target_filter(old: &str) -> Option<(&'static str, &'static str)> {
+    OLD_TARGET_FILTERS_MAP.get(old).copied()
+}
+
+static OLD_TARGET_FILTERS_MAP: LazyLock<TigerHashMap<&str, (&str, &str)>> = LazyLock::new(|| {
+    let mut hash = TigerHashMap::default();
+    for (old, filter, source) in OLD_TARGET_FILTERS.iter().copied() {
+        hash.insert(old, (filter, source));
+    }
+    hash
+});
+
 // LAST UPDATED CK3 VERSION 1.20.1
 // The docs say these old types still work, but should no longer be used.
 // Each is equivalent to a new `target_filter` with a `target_source`.
-pub const OLD_TARGET_FILTERS: &[(&str, &str, &str)] = &[
+const OLD_TARGET_FILTERS: &[(&str, &str, &str)] = &[
     ("actor_domain_titles", "domain_titles", "actor"),
     ("recipient_domain_titles", "domain_titles", "recipient"),
     ("secondary_actor_domain_titles", "domain_titles", "secondary_actor"),
