@@ -54,8 +54,8 @@ impl DbKind for TaxSlotType {
             let mut prev = None;
             for token in vd.values() {
                 if let Some(value) = token.expect_number() {
-                    if prev.is_some_and(|prev| value < prev) {
-                        let msg = "breakpoints must be in ascending order";
+                    if prev.is_some_and(|prev| value <= prev) {
+                        let msg = "each breakpoint must be higher than the previous one";
                         err(ErrorKey::Validation).msg(msg).loc(token).push();
                     }
                     prev = Some(value);
@@ -141,12 +141,13 @@ impl DbKind for TaxSlotObligation {
             sc
         });
 
-        // The docs say these have the same format as the subject contract obligation levels
-        // TODO: verify the scopes, which the docs don't give
+        // The docs say these have the same format as the subject contract obligation levels,
+        // which have these scopes
         let mut sc = ScopeContext::new(Scopes::None, key);
         sc.define_name("tax_slot", Scopes::TaxSlot, key);
         sc.define_name("liege", Scopes::Character, key);
         sc.define_name("tax_collector", Scopes::Character, key);
+        sc.define_name("subject", Scopes::Character, key);
         sc.define_name("vassal", Scopes::Character, key);
         for currency in &["tax", "levies", "herd", "prestige", "piety", "barter_goods"] {
             vd.field_script_value(currency, &mut sc);

@@ -89,9 +89,8 @@ impl DbKind for SubjectContract {
         vd.field_validated_block("obligation_levels", |block, data| {
             let mut vd = Validator::new(block, data);
             // The docs say the first level is the default if none is marked
-            let marked = block
-                .iter_definitions()
-                .any(|(k, b)| k.is("default") || b.get_field_bool("default").unwrap_or(false));
+            let marked =
+                block.iter_definitions().any(|(_, b)| b.get_field_bool("default").unwrap_or(false));
             let first_default = if marked || by_score {
                 None
             } else {
