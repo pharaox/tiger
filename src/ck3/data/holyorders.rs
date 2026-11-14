@@ -53,13 +53,15 @@ impl DbKind for HolyOrderType {
         }
         vd.field_item("tenet", Item::Tenet);
 
-        let mut sc = ScopeContext::new(Scopes::LandedTitle, key);
-        sc.define_name("leader", Scopes::Character, key);
-        sc.define_name("founder", Scopes::Character, key);
-        sc.define_name("province", Scopes::Province, key);
-        sc.define_name("title", Scopes::LandedTitle, key);
-        sc.define_name("new_holy_order", Scopes::HolyOrder, key);
-        sc.define_name("rite", Scopes::Rite, key);
-        vd.field_effect("effect", Tooltipped::No, &mut sc);
+        vd.field_effect_builder("effect", Tooltipped::No, |key| {
+            let mut sc = ScopeContext::new(Scopes::LandedTitle, key);
+            sc.define_name("leader", Scopes::Character, key);
+            sc.define_name("founder", Scopes::Character, key);
+            sc.define_name("province", Scopes::Province, key);
+            sc.define_name("title", Scopes::LandedTitle, key);
+            sc.define_name("new_holy_order", Scopes::HolyOrder, key);
+            sc.define_name("rite", Scopes::Rite, key);
+            sc
+        });
     }
 }

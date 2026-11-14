@@ -114,9 +114,6 @@ impl DbKind for Doctrine {
         // `selected_doctrines` holds the selected core tenets and doctrines
         let selected = Scopes::Doctrine | Scopes::Tenet;
         let mut sc = ScopeContext::new(Scopes::Faith, key);
-        let mut can_pick_sc = ScopeContext::new(Scopes::Faith, key);
-        can_pick_sc.define_name("actor", Scopes::Character, key);
-        can_pick_sc.define_list("selected_doctrines", selected, key);
 
         let icon = vd.field_value("icon");
         // Without an icon file of its own, a doctrine shows its group's icon
@@ -154,7 +151,12 @@ impl DbKind for Doctrine {
         vd.field_validated_block("parameters", validate_parameters);
         vd.field_script_value_rooted("piety_cost", Scopes::Rite);
         vd.field_trigger("is_shown", Tooltipped::No, &mut sc);
-        vd.field_trigger("can_pick", Tooltipped::Yes, &mut can_pick_sc);
+        vd.field_trigger_builder("can_pick", Tooltipped::Yes, |key| {
+            let mut sc = ScopeContext::new(Scopes::Faith, key);
+            sc.define_name("actor", Scopes::Character, key);
+            sc.define_list("selected_doctrines", selected, key);
+            sc
+        });
 
         vd.field_validated_block("character_modifier", |block, data| {
             let mut vd = Validator::new(block, data);

@@ -61,14 +61,7 @@ impl DbKind for Tenet {
         let mut vd = Validator::new(block, data);
         // `selected_doctrines` holds the selected core tenets and doctrines
         let selected = Scopes::Doctrine | Scopes::Tenet;
-        let mut faith_sc = ScopeContext::new(Scopes::Faith, key);
-        let mut can_pick_sc = ScopeContext::new(Scopes::Faith, key);
-        can_pick_sc.define_name("actor", Scopes::Character, key);
-        can_pick_sc.define_list("selected_doctrines", selected, key);
         let mut rite_sc = ScopeContext::new(Scopes::Rite, key);
-        let mut cost_sc = ScopeContext::new(Scopes::Rite, key);
-        // TODO: verify. Undocumented for piety_cost, but one vanilla tenet uses it there.
-        cost_sc.define_list("selected_doctrines", selected, key);
 
         // Documented as a triggered list, but vanilla uses plain icon names
         if !vd.multi_field_validated("icon", |bv, data| match bv {
@@ -106,9 +99,19 @@ impl DbKind for Tenet {
                 validate_parameter_value(key, value);
             });
         });
-        vd.field_script_value("piety_cost", &mut cost_sc);
-        vd.field_trigger("is_shown", Tooltipped::No, &mut faith_sc);
-        vd.field_trigger("can_pick", Tooltipped::Yes, &mut can_pick_sc);
+        vd.field_script_value_builder("piety_cost", |key| {
+            let mut sc = ScopeContext::new(Scopes::Rite, key);
+            // TODO: verify. Undocumented for piety_cost, but one vanilla tenet uses it there.
+            sc.define_list("selected_doctrines", selected, key);
+            sc
+        });
+        vd.field_trigger_rooted("is_shown", Tooltipped::No, Scopes::Faith);
+        vd.field_trigger_builder("can_pick", Tooltipped::Yes, |key| {
+            let mut sc = ScopeContext::new(Scopes::Faith, key);
+            sc.define_name("actor", Scopes::Character, key);
+            sc.define_list("selected_doctrines", selected, key);
+            sc
+        });
         // TODO: verify tooltip
         vd.field_trigger_rooted("can_pick_as_personal_tenet", Tooltipped::Yes, Scopes::Character);
         vd.field_numeric("divergence_multiplier");
