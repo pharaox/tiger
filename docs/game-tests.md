@@ -969,6 +969,8 @@ Questions from the review of the upstream PR (#324). The results of T36 to T39 w
   - Raw key shown: the loc is required. Remove the `TODO`; the vanilla reports are real.
   - Nothing shown for the parameter, with the control shown: the game skips parameters without loc. Replace the check with `mark_used`, and reply to the reviewer why.
 
+**Result (1.20.1.2):** no raw keys. Each doctrine shows its control line and one line on how many spouses are allowed, which comes from `special_parameters = { number_of_spouses = ... }`, not from `parameters`. The game skips a parameter without loc, so the loc is optional: tiger now only marks it used (`mark_parameter_loca`), and the vanilla reports are gone. The same goes for `personal_tenet_parameters`, whose docs give the same loc: vanilla leaves two AI-only flags "deliberately left unlocalized" (`00_pam_tenets.txt:117`).
+
 ## CK3 1.20: review of the Unop's vanilla-issue rules (T40 to T52)
 
 Each settles one "Unclear" rule in the Unop conf.
@@ -1414,3 +1416,28 @@ Check: `event zz_tiger_test3.62`, then count each line in `debug.log` (`grep -c 
 
 **Result (1.20.1.2):** no errors. Tier 5 came up 98 times in 100 for the scalar weights, 96 for the block control and 24 for the no-weight control, with no "no list education". The scalar weight works, so tiger's report is a false positive, as PR #840 says.
 
+
+## CK3 1.20: event overrides (T65)
+
+### T65. File-local scripted triggers and effects in an event override
+
+- Since 1.20, an event definition with a higher `id_override_priority` overrides one with the same id in another file (`events/_events.info`). Tiger keeps only the winner (`load_event` in `src/data/events.rs`). It looks up a `scripted_trigger` or `scripted_effect` defined in an event file only in the calling event's own file (`get_trigger` and `get_effect` in `src/everything.rs`), so an override that uses one from the overridden event's file gets "unknown token". The docs don't say what the game does. The Steam mods that override events this way (Love Marriage Family, [Kei] Culture and Faith Granularity) copy the local triggers they need into their override files.
+- File `events/zz_tiger_test4_override_events.txt`, with `namespace = ecumenical_council_events`: a control trigger `zz_tiger_test4_is_elderly_trigger` (`age >= 50`), and a hidden `ecumenical_council_events.0031` with `id_override_priority = 1`, which overrides vanilla's activity event. The file is in `events/`, not in the vanilla file's folder (`events/activities/ecumenical_council_activity/`), which tiger allows: the docs only ask for a differently named file. Its `immediate`:
+  - logs `T65 override: fired` and `T65 control age >= 50: true/false`;
+  - logs a line for each of `zz_tiger_test4_is_elderly_trigger = yes` and `= no` that passes (`T65 own local trigger = yes: passes`, ...);
+  - does the same for `ecumenical_council_is_elderly_trigger`, a local trigger of the vanilla file (`pam_ecumenical_council_events.txt`, also `age >= 50`): `T65 base local trigger ...`;
+  - calls `save_major_scopes_effect`, a local effect of the vanilla file, under `limit = { always = no }`, so only the load errors count.
+- File `events/zz_tiger_test4_events.txt`: `zz_tiger_test4.65`, which overrides nothing, logs the same yes and no lines for `ecumenical_council_is_elderly_trigger` (`T65 other file, ...`) and for `zz_tiger_test4_no_such_trigger`, which exists nowhere (`T65 missing trigger ...`).
+- Tiger reports 7 "unknown token" errors on the test mod: the vanilla local trigger and effect in both files, and the missing trigger.
+
+Check:
+1. `error.log` after loading, for `zz_tiger_test4` and `ecumenical_council_events.0031`. The missing trigger must be reported, which shows how the game reports an unknown trigger. There should be no duplicate-event error for `0031`.
+2. `event ecumenical_council_events.0031` and `event zz_tiger_test4.65`, then the `T65` lines in `debug.log`. Exactly one "own local trigger" line must appear, matching the age control. The "missing trigger" lines show how the game evaluates an unknown trigger.
+
+Outcomes:
+- The vanilla local trigger and effect are reported at the override file's lines, like the missing trigger: an override sees only the local triggers and effects of its own file, as tiger assumes. Nothing to change in tiger; overriding mods must copy them, as the Steam mods do.
+- No errors for them in the override file, and exactly one "base local trigger" line, matching the control: an override sees the local triggers of the file it overrides, and tiger must look there too. If the "other file" lines also work without errors, local triggers are visible to other event files in general, not only to overrides.
+- "override: fired" also shows that an override can be in another folder.
+- No "override: fired", or the vanilla event window opens, and no errors that settle it: the override didn't take. Rerun with the file in the vanilla file's folder. If it works there, overrides must be in the same folder, and tiger should report one that isn't.
+
+**Result (1.20.1.2):** the game logs the same 7 errors as tiger, at the same lines: "Unknown trigger: ecumenical_council_is_elderly_trigger" and "Unknown effect: save_major_scopes_effect" in the override file, and the vanilla local trigger and the missing trigger in the other file. There is no duplicate-event error. The override fired from `events/`, so it can be in another folder. The own local trigger gave only "= no: passes", matching the control (age under 50). For both the vanilla local trigger and the missing trigger, both "= yes" and "= no" passed: the game drops an unknown trigger, and the limit passes. An override sees only the local triggers and effects of its own file, as tiger assumes, so tiger stays as it is. A mod that overrides an event must copy the local triggers and effects it uses; one it misses loses its condition.
