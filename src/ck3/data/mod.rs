@@ -106,6 +106,7 @@ pub mod tax_slots;
 pub mod tenets;
 pub mod terrain;
 pub mod title_history;
+pub mod title_types;
 pub mod titles;
 pub mod trade;
 pub mod trait_portrait_modifiers;

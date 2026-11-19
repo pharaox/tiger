@@ -711,8 +711,7 @@ pub fn validate_create_dynamic_title(
     vd.field_validated_sc("adj", sc, validate_desc);
     vd.field_validated_sc("pre", sc, validate_desc);
     vd.field_validated_sc("article", sc, validate_desc);
-    // TODO: 1.21 check the title type keys once they are loaded
-    vd.field_value("type");
+    vd.field_item_or_target("type", sc, Item::TitleType, Scopes::TitleType);
     vd.field_target("holder", sc, Scopes::Character);
     vd.field_bool("suppress_law_messages");
     // The docs say that `scope:new_title` is kept for backwards compatibility
