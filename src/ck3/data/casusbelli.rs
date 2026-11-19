@@ -238,13 +238,19 @@ impl CasusBelliGroup {
 impl DbKind for CasusBelliGroup {
     fn validate(&self, _key: &Token, block: &Block, data: &Everything) {
         let mut vd = Validator::new(block, data);
-        vd.field_trigger_builder("allowed_for_character", Tooltipped::No, |key| {
+        let sc_allowed = |key: &Token| {
             let mut sc = ScopeContext::new(Scopes::Character, key);
             sc.define_name("attacker", Scopes::Character, key);
             sc.define_name("defender", Scopes::Character, key);
             sc.define_list("target_titles", Scopes::LandedTitle, key);
             sc
-        });
+        };
+        vd.field_trigger_builder("allowed_for_character", Tooltipped::No, sc_allowed);
+        vd.field_trigger_builder(
+            "allowed_for_character_display_regardless",
+            Tooltipped::Yes,
+            sc_allowed,
+        );
         vd.field_trigger_builder("should_invalidate", Tooltipped::No, |key| {
             let mut sc = ScopeContext::new(Scopes::CasusBelli, key);
             sc.define_name("attacker", Scopes::Character, key);
