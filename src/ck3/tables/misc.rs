@@ -261,7 +261,7 @@ pub const DLC_FEATURES_CK3: &[&str] = &[
 ];
 
 /// A list of music provided by DLCs, for people who don't have them
-/// LAST UPDATED CK3 VERSION 1.20.1
+/// LAST UPDATED CK3 VERSION 1.21.0
 pub const DLC_MUSIC: &[&str] = &[
     // FP1
     "mx_raid",
@@ -453,6 +453,7 @@ pub const DLC_MUSIC: &[&str] = &[
     "group_mp1_european_moodtrack",
     "group_mp1_generic_moodtrack",
     // CE3
+    "mx_cue_anathema",
     "mx_cue_councils_judgement",
     "mx_cue_deus_hoc_vult",
     "mx_cue_the_shepherds_flock",
