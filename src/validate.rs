@@ -505,6 +505,13 @@ pub fn validate_inside_iterator(
         if let Some(token) = vd.field_value("variable") {
             sc.replace_global_list_entry(token);
         }
+    } else if name == "key_in_variable_map"
+        || name == "key_in_local_variable_map"
+        || name == "key_in_global_variable_map"
+    {
+        vd.req_field("variable");
+        vd.ban_field("list", || format!("{listtype}_in_list"));
+        vd.field_identifier("variable", "variable map name");
     } else {
         vd.ban_field("list", || format!("{listtype}_in_list"));
         vd.ban_field("variable", || {
@@ -637,7 +644,11 @@ pub fn validate_inside_iterator(
             vd.multi_field_item("type", Item::Relation);
         }
 
-        if name == "active_dynasty" {
+        if name == "active_dynasty"
+            || name == "built_buildings"
+            || name == "built_regular_district"
+            || name == "district_building"
+        {
             vd.field_bool("include_inactive");
         }
 
@@ -746,8 +757,17 @@ pub fn validate_inside_iterator(
         if name == "desired_tenet" || name == "undesired_tenet" {
             vd.field_integer("selection_count");
             vd.field_numeric("threshold");
+        } else if name == "top_trade_good_in_range" {
+            vd.field_integer("selection_count");
+            vd.ban_field("threshold", || {
+                format!("`{listtype}_desired_tenet` or `{listtype}_undesired_tenet`")
+            });
         } else {
-            let only_for = || format!("`{listtype}_desired_tenet` or `{listtype}_undesired_tenet`");
+            let only_for = || {
+                format!(
+                    "`{listtype}_desired_tenet`, `{listtype}_undesired_tenet` or `{listtype}_top_trade_good_in_range`"
+                )
+            };
             vd.ban_field("selection_count", only_for);
             vd.ban_field("threshold", only_for);
         }
@@ -823,6 +843,21 @@ pub fn validate_inside_iterator(
             vd.field_value("category"); // TODO
         } else {
             // Don't ban, because it's a valid trigger
+        }
+    }
+
+    #[cfg(feature = "ck3")]
+    if Game::is_ck3() {
+        if name == "potential_trade_ally_in_market" || name == "potential_trade_rival_in_market" {
+            vd.req_field("target");
+            vd.field_target("target", sc, Scopes::Character);
+        } else if name == "potential_trade_ally_on_routes"
+            || name == "potential_trade_rival_on_routes"
+        {
+            vd.field_target("trade_market", sc, Scopes::TradeMarket);
+        }
+        if name.as_str().starts_with("potential_trade_") {
+            vd.field_target("trade_good_type", sc, Scopes::TradeGoodType);
         }
     }
 
