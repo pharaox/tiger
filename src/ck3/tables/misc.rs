@@ -209,7 +209,7 @@ pub const CURRENCIES_CK3: &[&str] = &[
     "barter_goods",
 ];
 
-/// LAST UPDATED CK3 VERSION 1.20.1
+/// LAST UPDATED CK3 VERSION 1.21.0
 /// Taken from `has_dlc_feature` in triggers.log
 pub const DLC_FEATURES_CK3: &[&str] = &[
     "garments_of_the_hre",
@@ -256,6 +256,8 @@ pub const DLC_FEATURES_CK3: &[&str] = &[
     "symbols_of_authority",
     "songs_of_the_realm",
     "by_god_alone",
+    "playable_republics",
+    "silk_and_silver",
 ];
 
 /// A list of music provided by DLCs, for people who don't have them

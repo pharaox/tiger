@@ -80,7 +80,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Artifact, "add_artifact_title_history", Vb(validate_add_artifact_title_history)),
     (Scopes::War, "add_attacker", Scope(Scopes::Character)),
     (Scopes::Character, "add_barter_goods", ScriptValue), // TODO: no docs on effect value
-    (Scopes::Province, "add_building", Item(Item::Building)),
+    (Scopes::District, "add_building", ScopeOrItem(Scopes::BuildingType, Item::Building)),
     (
         Scopes::all(),
         "add_building_slot",
@@ -602,7 +602,11 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::GreatHolyWar, "divide_war_chest", Vb(validate_divide_war_chest)),
     (Scopes::Character, "divorce", Scope(Scopes::Character)),
     (Scopes::GreatHolyWar, "do_ghw_title_handout", Scope(Scopes::TitleAndVassalChange)),
-    (Scopes::Province, "downgrade_building_effect", Item(Item::Building)),
+    (
+        Scopes::District,
+        "downgrade_building_effect",
+        ScopeOrItem(Scopes::BuildingType, Item::Building),
+    ),
     (
         Scopes::Province,
         "downgrade_or_remove_random_district_building",
@@ -861,7 +865,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Artifact, "remove_artifact_modifier", Item(Item::Modifier)),
     (Scopes::Character, "remove_barter_goods", ScriptValue), // TODO: no docs on effect value
     (Scopes::Culture, "remove_bonus_fascination_innovation", Yes),
-    (Scopes::Province, "remove_building", Item(Item::Building)),
+    (Scopes::District, "remove_building", ScopeOrItem(Scopes::BuildingType, Item::Building)),
     (Scopes::TravelPlan, "remove_character", Scope(Scopes::Character)),
     (Scopes::Character, "remove_character_flag", Unchecked),
     (Scopes::Character, "remove_character_modifier", Item(Item::Modifier)),
@@ -1012,7 +1016,11 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Character, "remove_war_chest_gold", NonNegativeValue),
     (Scopes::Character, "remove_war_chest_treasury", ScriptValue),
     (Scopes::Character, "remove_worst_personal_tenet", Yes),
-    (Scopes::Province, "replace_building_effect", Item(Item::Building)),
+    (
+        Scopes::District,
+        "replace_building_effect",
+        ScopeOrItem(Scopes::BuildingType, Item::Building),
+    ),
     (Scopes::Character, "replace_court_position", Vb(validate_replace_court_position)),
     (
         Scopes::TravelPlan,
@@ -1198,7 +1206,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Province, "set_great_district_slot", Unchecked),
     (Scopes::GreatHolyWar, "set_great_holy_war_target", Vb(validate_set_ghw_target)),
     (Scopes::Culture, "set_heritage_from", Scope(Scopes::Culture)),
-    (Scopes::Province, "set_holding_type", Item(Item::HoldingType)),
+    (Scopes::Province, "set_holding_type", ScopeOrItem(Scopes::HoldingType, Item::HoldingType)),
     (Scopes::Artifact, "set_holy_site_owner", Vb(validate_set_holy_site_owner)),
     (Scopes::Character, "set_house", Scope(Scopes::DynastyHouse)),
     (
@@ -1375,7 +1383,11 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::GreatHolyWar, "unpledge_attacker", Scope(Scopes::Character)),
     (Scopes::GreatHolyWar, "unpledge_defender", Scope(Scopes::Character)),
     (Scopes::Character, "update_assembly", Yes),
-    (Scopes::Province, "upgrade_building_effect", Item(Item::Building)),
+    (
+        Scopes::District,
+        "upgrade_building_effect",
+        ScopeOrItem(Scopes::BuildingType, Item::Building),
+    ),
     (Scopes::LandedTitle, "update_dynamic_coa", Yes),
     (Scopes::Province, "upgrade_random_district_building", Vb(validate_random_district_building)),
     (Scopes::Building, "upgrade_this_building", Yes),

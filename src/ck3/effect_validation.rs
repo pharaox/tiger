@@ -691,6 +691,7 @@ pub fn validate_create_confederation(
     vd.field_validated_sc("name", sc, validate_desc);
     vd.field_target("type", sc, Scopes::ConfederationType);
     vd.field_target("leader", sc, Scopes::DynastyHouse);
+    vd.field_target("leading_title", sc, Scopes::LandedTitle);
     sc.define_name("new_confederation", Scopes::Confederation, key);
 }
 
@@ -710,7 +711,15 @@ pub fn validate_create_dynamic_title(
     vd.field_validated_sc("adj", sc, validate_desc);
     vd.field_validated_sc("pre", sc, validate_desc);
     vd.field_validated_sc("article", sc, validate_desc);
+    // TODO: 1.21 check the title type keys once they are loaded
+    vd.field_value("type");
+    vd.field_target("holder", sc, Scopes::Character);
+    vd.field_bool("suppress_law_messages");
+    // The docs say that `scope:new_title` is kept for backwards compatibility
     sc.define_name("new_title", Scopes::LandedTitle, key);
+    if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
+        sc.define_name_token(name.as_str(), Scopes::LandedTitle, name, Temporary::No);
+    }
 }
 
 pub fn validate_create_nomad_title(
@@ -728,7 +737,8 @@ pub fn validate_create_nomad_title(
     vd.field_validated_sc("pre", sc, validate_desc);
     vd.field_validated_sc("adj", sc, validate_desc);
     vd.field_target("holder", sc, Scopes::Character);
-    vd.field_item("government", Item::GovernmentType);
+    vd.field_item_or_target("government", sc, Item::GovernmentType, Scopes::GovernmentType);
+    vd.field_bool("suppress_law_messages");
     if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
         sc.define_name_token(name.as_str(), Scopes::LandedTitle, name, Temporary::No);
     }
@@ -790,6 +800,7 @@ pub fn validate_create_title_and_vassal_change(
         sc.define_name_token(name.as_str(), Scopes::TitleAndVassalChange, name, Temporary::No);
     }
     vd.field_bool("add_claim_on_loss");
+    vd.field_bool("suppress_law_messages");
 }
 
 pub fn validate_delay_travel_plan(
@@ -1950,7 +1961,8 @@ pub fn validate_create_adventurer_title(
     vd.field_validated_sc("article", sc, validate_desc);
     vd.field_validated_sc("pre", sc, validate_desc);
     vd.field_validated_sc("adj", sc, validate_desc);
-    vd.field_item("government", Item::GovernmentType);
+    vd.field_item_or_target("government", sc, Item::GovernmentType, Scopes::GovernmentType);
+    vd.field_bool("suppress_law_messages");
     if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
         sc.define_name_token(name.as_str(), Scopes::LandedTitle, name, Temporary::No);
     }
@@ -2054,7 +2066,9 @@ pub fn validate_give_noble_family_title(
     vd.field_validated_sc("name", sc, validate_desc);
     vd.field_choice("tier", &["county", "duchy"]);
     vd.field_validated_sc("article", sc, validate_desc);
-    vd.field_item("government", Item::GovernmentType);
+    vd.field_item_or_target("government", sc, Item::GovernmentType, Scopes::GovernmentType);
+    vd.field_bool("suppress_law_messages");
+    vd.field_target("liege", sc, Scopes::Character);
     if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
         sc.define_name_token(name.as_str(), Scopes::LandedTitle, name, Temporary::No);
     }
@@ -2682,7 +2696,8 @@ pub fn validate_create_domicile_title(
     vd.req_field("holder");
     vd.field_target("holder", sc, Scopes::Character);
     vd.req_field("government");
-    vd.field_item("government", Item::GovernmentType);
+    vd.field_item_or_target("government", sc, Item::GovernmentType, Scopes::GovernmentType);
+    vd.field_bool("suppress_law_messages");
     if let Some(token) = block.get_field_value("government")
         && let Some((_, government)) =
             data.database.get_key_block(Item::GovernmentType, token.as_str())
