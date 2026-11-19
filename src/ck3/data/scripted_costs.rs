@@ -27,7 +27,10 @@ impl DbKind for ScriptedCost {
         let mut sc = ScopeContext::new(Scopes::Character, key);
         match key.as_str() {
             // The docs give these only the character root
-            "diverge_culture" | "adopt_court_language" | "enact_treasury_budget" => (),
+            "diverge_culture"
+            | "adopt_court_language"
+            | "enact_treasury_budget"
+            | "create_trade_route" => (),
             "hybridize_culture" => {
                 sc.define_name("culture", Scopes::Culture, key);
             }
@@ -51,6 +54,10 @@ impl DbKind for ScriptedCost {
             "reform_culture_ethos" | "reform_culture_language" | "reform_culture_martial" => {
                 sc = ScopeContext::new(Scopes::Culture, key);
                 sc.define_name("character", Scopes::Character, key);
+            }
+            "edit_trade_route" => {
+                sc.define_name("trade_route", Scopes::TradeRoute, key);
+                sc.define_name("primary_good_changed", Scopes::Bool, key);
             }
             "create_holy_site" => {
                 sc.define_name("title", Scopes::LandedTitle, key);
