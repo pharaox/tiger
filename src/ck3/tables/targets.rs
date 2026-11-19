@@ -17,7 +17,7 @@ static SCOPE_TO_SCOPE_MAP: LazyLock<TigerHashMap<&'static str, (Scopes, Scopes)>
         hash
     });
 
-/// LAST UPDATED CK3 VERSION 1.20.1
+/// LAST UPDATED CK3 VERSION 1.21.0
 /// See `event_targets.log` from the game data dumps
 /// These are scope transitions that can be chained like `root.joined_faction.faction_leader`
 const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
@@ -35,10 +35,15 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::Artifact, "artifact_age", Scopes::Value),
     (Scopes::Artifact, "artifact_owner", Scopes::Character),
     (Scopes::Character, "assigned_tax_slot", Scopes::TaxSlot),
+    (Scopes::Character, "assigned_trade_route", Scopes::TradeRoute),
     (Scopes::LandedTitle.union(Scopes::Province), "barony", Scopes::LandedTitle),
     (Scopes::LandedTitle, "barony_active_holy_site", Scopes::HolySite),
     (Scopes::LandedTitle.union(Scopes::Province), "barony_controller", Scopes::Character),
     (Scopes::Character, "betrothed", Scopes::Character),
+    (Scopes::Building, "building_constructor", Scopes::Character),
+    (Scopes::Building, "building_district", Scopes::District),
+    (Scopes::Building, "building_trade_post_owner", Scopes::Character),
+    (Scopes::Building, "building_type", Scopes::BuildingType),
     (Scopes::Culture, "calc_culture_dominant_faith", Scopes::Faith),
     (Scopes::Culture, "calc_culture_dominant_religion", Scopes::Religion),
     (Scopes::Character, "capital_barony", Scopes::LandedTitle),
@@ -46,7 +51,10 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::Character, "capital_province", Scopes::Province),
     (Scopes::LandedTitle, "capital_vassal", Scopes::LandedTitle),
     (Scopes::War, "casus_belli", Scopes::CasusBelli),
+    (Scopes::Character, "ceremonial_liege", Scopes::Character),
+    (Scopes::Character, "ceremonial_liege_title", Scopes::LandedTitle),
     (Scopes::LandedTitle, "challenger_sponsor", Scopes::LandedTitle),
+    (Scopes::TradeMonopoly, "character_owner", Scopes::Character),
     (Scopes::War.union(Scopes::CasusBelli), "claimant", Scopes::Character),
     (Scopes::Character, "clerical_elector_title", Scopes::LandedTitle),
     (Scopes::LandedTitle, "clerical_region_title", Scopes::LandedTitle),
@@ -55,9 +63,11 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::Combat, "combat_defender", Scopes::CombatSide),
     (Scopes::Combat, "combat_war", Scopes::War),
     (Scopes::Character, "commanding_army", Scopes::Army),
+    (Scopes::TradeRoute, "commissioner", Scopes::Character),
     (Scopes::Value, "compare_value", Scopes::Value), // special
     (Scopes::Character, "concubinist", Scopes::Character),
     (Scopes::Character, "confederation", Scopes::Confederation),
+    (Scopes::TradeMonopoly, "confederation_owner", Scopes::Confederation),
     (Scopes::Confederation, "confederation_type", Scopes::ConfederationType),
     (Scopes::ProjectContribution, "contributor", Scopes::Character),
     (Scopes::Character, "council_owner", Scopes::Character),
@@ -75,6 +85,7 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
         Scopes::Culture,
     ),
     (Scopes::Culture, "culture_head", Scopes::Character),
+    (Scopes::LandedTitle, "current_assembly_proposal", Scopes::Law),
     (Scopes::LandedTitle, "current_heir", Scopes::Character),
     (Scopes::TravelPlan, "current_location", Scopes::Province),
     (Scopes::Legend, "current_or_last_legend_owner", Scopes::Character),
@@ -87,12 +98,16 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::Character, "designated_heir", Scopes::Character),
     (Scopes::Character, "diarch", Scopes::Character),
     (Scopes::Character, "diarchy_successor", Scopes::Character),
+    (Scopes::District, "district_owning_title", Scopes::LandedTitle),
+    (Scopes::District, "district_province", Scopes::Province),
+    (Scopes::District, "district_type", Scopes::DistrictType),
     (Scopes::Character, "domicile", Scopes::Domicile),
     (Scopes::Domicile, "domicile_culture", Scopes::Culture),
     (Scopes::Domicile, "domicile_faith", Scopes::Faith),
     (Scopes::Domicile, "domicile_location", Scopes::Province),
     (Scopes::Domicile, "domicile_rite", Scopes::Rite),
     (Scopes::LandedTitle.union(Scopes::Province), "duchy", Scopes::LandedTitle),
+    (Scopes::Province, "duchy_capital_district", Scopes::District),
     (Scopes::Dynasty, "dynasty_founder", Scopes::Character),
     (Scopes::None, "dummy_female", Scopes::Character),
     (Scopes::None, "dummy_male", Scopes::Character),
@@ -101,6 +116,7 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::LandedTitle.union(Scopes::Province), "empire", Scopes::LandedTitle),
     (Scopes::Character, "employer", Scopes::Character),
     (Scopes::CombatSide, "enemy_side", Scopes::CombatSide),
+    (Scopes::Province, "entrepot_district", Scopes::District),
     (Scopes::EpidemicType, "epidemic_trait", Scopes::Trait),
     (Scopes::Epidemic, "epidemic_type", Scopes::EpidemicType),
     (Scopes::Faction, "faction_leader", Scopes::Character),
@@ -134,6 +150,7 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::GreatHolyWar, "ghw_war", Scopes::War),
     (Scopes::GreatHolyWar, "ghw_war_declarer", Scopes::Character),
     (Scopes::Character, "government_type", Scopes::GovernmentType),
+    (Scopes::Province, "great_district", Scopes::District),
     (Scopes::Faith, "great_holy_war", Scopes::GreatHolyWar),
     (Scopes::ProjectContribution, "great_project", Scopes::GreatProject),
     (Scopes::GreatProject, "great_project_founder", Scopes::Character),
@@ -145,6 +162,7 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::Rite, "head_of_rite", Scopes::Character),
     (Scopes::LandedTitle.union(Scopes::Province), "hegemony", Scopes::LandedTitle),
     (Scopes::LandedTitle, "holder", Scopes::Character),
+    (Scopes::Province, "holding_district", Scopes::District),
     (Scopes::Province, "holding_type", Scopes::HoldingType),
     (Scopes::Character, "holy_order", Scopes::HolyOrder),
     (Scopes::HolyOrder, "holy_order_patron", Scopes::Character),
@@ -172,8 +190,10 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::Character, "knight_army", Scopes::Army),
     (Scopes::DynastyHouse, "last_house_head", Scopes::Character),
     (Scopes::Character, "last_played_character", Scopes::Character),
+    (Scopes::Character, "law_proposer", Scopes::Character),
     (Scopes::HolyOrder, "leader", Scopes::Character),
     (Scopes::Confederation, "leading_house", Scopes::DynastyHouse),
+    (Scopes::Confederation, "leading_title", Scopes::LandedTitle),
     (Scopes::Legend, "legend_owner", Scopes::Character),
     (Scopes::Legend, "legend_protagonist", Scopes::Character),
     (Scopes::Legend, "legend_type", Scopes::LegendType),
@@ -188,6 +208,8 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::Character, "matchmaker", Scopes::Character),
     (Scopes::MercenaryCompany, "mercenary_company_leader", Scopes::Character),
     (Scopes::CharacterMemory, "memory_owner", Scopes::Character),
+    (Scopes::TradeMonopoly, "monopoly_trade_good_category", Scopes::TradeGoodCategory),
+    (Scopes::TradeMonopoly, "monopoly_trade_market", Scopes::TradeMarket),
     (Scopes::Character, "mother", Scopes::Character),
     // named_script_value special
     (Scopes::TravelPlan, "next_destination_province", Scopes::Province),
@@ -218,9 +240,11 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::War.union(Scopes::CasusBelli), "primary_attacker", Scopes::Character),
     (Scopes::War.union(Scopes::CasusBelli), "primary_defender", Scopes::Character),
     (Scopes::Character, "primary_heir", Scopes::Character),
+    (Scopes::GovernmentType, "primary_holding", Scopes::HoldingType),
     (Scopes::Character, "primary_partner", Scopes::Character),
     (Scopes::Character, "primary_spouse", Scopes::Character),
     (Scopes::Character, "primary_title", Scopes::LandedTitle),
+    (Scopes::TradeRoute, "primary_trade_good", Scopes::TradeGoodType),
     (Scopes::Character, "promoted_legend", Scopes::Legend),
     (Scopes::Province, "province_owner", Scopes::Character),
     (Scopes::Character, "puppeteer", Scopes::Character),
@@ -246,6 +270,7 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::Regiment, "regiment_owning_title", Scopes::LandedTitle),
     (Scopes::Regiment, "regiment_station", Scopes::Province),
     // "root" special
+    (Scopes::Province, "resource_district", Scopes::District),
     (Scopes::Character.union(Scopes::LandedTitle).union(Scopes::Province), "rite", Scopes::Rite),
     (Scopes::Rite, "rite_faith", Scopes::Faith),
     (Scopes::Rite, "rite_founder", Scopes::Character),
@@ -273,6 +298,7 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::Situation, "situation_top_sub_region", Scopes::SituationSubRegion),
     (Scopes::AgentSlot, "slot_character", Scopes::Character),
     (Scopes::Faction, "special_character", Scopes::Character),
+    (Scopes::Province, "special_district", Scopes::District),
     (Scopes::Faction, "special_title", Scopes::LandedTitle),
     (Scopes::LandedTitle, "state_faith", Scopes::Faith),
     (Scopes::LandedTitle, "state_rite", Scopes::Rite),
@@ -292,10 +318,20 @@ const SCOPE_TO_SCOPE: &[(Scopes, &str, Scopes)] = &[
     (Scopes::TaxSlot, "tax_slot_liege", Scopes::Character),
     (Scopes::HolyOrder, "title", Scopes::LandedTitle),
     (Scopes::LandedTitle, "title_capital_county", Scopes::LandedTitle),
+    (Scopes::LandedTitle, "title_confederation", Scopes::Confederation),
     (Scopes::LandedTitle, "title_domicile", Scopes::Domicile),
+    (Scopes::TradeMonopoly, "title_owner", Scopes::LandedTitle),
     (Scopes::LandedTitle, "title_preferred_capital_county", Scopes::LandedTitle),
     (Scopes::LandedTitle, "title_province", Scopes::Province),
+    (Scopes::TradeMarket, "toll_level", Scopes::TollLevel),
     (Scopes::Character, "top_superior", Scopes::Character),
+    (Scopes::TradeGoodType, "trade_good_need_category", Scopes::TradeGoodCategory),
+    (Scopes::LandedTitle, "trade_market", Scopes::TradeMarket),
+    (Scopes::TradeMarket, "trade_market_owner", Scopes::LandedTitle),
+    (Scopes::Province, "trade_post_district", Scopes::District),
+    (Scopes::Province, "trade_post_owner", Scopes::Character),
+    (Scopes::TradeRoute, "trade_route_owner", Scopes::Character),
+    (Scopes::TradeRoute, "trader", Scopes::Character),
     (Scopes::TravelPlan, "travel_leader", Scopes::Character),
     (Scopes::TravelPlan, "travel_plan_activity", Scopes::Activity),
     (Scopes::TravelPlan, "travel_plan_owner", Scopes::Character),
@@ -324,8 +360,9 @@ static SCOPE_PREFIX_MAP: LazyLock<TigerHashMap<&'static str, (Scopes, Scopes, Ar
         hash
     });
 
-/// LAST UPDATED CK3 VERSION 1.20.1
+/// LAST UPDATED CK3 VERSION 1.21.0
 /// See `event_targets.log` from the game data dumps
+/// TODO: `variable_map`, `local_variable_map` and `global_variable_map` take `(name|key)`
 /// These are absolute scopes (like character:100000) and scope transitions that require
 /// a key (like `root.cp:councillor_steward`)
 const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
@@ -346,6 +383,7 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
         ),
         (Scopes::Army, "army_number_maa_regiments_of_type", Scopes::Value, Item(Item::MenAtArms)),
         (Scopes::None, "array_define", Scopes::Value, UncheckedValue),
+        (Scopes::None, "building_type", Scopes::BuildingType, Item(Item::Building)),
         (Scopes::None, "casus_belli_type", Scopes::CasusBelliType, Item(Item::CasusBelli)),
         (Scopes::None, "character", Scopes::Character, Item(Item::Character)),
         (
@@ -372,6 +410,8 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
         (Scopes::Character, "dead_var", Scopes::all(), UncheckedValue),
         (Scopes::None, "decision", Scopes::Decision, Item(Item::Decision)),
         (Scopes::None, "define", Scopes::Value, UncheckedValue),
+        // TODO: 1.21 check the district_type keys once they are loaded
+        (Scopes::None, "district_type", Scopes::DistrictType, UncheckedValue),
         (Scopes::None, "doctrine", Scopes::Doctrine, Item(Item::Doctrine)),
         (Scopes::None, "dynasty", Scopes::Dynasty, Item(Item::Dynasty)),
         (Scopes::None, "epidemic_type", Scopes::EpidemicType, Item(Item::EpidemicType)),
@@ -387,10 +427,23 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
             Scopes::GreatProjectType,
             Item(Item::GreatProjectType),
         ),
+        (
+            Scopes::Character,
+            "highest_liege_matching_mechanic",
+            Scopes::Character,
+            Identifier("government mechanic"),
+        ),
+        (
+            Scopes::Character,
+            "highest_liege_matching_rule",
+            Scopes::Character,
+            Identifier("government rule"),
+        ),
         (Scopes::None, "holding_type", Scopes::HoldingType, Item(Item::GovernmentType)),
         (Scopes::None, "holy_site", Scopes::HolySite, Item(Item::HolySite)),
         (Scopes::None, "holy_site_type", Scopes::HolySiteType, Item(Item::HolySite)),
         (Scopes::None, "house", Scopes::DynastyHouse, Item(Item::House)),
+        (Scopes::None, "law", Scopes::Law, Item(Item::Law)),
         (Scopes::Legend, "legend_property", Scopes::all(), Item(Item::LegendProperty)),
         (Scopes::None, "legend_type", Scopes::LegendType, Item(Item::LegendType)),
         (Scopes::None, "list_size", Scopes::Value, UncheckedValue),
@@ -414,6 +467,7 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
             Item(Item::MenAtArms),
         ),
         (Scopes::CharacterMemory, "memory_participant", Scopes::Character, UncheckedValue),
+        (Scopes::None, "men_at_arms", Scopes::MenAtArms, Item(Item::MenAtArms)),
         (
             Scopes::Culture,
             "num_discovered_innovations_in_era",
@@ -486,12 +540,20 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
         (Scopes::Character, "tax_collector_aptitude", Scopes::Value, Item(Item::TaxSlotType)),
         (Scopes::None, "tenet", Scopes::Tenet, Item(Item::Tenet)),
         (Scopes::None, "title", Scopes::LandedTitle, Item(Item::Title)),
+        // TODO: 1.21 check the title_type keys once they are loaded
+        (Scopes::None, "title_type", Scopes::TitleType, UncheckedValue),
+        // TODO: 1.21 check the toll_level keys once they are loaded
+        (Scopes::None, "toll_level", Scopes::TollLevel, UncheckedValue),
         (
             Scopes::Character,
             "top_participant_group",
             Scopes::SituationParticipantGroup,
             Item(Item::Situation),
         ),
+        // TODO: 1.21 check the trade_good_category keys once they are loaded
+        (Scopes::None, "trade_good_category", Scopes::TradeGoodCategory, UncheckedValue),
+        // TODO: 1.21 check the trade_good_type keys once they are loaded
+        (Scopes::None, "trade_good_type", Scopes::TradeGoodType, UncheckedValue),
         (Scopes::None, "trait", Scopes::Trait, Item(Item::Trait)),
         (Scopes::all(), "var", Scopes::all(), UncheckedValue),
         (Scopes::None, "vassal_contract", Scopes::VassalContract, Item(Item::SubjectContract)),
