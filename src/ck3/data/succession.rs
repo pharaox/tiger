@@ -40,7 +40,8 @@ impl DbKind for SuccessionAppointment {
         vd.field_choice("allowed_candidate_tier", &["lower", "lower_or_equal", "any"]);
         vd.field_bool("cooldown");
         vd.field_bool("use_investment_cap");
-        vd.field_bool("keep_top_tier_titles_together");
+        vd.field_bool("limit_to_de_jure");
+        vd.advice_field("keep_top_tier_titles_together", "removed in 1.21");
         vd.field_choice("allow_out_of_realm_investment", &["none", "all", "landed", "landless"]);
     }
 }
