@@ -94,6 +94,7 @@ impl DbKind for HouseAspiration {
         vd.field_trigger_rooted("is_shown", Tooltipped::No, Scopes::DynastyHouse);
 
         vd.field_bool("is_default");
+        vd.field_bool("automatic_levels");
 
         vd.req_field("level");
         vd.multi_field_validated_block("level", |block, data| {
