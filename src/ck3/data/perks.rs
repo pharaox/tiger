@@ -1,4 +1,5 @@
 use crate::block::Block;
+use crate::ck3::data::buildings::validate_param_modifier;
 use crate::ck3::modif::ModifKinds;
 use crate::context::ScopeContext;
 use crate::db::{Db, DbKind};
@@ -76,9 +77,7 @@ impl DbKind for Perk {
             validate_modifs(block, data, ModifKinds::Character, vd);
         });
         vd.multi_field_validated_block("culture_character_modifier", |block, data| {
-            let mut vd = Validator::new(block, data);
-            vd.field_item("parameter", Item::CultureParameter);
-            validate_modifs(block, data, ModifKinds::Character, vd);
+            validate_param_modifier(block, data, Item::CultureParameter, ModifKinds::Character);
         });
         vd.multi_field_validated_block("government_character_modifier", |block, data| {
             let mut vd = Validator::new(block, data);
