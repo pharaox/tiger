@@ -71,6 +71,9 @@ impl DbKind for Decision {
         vd.field_validated_block("advice", validate_advice);
         vd.field_integer("sort_order");
         vd.field_bool("is_invisible");
+        // The docs show a bool, but vanilla gives triggers
+        vd.field_trigger("requires_approve", Tooltipped::No, &mut sc);
+        vd.field_script_value("ai_approval", &mut sc);
         vd.field_bool("ai_goal");
         vd.field_integer("ai_check_interval");
         vd.field_validated_key_block("ai_check_interval_by_tier", |key, b, data| {
