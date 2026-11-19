@@ -449,6 +449,8 @@ pub enum Item {
     #[cfg(feature = "ck3")] Tenet,
     #[cfg(feature = "ck3")] Title,
     #[cfg(feature = "ck3")] TitleHistory,
+    #[cfg(feature = "ck3")] TradeGoodCategory,
+    #[cfg(feature = "ck3")] TradeGoodType,
     #[cfg(feature = "ck3")] TraitCategory,
     #[cfg(feature = "ck3")] TraitFlag,
     #[cfg(feature = "ck3")] TraitPortraitModifier,
@@ -1694,6 +1696,10 @@ impl Item {
             Item::Title => "common/landed_titles/",
             #[cfg(feature = "ck3")]
             Item::TitleHistory => "history/titles/",
+            #[cfg(feature = "ck3")]
+            Item::TradeGoodCategory => "common/trade/trade_good_categories/",
+            #[cfg(feature = "ck3")]
+            Item::TradeGoodType => "common/trade/trade_good_types/",
             #[cfg(feature = "ck3")]
             Item::TraitCategory => "",
             #[cfg(feature = "ck3")]

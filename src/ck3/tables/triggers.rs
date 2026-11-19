@@ -239,11 +239,13 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::DynastyHouse, "can_change_house_aspiration", Boolean),
     (Scopes::Character, "can_confederation_member_join_war_against", Scope(Scopes::Character)),
     (Scopes::Rite, "can_convert_to_rite", Boolean),
-    // TODO: 1.21 check the trade good type keys once they are loaded
     (
         Scopes::Character,
         "can_create_commission_trade_route",
-        Block(&[("primary_good", UncheckedValue), ("destination", Scope(Scopes::TradeMarket))]),
+        Block(&[
+            ("primary_good", ScopeOrItem(Scopes::TradeGoodType, Item::TradeGoodType)),
+            ("destination", Scope(Scopes::TradeMarket)),
+        ]),
     ),
     (Scopes::Character, "can_create_distribution_routes", Boolean),
     (
@@ -261,11 +263,16 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
         ),
     ),
     (Scopes::LandedTitle, "can_create_title_maa", ScopeOrItem(Scopes::MenAtArms, Item::MenAtArms)),
-    // TODO: 1.21 check the trade good category keys once they are loaded
     (
         Scopes::TradeMarket,
         "can_create_trade_monopoly",
-        Block(&[("?trade_good_category", UncheckedValue), ("?is_complete", Boolean)]),
+        Block(&[
+            (
+                "?trade_good_category",
+                ScopeOrItem(Scopes::TradeGoodCategory, Item::TradeGoodCategory),
+            ),
+            ("?is_complete", Boolean),
+        ]),
     ),
     (
         Scopes::Character,
@@ -1364,8 +1371,11 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::TradeMarket, "has_toll_exception", Scope(Scopes::Character)),
     (Scopes::TradeGoodCategory, "has_trade_good_category_xp_track", Boolean),
     // TODO: verify the scope, the docs text says trade route
-    // TODO: 1.21 check the trade good type keys once they are loaded
-    (Scopes::TradeGoodType, "has_trade_good_type", UncheckedValue),
+    (
+        Scopes::TradeGoodType,
+        "has_trade_good_type",
+        ScopeOrItem(Scopes::TradeGoodType, Item::TradeGoodType),
+    ),
     (Scopes::TradeMarket, "has_trade_market_modifier", Item(Item::Modifier)),
     (
         Scopes::TradeMarket,
@@ -1925,8 +1935,11 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Regiment, "is_title_maa_regiment", Boolean),
     (Scopes::LandedTitle, "is_titular", Boolean),
     (Scopes::None, "is_tooltip_with_name_open", UncheckedTodo),
-    // TODO: 1.21 check the trade good category keys once they are loaded
-    (Scopes::TradeMonopoly, "is_trade_monopoly_for_trade_good_category", UncheckedValue),
+    (
+        Scopes::TradeMonopoly,
+        "is_trade_monopoly_for_trade_good_category",
+        ScopeOrItem(Scopes::TradeGoodCategory, Item::TradeGoodCategory),
+    ),
     (Scopes::Character, "is_trader", Boolean),
     (Scopes::Character, "is_travel_entourage_character", Boolean),
     (Scopes::Character, "is_travel_leader", Boolean),
@@ -2344,24 +2357,22 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
         Block(&[("target", Scope(Scopes::Character)), ("+value", CompareValue)]),
     ),
     (Scopes::LandedTitle, "popular_opinion", CompareValue),
-    // TODO: 1.21 check the trade good type keys once they are loaded
     (
         Scopes::Character,
         "potential_trade_ally",
         Block(&[
             ("target", Scope(Scopes::Character)),
             ("trade_market", Scope(Scopes::TradeMarket)),
-            ("?trade_good_type", UncheckedValue),
+            ("?trade_good_type", ScopeOrItem(Scopes::TradeGoodType, Item::TradeGoodType)),
         ]),
     ),
-    // TODO: 1.21 check the trade good type keys once they are loaded
     (
         Scopes::Character,
         "potential_trade_rival",
         Block(&[
             ("target", Scope(Scopes::Character)),
             ("trade_market", Scope(Scopes::TradeMarket)),
-            ("?trade_good_type", UncheckedValue),
+            ("?trade_good_type", ScopeOrItem(Scopes::TradeGoodType, Item::TradeGoodType)),
         ]),
     ),
     (Scopes::Character, "pregnancy_days", CompareValue),

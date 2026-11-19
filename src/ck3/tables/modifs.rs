@@ -205,9 +205,9 @@ pub fn lookup_modif(name: &Token, data: &Everything, warn: Option<Severity>) -> 
     }
 
     // $TRADE_GOOD_CATEGORY$ and $TRADE_GOOD_TYPE$
-    // TODO: 1.21 check the trade good categories and types once they are loaded
     for &sfx in &["_buy_price_add", "_buy_price_mult", "_sell_price_add", "_sell_price_mult"] {
-        if name_lc.strip_suffix_unchecked(sfx).is_some() {
+        if let Some(s) = name_lc.strip_suffix_unchecked(sfx) {
+            verify_trade_good_or_category(name, &s, data, warn);
             return Some(
                 ModifKinds::Character
                     | ModifKinds::Province
@@ -217,17 +217,19 @@ pub fn lookup_modif(name: &Token, data: &Everything, warn: Option<Severity>) -> 
             );
         }
     }
-    if name_lc.strip_suffix_unchecked("_production_mult").is_some() {
+    if let Some(s) = name_lc.strip_suffix_unchecked("_production_mult") {
+        verify_trade_good_or_category(name, &s, data, warn);
         return Some(ModifKinds::Character | ModifKinds::Province | ModifKinds::County);
     }
     for &sfx in &["_production_add", "_production_flat"] {
-        if name_lc.strip_suffix_unchecked(sfx).is_some() {
-            return Some(ModifKinds::Province);
+        if let Some(s) = name_lc.strip_suffix_unchecked(sfx) {
+            return modif_check(name, &s, Item::TradeGoodType, ModifKinds::Province, data, warn);
         }
     }
     for &sfx in &["_xp_decline_add", "_xp_decline_mult"] {
-        if name_lc.strip_suffix_unchecked(sfx).is_some() {
-            return Some(ModifKinds::Character);
+        if let Some(s) = name_lc.strip_suffix_unchecked(sfx) {
+            let itype = Item::TradeGoodCategory;
+            return modif_check(name, &s, itype, ModifKinds::Character, data, warn);
         }
     }
 
@@ -244,11 +246,14 @@ pub fn lookup_modif(name: &Token, data: &Everything, warn: Option<Severity>) -> 
     // The names of individual tracks in a multi-track trait start with `trait_track_` before the track name.
     // It's also possible to use the names of traits that have one or more tracks directly, without the trait_track_.
     // Presumably it applies to all of a trait's tracks in that case.
-    // $LIFESTYLE$_xp_gain_mult needs to be handled here too.
+    // $LIFESTYLE$_xp_gain_mult and $TRADE_GOOD_CATEGORY$_xp_gain_mult need to be handled here too.
     for &sfx in &["_xp_degradation_mult", "_xp_gain_mult", "_xp_loss_mult"] {
         if let Some(s) = name_lc.strip_suffix_unchecked(sfx) {
             if let Some(s) = s.strip_prefix_unchecked("trait_track_") {
                 return modif_check(name, &s, Item::TraitTrack, ModifKinds::Character, data, warn);
+            }
+            if sfx == "_xp_gain_mult" && data.item_exists_lc(Item::TradeGoodCategory, &s) {
+                return Some(ModifKinds::Character | ModifKinds::TradeRoute);
             }
             // It can be a lifestyle or a trait.
             if let Some(sev) = warn {
@@ -268,9 +273,12 @@ pub fn lookup_modif(name: &Token, data: &Everything, warn: Option<Severity>) -> 
         }
     }
 
-    // $LIFESTYLE_xp_gain_add
-    // TODO: 1.21 also $TRADE_GOOD_CATEGORY$_xp_gain_add and _mult, once they are loaded
+    // $LIFESTYLE$_xp_gain_add
+    // $TRADE_GOOD_CATEGORY$_xp_gain_add
     if let Some(s) = name_lc.strip_suffix_unchecked("_xp_gain_add") {
+        if data.item_exists_lc(Item::TradeGoodCategory, &s) {
+            return Some(ModifKinds::Character | ModifKinds::TradeRoute);
+        }
         return modif_check(name, &s, Item::Lifestyle, ModifKinds::Character, data, warn);
     }
 
@@ -489,6 +497,22 @@ pub fn lookup_modif(name: &Token, data: &Everything, warn: Option<Severity>) -> 
     }
 
     None
+}
+
+fn verify_trade_good_or_category(
+    name: &Token,
+    s: &Lowercase,
+    data: &Everything,
+    warn: Option<Severity>,
+) {
+    if let Some(sev) = warn
+        && !data.item_exists_lc(Item::TradeGoodType, s)
+        && !data.item_exists_lc(Item::TradeGoodCategory, s)
+    {
+        let msg = format!("could not find trade good type or category {s}");
+        let info = format!("so the modifier {name} does not exist");
+        report(ErrorKey::MissingItem, sev).strong().msg(msg).info(info).loc(name).push();
+    }
 }
 
 #[allow(clippy::unnecessary_wraps)]

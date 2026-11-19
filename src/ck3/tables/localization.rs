@@ -527,12 +527,11 @@ const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("tax_slot_obligation", Some(Item::TaxSlotObligation)),
     ("tenet", Some(Item::Tenet)),
     ("terrain", Some(Item::Terrain)),
-    // TODO: 1.21 check the value once trade good categories are loaded, and verify its format
+    // TODO: verify the format of the value
     ("trade_good_category_level", None),
-    // TODO: 1.21 check the trade good category keys once they are loaded
-    ("trade_good_category_type", None),
-    // TODO: 1.21 check the trade good type keys once they are loaded
-    ("trade_good_type", None),
+    // TODO: verify that these take the keys, like `building`
+    ("trade_good_category_type", Some(Item::TradeGoodCategory)),
+    ("trade_good_type", Some(Item::TradeGoodType)),
     ("trade_market", None),
     ("trade_route", None),
     ("travel_option", Some(Item::TravelOption)),

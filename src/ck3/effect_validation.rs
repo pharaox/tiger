@@ -3018,8 +3018,7 @@ pub fn validate_create_commission_trade_route(
     vd.req_field("commissioner");
     vd.field_target("commissioner", sc, Scopes::Character);
     vd.req_field("primary_good");
-    // TODO: 1.21 check the trade good type keys once they are loaded
-    vd.field_value("primary_good");
+    vd.field_item_or_target("primary_good", sc, Item::TradeGoodType, Scopes::TradeGoodType);
     vd.req_field("destination");
     vd.field_target("destination", sc, Scopes::TradeMarket);
     validate_optional_duration(&mut vd, sc);
@@ -3043,8 +3042,12 @@ pub fn validate_create_trade_monopoly(
     vd.field_target("owning_title", sc, Scopes::LandedTitle);
     vd.req_field("trade_market");
     vd.field_target("trade_market", sc, Scopes::TradeMarket);
-    // TODO: 1.21 check the trade good category keys once they are loaded
-    vd.field_value("trade_good_category");
+    vd.field_item_or_target(
+        "trade_good_category",
+        sc,
+        Item::TradeGoodCategory,
+        Scopes::TradeGoodCategory,
+    );
 
     let owners = ["owning_character", "owning_confederation", "owning_title"];
     let mut first: Option<&Token> = None;

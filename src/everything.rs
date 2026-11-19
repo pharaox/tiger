@@ -31,6 +31,7 @@ use crate::ck3::data::{
     provinces::Ck3Provinces,
     title_history::TitleHistories,
     titles::Titles,
+    trade::TradeGoodCategory,
     traits::Traits,
     wars::Wars,
 };
@@ -798,6 +799,7 @@ impl Everything {
         s.spawn(|_| Climate::validate_all(&self.database, self));
         s.spawn(|_| NameEquivalency::validate_all(&self.database, self));
         s.spawn(|_| SpiritualFulfillmentType::validate_all(&self.database, self));
+        s.spawn(|_| TradeGoodCategory::validate_all(&self.database, self));
     }
 
     #[cfg(feature = "vic3")]

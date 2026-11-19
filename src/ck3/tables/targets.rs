@@ -549,10 +549,13 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
             Scopes::SituationParticipantGroup,
             Item(Item::Situation),
         ),
-        // TODO: 1.21 check the trade_good_category keys once they are loaded
-        (Scopes::None, "trade_good_category", Scopes::TradeGoodCategory, UncheckedValue),
-        // TODO: 1.21 check the trade_good_type keys once they are loaded
-        (Scopes::None, "trade_good_type", Scopes::TradeGoodType, UncheckedValue),
+        (
+            Scopes::None,
+            "trade_good_category",
+            Scopes::TradeGoodCategory,
+            Item(Item::TradeGoodCategory),
+        ),
+        (Scopes::None, "trade_good_type", Scopes::TradeGoodType, Item(Item::TradeGoodType)),
         (Scopes::None, "trait", Scopes::Trait, Item(Item::Trait)),
         (Scopes::all(), "var", Scopes::all(), UncheckedValue),
         (Scopes::None, "vassal_contract", Scopes::VassalContract, Item(Item::SubjectContract)),
