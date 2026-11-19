@@ -1,5 +1,5 @@
 use crate::block::Block;
-use crate::ck3::data::buildings::validate_asset;
+use crate::ck3::data::buildings::{validate_asset, validate_triggered_name};
 use crate::ck3::validate::validate_cost;
 use crate::context::ScopeContext;
 use crate::db::{Db, DbKind};
@@ -43,12 +43,7 @@ impl DbKind for District {
         let loca = format!("{key}_desc_flavor");
         data.mark_used(Item::Localization, &loca);
 
-        vd.multi_field_validated_block("triggered_name", |block, data| {
-            let mut vd = Validator::new(block, data);
-            vd.field_trigger_rooted("trigger", Tooltipped::No, Scopes::Province);
-            vd.req_field("reference");
-            vd.field_item("reference", Item::Localization);
-        });
+        vd.multi_field_validated_block("triggered_name", validate_triggered_name);
 
         vd.multi_field_validated_block("background", |block, data| {
             let mut vd = Validator::new(block, data);
