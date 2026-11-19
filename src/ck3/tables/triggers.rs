@@ -1,8 +1,8 @@
 use std::sync::LazyLock;
 
 use crate::ck3::tables::misc::{
-    AGENT_SLOT_CONTRIBUTION_TYPE, ARTIFACT_RARITIES, GOVERNMENT_RULES, LEGEND_QUALITY,
-    OUTBREAK_INTENSITIES, TITLE_HISTORY_TYPES,
+    AGENT_SLOT_CONTRIBUTION_TYPE, ARTIFACT_RARITIES, GOVERNMENT_MECHANICS, GOVERNMENT_RULES,
+    LEGEND_QUALITY, OUTBREAK_INTENSITIES, TITLE_HISTORY_TYPES,
 };
 use crate::everything::Everything;
 use crate::helpers::TigerHashMap;
@@ -692,24 +692,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Character, "government_allows", Choice(GOVERNMENT_RULES)),
     (Scopes::Character, "government_disallows", Choice(GOVERNMENT_RULES)),
     (Scopes::Character, "government_has_flag", Item(Item::GovernmentFlag)),
-    (
-        Scopes::Character,
-        "government_has_mechanic",
-        Choice(&[
-            "feudal",
-            "mercenary",
-            "holy_order",
-            "clan",
-            "theocracy",
-            "administrative",
-            "landless_adventurer",
-            "herder",
-            "nomad",
-            "mandala",
-            "merchant",
-            "republic",
-        ]),
-    ),
+    (Scopes::Character, "government_has_mechanic", Choice(GOVERNMENT_MECHANICS)),
     (Scopes::GovernmentType, "government_type_has_flag", Item(Item::GovernmentFlag)),
     (Scopes::Character, "governor_efficiency", CompareValue),
     (Scopes::GreatProject, "great_project_build_progress", CompareValue),

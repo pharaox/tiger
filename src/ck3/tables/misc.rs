@@ -464,7 +464,7 @@ pub const DLC_MUSIC: &[&str] = &[
     "group_ce3_mood",
 ];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // taken from the governments .info file
 pub const GOVERNMENT_RULES: &[&str] = &[
     "create_cadet_branches",
@@ -504,7 +504,7 @@ pub const GOVERNMENT_RULES: &[&str] = &[
     "block_alliance_child_marriage",
     "block_alliance_non_dominant_gender_child_marriage",
     "always_use_patronym",
-    "affected_by_development",
+    "affected_by_prosperity",
     "considers_piety_for_title_creation",
     "ask_for_tribute",
     "barter",
@@ -518,6 +518,30 @@ pub const GOVERNMENT_RULES: &[&str] = &[
     "dynasty_named_non_independent_landed_rulers",
     "allow_accolades",
     "allow_as_base_for_baronies",
+    "uses_assembly",
+    "trade_post",
+    "profit_trade_routes",
+    "distribution_trade_routes",
+    // undocumented, but in the game binary
+    "can_have_vassal_suzerain",
+    "can_sponsor_construction",
+];
+
+// LAST UPDATED CK3 VERSION 1.21.0
+// taken from the governments .info file and the government_has_mechanic docs
+pub const GOVERNMENT_MECHANICS: &[&str] = &[
+    "feudal",
+    "mercenary",
+    "holy_order",
+    "clan",
+    "theocracy",
+    "administrative",
+    "landless_adventurer",
+    "herder",
+    "nomad",
+    "mandala",
+    "merchant",
+    "republic",
 ];
 
 // LAST UPDATED CK3 VERSION 1.20.1
