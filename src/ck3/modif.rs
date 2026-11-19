@@ -5,7 +5,7 @@ use bitflags::bitflags;
 use crate::{ck3::tables::modifs::lookup_modif, modif};
 
 bitflags! {
-    // LAST UPDATED CK3 1.20.1
+    // LAST UPDATED CK3 1.21.0
     // Taken from the game's `modifers.log`
     // Remember to update the display_fmt functions when ModifKindsCk3 changes.
     #[derive(Debug, Copy, Clone)]
@@ -18,6 +18,9 @@ bitflags! {
         const Culture    = 1<<7;
         const Scheme     = 1<<8;
         const TravelPlan = 1<<9;
+        const Road       = 1<<10;
+        const TradeMarket = 1<<11;
+        const TradeRoute = 1<<12;
     }
 }
 
@@ -54,6 +57,15 @@ impl Display for ModifKinds {
         }
         if self.contains(ModifKinds::TravelPlan) {
             vec.push("travel plan");
+        }
+        if self.contains(ModifKinds::Road) {
+            vec.push("road");
+        }
+        if self.contains(ModifKinds::TradeMarket) {
+            vec.push("trade market");
+        }
+        if self.contains(ModifKinds::TradeRoute) {
+            vec.push("trade route");
         }
         write!(f, "{}", vec.join(", "))
     }
