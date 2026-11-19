@@ -88,6 +88,7 @@ pub mod regions;
 pub mod relations;
 pub mod religions;
 pub mod rites;
+pub mod roads;
 pub mod ruler_objectives;
 pub mod schemes;
 pub mod scripted_animations;

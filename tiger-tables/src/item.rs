@@ -410,6 +410,8 @@ pub enum Item {
     #[cfg(feature = "ck3")] RiteIcon,
     #[cfg(feature = "ck3")] RiteName,
     #[cfg(feature = "ck3")] RiteType,
+    #[cfg(feature = "ck3")] Road,
+    #[cfg(feature = "ck3")] RoadModifiers,
     #[cfg(feature = "ck3")] RulerObjectiveType,
     #[cfg(feature = "ck3")] Scheme,
     #[cfg(feature = "ck3")] SchemePulseAction,
@@ -1621,6 +1623,10 @@ impl Item {
             Item::RiteName => "common/religion/rite_names/",
             #[cfg(feature = "ck3")]
             Item::RiteType => "common/religion/rite_types/",
+            #[cfg(feature = "ck3")]
+            Item::Road => "common/roads/road_types/",
+            #[cfg(feature = "ck3")]
+            Item::RoadModifiers => "common/roads/road_modifiers/",
             #[cfg(feature = "ck3")]
             Item::RulerObjectiveType => "common/ruler_objective_advice_types/",
             #[cfg(feature = "ck3")]
