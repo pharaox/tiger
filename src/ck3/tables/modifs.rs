@@ -260,7 +260,7 @@ pub fn lookup_modif(name: &Token, data: &Everything, warn: Option<Severity>) -> 
                 if !data.item_exists_lc(Item::Lifestyle, &s)
                     && !data.item_exists_lc(Item::Trait, &s)
                 {
-                    let msg = "`{s}` was not found as a trait or lifestyle";
+                    let msg = format!("`{s}` was not found as a trait or lifestyle");
                     let info = format!("so the modifier {name} does not exist");
                     report(ErrorKey::MissingItem, sev).msg(msg).info(info).loc(name).push();
                 } else if data.item_exists_lc(Item::Trait, &s) && !data.traits.has_track_lc(&s) {
