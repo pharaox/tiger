@@ -366,8 +366,15 @@ pub fn lookup_modif(name: &Token, data: &Everything, warn: Option<Severity>) -> 
         "_district_build_prestige_cost",
         "_district_build_speed",
     ] {
-        // TODO: 1.21 also check district types once they are loaded
-        if name_lc.strip_suffix_unchecked(sfx).is_some() {
+        if let Some(s) = name_lc.strip_suffix_unchecked(sfx) {
+            if let Some(sev) = warn
+                && !data.item_exists_lc(Item::District, &s)
+                && !data.item_exists_lc(Item::HoldingType, &s)
+            {
+                let msg = format!("could not find district type or holding type {s}");
+                let info = format!("so the modifier {name} does not exist");
+                report(ErrorKey::MissingItem, sev).msg(msg).info(info).loc(name).push();
+            }
             return Some(ModifKinds::Character | ModifKinds::Province | ModifKinds::County);
         }
     }

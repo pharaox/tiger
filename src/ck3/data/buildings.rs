@@ -224,7 +224,7 @@ fn validate_fixed_cost(block: &Block, data: &Everything) {
     }
 }
 
-fn validate_asset(block: &Block, data: &Everything) {
+pub fn validate_asset(block: &Block, data: &Everything) {
     let mut vd = Validator::new(block, data);
     vd.req_field("type");
     vd.field_choice("type", &["pdxmesh", "entity"]);

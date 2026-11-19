@@ -410,8 +410,7 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
         (Scopes::Character, "dead_var", Scopes::all(), UncheckedValue),
         (Scopes::None, "decision", Scopes::Decision, Item(Item::Decision)),
         (Scopes::None, "define", Scopes::Value, UncheckedValue),
-        // TODO: 1.21 check the district_type keys once they are loaded
-        (Scopes::None, "district_type", Scopes::DistrictType, UncheckedValue),
+        (Scopes::None, "district_type", Scopes::DistrictType, Item(Item::District)),
         (Scopes::None, "doctrine", Scopes::Doctrine, Item(Item::Doctrine)),
         (Scopes::None, "dynasty", Scopes::Dynasty, Item(Item::Dynasty)),
         (Scopes::None, "epidemic_type", Scopes::EpidemicType, Item(Item::EpidemicType)),

@@ -471,8 +471,8 @@ const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("culture_pillar", Some(Item::CulturePillar)),
     ("culture_tradition", Some(Item::CultureTradition)),
     ("decision", Some(Item::Decision)),
-    // TODO: 1.21 check the district type keys once they are loaded
-    ("district", None),
+    // TODO: verify that it takes the district type key, like `building`
+    ("district", Some(Item::District)),
     ("doctrine", Some(Item::Doctrine)),
     ("domicile_building", Some(Item::DomicileBuilding)),
     ("dynasty", None),

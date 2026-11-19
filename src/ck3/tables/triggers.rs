@@ -422,8 +422,11 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
             "replaced by monthly_county_control_decline_factor and monthly_county_control_growth_factor",
         ),
     ),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::LandedTitle.union(Scopes::Province), "county_has_district", UncheckedValue),
+    (
+        Scopes::LandedTitle.union(Scopes::Province),
+        "county_has_district",
+        ScopeOrItem(Scopes::DistrictType, Item::District),
+    ),
     (
         Scopes::LandedTitle,
         "county_has_province_with_terrain",
@@ -2379,8 +2382,11 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::LandedTitle, "prosperity_rate", CompareValue),
     (Scopes::LandedTitle, "prosperity_rate_modifier", CompareValue),
     (Scopes::LandedTitle, "prosperity_towards_level_increase", CompareValue),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::LandedTitle.union(Scopes::Province), "province_has_district", UncheckedValue),
+    (
+        Scopes::LandedTitle.union(Scopes::Province),
+        "province_has_district",
+        ScopeOrItem(Scopes::DistrictType, Item::District),
+    ),
     (
         Scopes::Province,
         "province_infection_date",

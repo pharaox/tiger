@@ -2972,8 +2972,7 @@ pub fn validate_add_trade_post_district(
     _tooltipped: Tooltipped,
 ) {
     vd.req_field("district");
-    // TODO: 1.21 check the district type keys once they are loaded
-    vd.field_value("district");
+    vd.field_item("district", Item::District);
     vd.req_field("owner");
     vd.field_target("owner", sc, Scopes::Character);
 }
@@ -2997,14 +2996,15 @@ pub fn validate_random_district_building(
     _key: &Token,
     _block: &Block,
     _data: &Everything,
-    _sc: &mut ScopeContext,
+    sc: &mut ScopeContext,
     mut vd: Validator,
     _tooltipped: Tooltipped,
 ) {
     vd.req_field("district");
     // The docs say it can be a saved scope, a variable or a district type key.
-    // TODO: 1.21 check the district type keys once they are loaded, and the scope type of targets
-    vd.field_value("district");
+    // TODO: verify the scope type of targets
+    let outscopes = Scopes::District | Scopes::DistrictType;
+    vd.field_item_or_target("district", sc, Item::District, outscopes);
 }
 
 pub fn validate_create_commission_trade_route(

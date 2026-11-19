@@ -24,6 +24,7 @@ pub mod deathreasons;
 pub mod decisions;
 pub mod diarchies;
 pub mod difficulty;
+pub mod districts;
 pub mod doctrines;
 pub mod domiciles;
 pub mod dynasties;

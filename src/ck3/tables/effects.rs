@@ -122,10 +122,12 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Dynasty, "add_dynasty_prestige", ScriptValue),
     (Scopes::Dynasty, "add_dynasty_prestige_level", ScriptValue),
     (Scopes::Faith, "add_eminent_holy_site", Vbv(validate_holy_site_target)),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::Province, "add_entrepot_district", Unchecked),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::Province, "add_entrepot_district_slot", Unchecked),
+    (Scopes::Province, "add_entrepot_district", ScopeOrItem(Scopes::DistrictType, Item::District)),
+    (
+        Scopes::Province,
+        "add_entrepot_district_slot",
+        ScopeOrItem(Scopes::DistrictType, Item::District),
+    ),
     (Scopes::Faction, "add_faction_discontent", ScriptValue),
     (Scopes::Culture, "add_fascination_progress", ScriptValue),
     (Scopes::Culture, "add_fascination_progress_time", ScriptValue),
@@ -146,10 +148,12 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
         "add_great_building_slot",
         Removed("1.21", "replaced with `add_great_district_slot`"),
     ),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::Province, "add_great_district", Unchecked),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::Province, "add_great_district_slot", Unchecked),
+    (Scopes::Province, "add_great_district", ScopeOrItem(Scopes::DistrictType, Item::District)),
+    (
+        Scopes::Province,
+        "add_great_district_slot",
+        ScopeOrItem(Scopes::DistrictType, Item::District),
+    ),
     (Scopes::Faith, "add_holy_site", Vbv(validate_holy_site_target)),
     (Scopes::Character, "add_hook", Vb(validate_add_hook)),
     (Scopes::Character, "add_hook_no_toast", Vb(validate_add_hook)),
@@ -214,8 +218,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Culture, "add_random_valid_tradition_replace_if_necessary", Scope(Scopes::Character)),
     (Scopes::Character, "add_realm_law", Item(Item::Law)),
     (Scopes::Character, "add_realm_law_skip_effects", Item(Item::Law)),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::Province, "add_regular_district", Unchecked),
+    (Scopes::Province, "add_regular_district", ScopeOrItem(Scopes::DistrictType, Item::District)),
     (Scopes::Character, "add_relation_flag", Vb(validate_add_relation_flag)),
     (Scopes::Character, "add_reserved_gold", ScriptValue),
     (Scopes::Rite, "add_rite_culture", Scope(Scopes::Culture)),
@@ -241,10 +244,12 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
         "add_special_building_slot",
         Removed("1.21", "replaced with `add_special_district_slot`"),
     ),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::Province, "add_special_district", Unchecked),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::Province, "add_special_district_slot", Unchecked),
+    (Scopes::Province, "add_special_district", ScopeOrItem(Scopes::DistrictType, Item::District)),
+    (
+        Scopes::Province,
+        "add_special_district_slot",
+        ScopeOrItem(Scopes::DistrictType, Item::District),
+    ),
     (Scopes::Culture, "add_spread_progress", ScriptValue),
     (Scopes::Culture, "add_spread_progress_time", ScriptValue),
     (Scopes::Character, "add_stewardship_skill", ScriptValue),
@@ -902,8 +907,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::Character, "remove_decision_cooldown", Item(Item::Decision)),
     (Scopes::SituationSubRegion, "remove_dejure_title_from_sub_region", Scope(Scopes::LandedTitle)),
     (Scopes::District, "remove_district", Yes),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::Province, "remove_district_type", Unchecked),
+    (Scopes::Province, "remove_district_type", Item(Item::District)),
     (Scopes::Faith, "remove_doctrine", ScopeOrItem(Scopes::Doctrine, Item::Doctrine)),
     (Scopes::Domicile, "remove_domicile_building", Item(Item::DomicileBuilding)),
     (Scopes::Domicile, "remove_domicile_building_no_refund", Item(Item::DomicileBuilding)),
@@ -1200,10 +1204,12 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
         "set_great_building_slot",
         Removed("1.21", "replaced with `set_great_district_slot`"),
     ),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::Province, "set_great_district", Unchecked),
-    // TODO: 1.21 check the district type keys once they are loaded
-    (Scopes::Province, "set_great_district_slot", Unchecked),
+    (Scopes::Province, "set_great_district", ScopeOrItem(Scopes::DistrictType, Item::District)),
+    (
+        Scopes::Province,
+        "set_great_district_slot",
+        ScopeOrItem(Scopes::DistrictType, Item::District),
+    ),
     (Scopes::GreatHolyWar, "set_great_holy_war_target", Vb(validate_set_ghw_target)),
     (Scopes::Culture, "set_heritage_from", Scope(Scopes::Culture)),
     (Scopes::Province, "set_holding_type", ScopeOrItem(Scopes::HoldingType, Item::HoldingType)),
