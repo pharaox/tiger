@@ -36,8 +36,12 @@ impl DbKind for DomicileType {
         data.verify_exists_implied(Item::Localization, &loca, key);
 
         vd.field_trigger_rooted("allowed_for_character", Tooltipped::Yes, Scopes::Character);
+        vd.field_list_items("initial_buildings", Item::DomicileBuilding);
         vd.field_choice("rename_window", &["primary_title", "house"]);
-        vd.field_item("illustration", Item::File);
+        // TODO: verify the scopes of the header and frame triggers
+        vd.multi_field_validated("header", validate_triggered_texture);
+        vd.multi_field_validated("frame", validate_triggered_texture);
+        vd.multi_field_validated("illustration", validate_triggered_texture);
         vd.field_item("icon", Item::File);
         vd.field_item("map_pin_texture", Item::File);
         vd.field_choice("map_pin_anchor", &["up", "down", "left", "right"]);
@@ -48,8 +52,13 @@ impl DbKind for DomicileType {
         vd.field_bool("culture_and_faith");
         vd.field_bool("move_with_realm_capital");
         vd.field_bool("can_move_manually");
+        vd.field_bool("move_instantly");
+        // undocumented
+        vd.field_bool("acumen");
         vd.field_validated_block_sc("move_cooldown", &mut sc, validate_duration);
         vd.field_validated_block_sc("move_cost", &mut sc, validate_cost);
+        vd.field_effect_rooted("on_move_start", Tooltipped::No, Scopes::Domicile);
+        vd.field_effect_rooted("on_move_end", Tooltipped::No, Scopes::Domicile);
         vd.multi_field_validated_key_block(
             "domicile_temperament_low_modifier",
             |key, block, data| {
@@ -78,6 +87,8 @@ impl DbKind for DomicileType {
                 validate_building_slot(key, block, data);
             });
         });
+        // undocumented
+        vd.field_list_items("artifact_slots", Item::ArtifactSlot);
         vd.multi_field_validated_block("domicile_asset", validate_domicile_asset);
 
         vd.multi_field_validated("map_entity", validate_map_entity);
@@ -89,6 +100,7 @@ fn validate_building_slot(_key: &Token, block: &Block, data: &Everything) {
     vd.field_choice("slot_type", &["main", "external"]);
     vd.field_block("position"); // TODO
     vd.field_block("size"); // TODO
+    vd.field_integer("depth");
     vd.multi_field_validated_block("empty_slot_asset", validate_slot_asset);
     vd.multi_field_validated_block("construction_slot_asset", validate_slot_asset);
 }
@@ -106,7 +118,24 @@ fn validate_domicile_asset(block: &Block, data: &Everything) {
     vd.field_trigger_builder("trigger", Tooltipped::No, sc_domicile_owner);
     vd.field_item("background", Item::File);
     vd.field_item("foreground", Item::File);
+    vd.multi_field_validated_block("layer", |block, data| {
+        let mut vd = Validator::new(block, data);
+        vd.field_item("texture", Item::File);
+        vd.field_integer("depth");
+    });
     vd.field_item("ambience", Item::Sound);
+}
+
+fn validate_triggered_texture(bv: &BV, data: &Everything) {
+    match bv {
+        BV::Value(value) => data.verify_exists(Item::File, value),
+        BV::Block(block) => {
+            let mut vd = Validator::new(block, data);
+            vd.field_trigger_builder("trigger", Tooltipped::No, sc_domicile_owner);
+            vd.req_field("reference");
+            vd.field_item("reference", Item::File);
+        }
+    }
 }
 
 fn validate_map_entity(bv: &BV, data: &Everything) {
