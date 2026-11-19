@@ -337,7 +337,8 @@ pub fn lookup_modif(name: &Token, data: &Everything, warn: Option<Severity>) -> 
                 if let Some(sev) = warn
                     && !data.item_lc_has_property(Item::Region, &s, "generates_modifiers")
                 {
-                    let msg = format!("region {s} does not have `generates_modifiers = yes`");
+                    let msg =
+                        format!("region {s} does not have `generate_prosperity_modifiers = yes`");
                     let info = format!("so the modifier {name} does not exist");
                     report(ErrorKey::MissingItem, sev)
                         .strong()
