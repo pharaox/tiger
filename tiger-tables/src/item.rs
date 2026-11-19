@@ -425,7 +425,6 @@ pub enum Item {
     #[cfg(feature = "ck3")] SituationPhaseParameter,
     #[cfg(feature = "ck3")] SituationSubRegion,
     #[cfg(feature = "ck3")] Skill,
-    #[cfg(feature = "ck3")] SpecialBuilding,
     #[cfg(feature = "ck3")] SpecialGuest,
     #[cfg(feature = "ck3")] SpiritualFulfillmentType,
     #[cfg(feature = "ck3")] Story,
@@ -1656,8 +1655,6 @@ impl Item {
             Item::SituationSubRegion => "common/situation/situations/",
             #[cfg(feature = "ck3")]
             Item::Skill => "",
-            #[cfg(feature = "ck3")]
-            Item::SpecialBuilding => "common/buildings/",
             #[cfg(feature = "ck3")]
             Item::SpecialGuest => "common/activities/activity_types/",
             #[cfg(feature = "ck3")]

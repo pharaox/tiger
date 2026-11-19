@@ -125,12 +125,12 @@ impl ProvinceHistory {
         {
             data.verify_exists(Item::HoldingType, token);
         }
-        vd.field_list_items("buildings", Item::Building);
-        vd.multi_field_item("special_building_slot", Item::SpecialBuilding);
-        vd.multi_field_item("special_building", Item::SpecialBuilding);
-        // TODO: check if province is duchy capital
-        // TODO: check if building is duchy capital building
-        vd.field_item("duchy_capital_building", Item::Building);
+        // The new part of the 1.21 docs replaces buildings with districts. The old fields are
+        // still in the structure at the top of the docs, but vanilla no longer uses them.
+        vd.replaced_field("buildings", "districts");
+        vd.replaced_field("special_building_slot", "special_district_slot");
+        vd.replaced_field("special_building", "districts");
+        vd.replaced_field("duchy_capital_building", "districts");
 
         vd.field_validated_block("districts", |block, data| {
             let mut vd = Validator::new(block, data);
