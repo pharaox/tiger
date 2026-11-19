@@ -41,8 +41,10 @@ impl DbKind for ConfederationType {
         data.verify_exists_implied(Item::Localization, &loca, key);
 
         let mut vd = Validator::new(block, data);
-        vd.field_bool("house_based_confederation");
-        let house_based = block.get_field_bool("house_based_confederation").unwrap_or(false);
+        vd.field_choice("confederation_base", &["character", "house", "title"]);
+        vd.replaced_field("house_based_confederation", "confederation_base");
+        let base = block.get_field_value("confederation_base").map_or("character", Token::as_str);
+        vd.field_integer("diplomatic_icon_frame_index");
 
         vd.field_script_value_builder("cohesion_base_change_monthly", |key| {
             let mut sc = ScopeContext::new(Scopes::Confederation, key);
@@ -53,6 +55,13 @@ impl DbKind for ConfederationType {
         vd.field_script_value_builder("cohesion_base_change_per_house_monthly", |key| {
             let mut sc = ScopeContext::new(Scopes::Confederation, key);
             sc.define_name("house", Scopes::DynastyHouse, key);
+            sc
+        });
+        // undocumented
+        // TODO: verify that `title` is set, like `house` in the field above
+        vd.field_script_value_builder("cohesion_base_change_per_title_monthly", |key| {
+            let mut sc = ScopeContext::new(Scopes::Confederation, key);
+            sc.define_name("title", Scopes::LandedTitle, key);
             sc
         });
         vd.field_script_value_builder("cohesion_contribution", |key| {
@@ -80,7 +89,7 @@ impl DbKind for ConfederationType {
                     validate_parameter_value(param, value);
                 });
             });
-            validate_confederation_modifiers(&mut vd, house_based);
+            validate_confederation_modifiers(&mut vd, base);
         });
 
         if levels > 0 {
@@ -92,6 +101,23 @@ impl DbKind for ConfederationType {
 
         vd.field_trigger_rooted("is_valid_confederation", Tooltipped::No, Scopes::Confederation);
         vd.field_effect_rooted("on_confederation_destroyed", Tooltipped::No, Scopes::Confederation);
+
+        vd.field_trigger_builder(
+            "can_receive_modifiers_from_confederation",
+            Tooltipped::No,
+            |key| {
+                let mut sc = ScopeContext::new(Scopes::Confederation, key);
+                sc.define_name("character", Scopes::Character, key);
+                sc.define_name("house", Scopes::DynastyHouse, key);
+                sc
+            },
+        );
+        vd.field_trigger_builder("member_would_join_war", Tooltipped::No, |key| {
+            let mut sc = ScopeContext::new(Scopes::Confederation, key);
+            sc.define_name("enemy", Scopes::Character, key);
+            sc.define_name("ally", Scopes::Character, key);
+            sc
+        });
 
         let sc_member_builder = |key: &Token| {
             let mut sc = ScopeContext::new(Scopes::Confederation, key);
@@ -112,10 +138,20 @@ impl DbKind for ConfederationType {
         vd.field_trigger_builder("is_valid_member_house", Tooltipped::No, sc_house_builder);
         vd.field_effect_builder("on_member_house_joined", Tooltipped::No, sc_house_builder);
         vd.field_effect_builder("on_member_house_left", Tooltipped::No, sc_house_builder);
+
+        // undocumented
+        let sc_title_builder = |key: &Token| {
+            let mut sc = ScopeContext::new(Scopes::Confederation, key);
+            sc.define_name("title", Scopes::LandedTitle, key);
+            sc
+        };
+        vd.field_trigger_builder("is_valid_member_title", Tooltipped::No, sc_title_builder);
+        vd.field_effect_builder("on_member_title_joined", Tooltipped::No, sc_title_builder);
+        vd.field_effect_builder("on_member_title_left", Tooltipped::No, sc_title_builder);
     }
 }
 
-fn validate_confederation_modifiers(vd: &mut Validator, house_based: bool) {
+fn validate_confederation_modifiers(vd: &mut Validator, base: &str) {
     for field in &[
         "leading_house_head",
         "leading_house_member_not_head",
@@ -130,13 +166,30 @@ fn validate_confederation_modifiers(vd: &mut Validator, house_based: bool) {
         "any_member_house_member_not_head",
         "any_member_house_member",
     ] {
-        if house_based {
+        if base == "house" {
             vd.field_validated_block(field, |block, data| {
                 let vd = Validator::new(block, data);
                 validate_modifs(block, data, ModifKinds::Character, vd);
             });
         } else {
             vd.ban_field(field, || "house based confederations");
+        }
+    }
+    for field in &[
+        "leading_title_holder",
+        "leading_title_noble_family",
+        "leading_title_landed_vassal",
+        "member_title_holder",
+        "member_title_noble_family",
+        "member_title_landed_vassal",
+    ] {
+        if base == "title" {
+            vd.field_validated_block(field, |block, data| {
+                let vd = Validator::new(block, data);
+                validate_modifs(block, data, ModifKinds::Character, vd);
+            });
+        } else {
+            vd.ban_field(field, || "title based confederations");
         }
     }
 }
