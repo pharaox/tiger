@@ -291,6 +291,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] CourtSceneGroup,
     #[cfg(feature = "ck3")] CourtSceneRole,
     #[cfg(feature = "ck3")] CourtSceneSetting,
+    #[cfg(feature = "ck3")] CountyPotentialTradeGoods,
     #[cfg(feature = "ck3")] CourtType,
     #[cfg(feature = "ck3")] CourtierGuestManagement,
     #[cfg(feature = "ck3")] CultureAesthetic,
@@ -449,6 +450,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] Title,
     #[cfg(feature = "ck3")] TitleHistory,
     #[cfg(feature = "ck3")] TitleType,
+    #[cfg(feature = "ck3")] TollLevel,
     #[cfg(feature = "ck3")] TradeGoodCategory,
     #[cfg(feature = "ck3")] TradeGoodType,
     #[cfg(feature = "ck3")] TraitCategory,
@@ -1380,6 +1382,8 @@ impl Item {
             #[cfg(feature = "ck3")]
             Item::CourtSceneSetting => "gfx/court_scene/scene_settings/",
             #[cfg(feature = "ck3")]
+            Item::CountyPotentialTradeGoods => "common/trade/county_potential_trade_goods/",
+            #[cfg(feature = "ck3")]
             Item::CourtType => "common/court_types/",
             #[cfg(feature = "ck3")]
             Item::CourtierGuestManagement => "common/courtier_guest_management/",
@@ -1696,6 +1700,8 @@ impl Item {
             Item::TitleHistory => "history/titles/",
             #[cfg(feature = "ck3")]
             Item::TitleType => "common/title_types/",
+            #[cfg(feature = "ck3")]
+            Item::TollLevel => "common/trade/trade_market_toll_levels/",
             #[cfg(feature = "ck3")]
             Item::TradeGoodCategory => "common/trade/trade_good_categories/",
             #[cfg(feature = "ck3")]

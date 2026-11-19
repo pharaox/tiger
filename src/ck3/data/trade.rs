@@ -1,5 +1,7 @@
 use crate::block::Block;
+use crate::ck3::data::titles::Tier;
 use crate::ck3::modif::ModifKinds;
+use crate::context::ScopeContext;
 use crate::db::{Db, DbKind};
 use crate::everything::Everything;
 use crate::game::GameFlags;
@@ -7,6 +9,7 @@ use crate::helpers::{TigerHashMap, TigerHashSet};
 use crate::item::{Item, ItemLoader};
 use crate::modif::validate_modifs;
 use crate::report::{ErrorKey, err, untidy};
+use crate::scopes::Scopes;
 use crate::token::Token;
 use crate::validate::validate_color;
 use crate::validator::Validator;
@@ -137,6 +140,64 @@ impl DbKind for TradeGoodCategory {
                     validate_modifs(block, data, ModifKinds::Character, vd);
                 });
             });
+        });
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct TollLevel {}
+
+inventory::submit! {
+    ItemLoader::Normal(GameFlags::Ck3, Item::TollLevel, TollLevel::add)
+}
+
+impl TollLevel {
+    pub fn add(db: &mut Db, key: Token, block: Block) {
+        db.add(Item::TollLevel, key, block, Box::new(Self {}));
+    }
+}
+
+impl DbKind for TollLevel {
+    fn validate(&self, key: &Token, block: &Block, data: &Everything) {
+        let mut vd = Validator::new(block, data);
+
+        data.verify_exists(Item::Localization, key);
+
+        vd.field_numeric_range("route_owner_toll_rate", 0.0..=1.0);
+        vd.field_numeric_range("market_owner_toll_rate", 0.0..=1.0);
+        vd.field_script_value_builder("ai_market_owner_desire", |key| {
+            let mut sc = ScopeContext::new(Scopes::Character, key);
+            sc.define_name("trade_market", Scopes::TradeMarket, key);
+            sc
+        });
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct CountyPotentialTradeGoods {}
+
+inventory::submit! {
+    ItemLoader::Normal(GameFlags::Ck3, Item::CountyPotentialTradeGoods, CountyPotentialTradeGoods::add)
+}
+
+impl CountyPotentialTradeGoods {
+    pub fn add(db: &mut Db, key: Token, block: Block) {
+        db.add(Item::CountyPotentialTradeGoods, key, block, Box::new(Self {}));
+    }
+}
+
+impl DbKind for CountyPotentialTradeGoods {
+    fn validate(&self, key: &Token, block: &Block, data: &Everything) {
+        let mut vd = Validator::new(block, data);
+
+        data.verify_exists(Item::TradeGoodType, key);
+
+        vd.field_validated_list("counties", |token, data| {
+            data.verify_exists(Item::Title, token);
+            if Tier::try_from(token).is_ok_and(|tier| tier != Tier::County) {
+                let msg = "expected a county";
+                err(ErrorKey::TitleTier).msg(msg).loc(token).push();
+            }
         });
     }
 }

@@ -540,8 +540,7 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
         (Scopes::None, "tenet", Scopes::Tenet, Item(Item::Tenet)),
         (Scopes::None, "title", Scopes::LandedTitle, Item(Item::Title)),
         (Scopes::None, "title_type", Scopes::TitleType, Item(Item::TitleType)),
-        // TODO: 1.21 check the toll_level keys once they are loaded
-        (Scopes::None, "toll_level", Scopes::TollLevel, UncheckedValue),
+        (Scopes::None, "toll_level", Scopes::TollLevel, Item(Item::TollLevel)),
         (
             Scopes::Character,
             "top_participant_group",
