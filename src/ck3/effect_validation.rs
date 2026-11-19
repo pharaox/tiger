@@ -2856,3 +2856,226 @@ pub fn validate_set_tenet_status(
     vd.req_field("status");
     vd.field_choice("status", &["unknown", "known", "prohibited", "permitted", "core"]);
 }
+
+/// Used by `add_competitiveness_modifier_for_character`
+pub fn validate_add_competitiveness_modifier(
+    key: &Token,
+    block: &Block,
+    data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("character");
+    vd.field_target("character", sc, Scopes::Character);
+    vd.req_field("modifier");
+    if let Some(token) = vd.field_value("modifier") {
+        data.verify_exists(Item::Modifier, token);
+        data.database.validate_call(Item::Modifier, token, block, data, sc);
+        data.database.validate_property_use(Item::Modifier, token, data, key, key.as_str());
+    }
+    vd.field_validated_sc("desc", sc, validate_desc);
+    validate_optional_duration(&mut vd, sc);
+}
+
+/// Used by `add_trade_good_price_modifier` and `add_price_modifier_for_character`
+pub fn validate_add_price_modifier(
+    key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    if key.is("add_price_modifier_for_character") {
+        vd.req_field("character");
+        vd.field_target("character", sc, Scopes::Character);
+    }
+    vd.req_field("type");
+    vd.field_choice("type", &["buy_add", "buy_mult", "sell_add", "sell_mult"]);
+    vd.req_field("trade_good_type");
+    vd.field_target("trade_good_type", sc, Scopes::TradeGoodType);
+    vd.req_field("value");
+    vd.field_script_value("value", sc);
+    validate_optional_duration(&mut vd, sc);
+}
+
+/// Used by `add_to_variable_map` and its global and local versions
+pub fn validate_add_to_variable_map(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("name");
+    vd.field_identifier("name", "map name");
+    vd.req_field("key");
+    vd.field_target_ok_this("key", sc, Scopes::all_but_none());
+    vd.req_field("value");
+    vd.field_target_ok_this("value", sc, Scopes::all_but_none());
+    validate_optional_duration(&mut vd, sc);
+}
+
+/// Used by `remove_from_variable_map` and its global and local versions
+pub fn validate_remove_from_variable_map(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("name");
+    vd.field_identifier("name", "map name");
+    vd.req_field("key");
+    vd.field_target_ok_this("key", sc, Scopes::all_but_none());
+}
+
+pub fn validate_add_toll_exception(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("target");
+    vd.field_target("target", sc, Scopes::Character);
+    vd.req_field("toll_level");
+    vd.field_target("toll_level", sc, Scopes::TollLevel);
+    validate_optional_duration(&mut vd, sc);
+}
+
+pub fn validate_add_trade_post_district(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("district");
+    // TODO: 1.21 check the district type keys once they are loaded
+    vd.field_value("district");
+    vd.req_field("owner");
+    vd.field_target("owner", sc, Scopes::Character);
+}
+
+pub fn validate_assign_trader(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("character");
+    vd.field_target("character", sc, Scopes::Character);
+    vd.req_field("task");
+    vd.field_choice("task", &["manage_competition", "negotiate_deals", "oversee_caravans"]);
+}
+
+/// Used by the effects that build, upgrade, downgrade or remove a random building of a district
+pub fn validate_random_district_building(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    _sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("district");
+    // The docs say it can be a saved scope, a variable or a district type key.
+    // TODO: 1.21 check the district type keys once they are loaded, and the scope type of targets
+    vd.field_value("district");
+}
+
+pub fn validate_create_commission_trade_route(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("commissioner");
+    vd.field_target("commissioner", sc, Scopes::Character);
+    vd.req_field("primary_good");
+    // TODO: 1.21 check the trade good type keys once they are loaded
+    vd.field_value("primary_good");
+    vd.req_field("destination");
+    vd.field_target("destination", sc, Scopes::TradeMarket);
+    validate_optional_duration(&mut vd, sc);
+    if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
+        sc.define_name_token(name.as_str(), Scopes::TradeRoute, name, Temporary::No);
+    }
+}
+
+pub fn validate_create_trade_monopoly(
+    _key: &Token,
+    block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.field_choice("type", &["exploitative", "normal"]);
+    vd.field_bool("is_complete");
+    vd.field_target("owning_character", sc, Scopes::Character);
+    vd.field_target("owning_confederation", sc, Scopes::Confederation);
+    vd.field_target("owning_title", sc, Scopes::LandedTitle);
+    vd.req_field("trade_market");
+    vd.field_target("trade_market", sc, Scopes::TradeMarket);
+    // TODO: 1.21 check the trade good category keys once they are loaded
+    vd.field_value("trade_good_category");
+
+    let owners = ["owning_character", "owning_confederation", "owning_title"];
+    let mut first: Option<&Token> = None;
+    for owner in owners {
+        if let Some(key) = block.get_key(owner) {
+            if let Some(first) = first {
+                let msg = format!("`{owner}` and `{first}` are mutually exclusive");
+                err(ErrorKey::Conflict).msg(msg).loc(key).loc_msg(first, "here").push();
+            } else {
+                first = Some(key);
+            }
+        }
+    }
+}
+
+pub fn validate_destroy_trade_route(
+    key: &Token,
+    bv: &BV,
+    data: &Everything,
+    sc: &mut ScopeContext,
+    _tooltipped: Tooltipped,
+) {
+    match bv {
+        BV::Value(token) => {
+            if !token.is("yes") {
+                let msg = format!("expected `{key} = yes` or a block");
+                warn(ErrorKey::Validation).msg(msg).loc(token).push();
+            }
+        }
+        BV::Block(block) => {
+            let mut vd = Validator::new(block, data);
+            vd.req_field("destroyer");
+            vd.field_target("destroyer", sc, Scopes::Character);
+        }
+    }
+}
+
+pub fn validate_set_confederation_aspiration(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    _sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("type");
+    // TODO: 1.21 check the confederation aspiration keys once they are loaded
+    vd.field_value("type");
+}
