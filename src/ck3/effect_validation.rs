@@ -3093,6 +3093,5 @@ pub fn validate_set_confederation_aspiration(
     _tooltipped: Tooltipped,
 ) {
     vd.req_field("type");
-    // TODO: 1.21 check the confederation aspiration keys once they are loaded
-    vd.field_value("type");
+    vd.field_item("type", Item::ConfederationAspiration);
 }

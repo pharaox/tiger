@@ -279,6 +279,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] CohesionLevelParameter,
     #[cfg(feature = "ck3")] CombatEffect,
     #[cfg(feature = "ck3")] CombatPhaseEvent,
+    #[cfg(feature = "ck3")] ConfederationAspiration,
     #[cfg(feature = "ck3")] ConfederationType,
     #[cfg(feature = "ck3")] ConnectionArrow,
     #[cfg(feature = "ck3")] CouncilPosition,
@@ -1357,6 +1358,8 @@ impl Item {
             Item::CombatEffect => "common/combat_effects/",
             #[cfg(feature = "ck3")]
             Item::CombatPhaseEvent => "common/combat_phase_events/",
+            #[cfg(feature = "ck3")]
+            Item::ConfederationAspiration => "common/confederation_aspirations/",
             #[cfg(feature = "ck3")]
             Item::ConfederationType => "common/confederation_types/",
             #[cfg(feature = "ck3")]

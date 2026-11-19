@@ -140,3 +140,56 @@ fn validate_confederation_modifiers(vd: &mut Validator, house_based: bool) {
         }
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct ConfederationAspiration {}
+
+inventory::submit! {
+    ItemLoader::Normal(GameFlags::Ck3, Item::ConfederationAspiration, ConfederationAspiration::add)
+}
+
+impl ConfederationAspiration {
+    pub fn add(db: &mut Db, key: Token, block: Block) {
+        db.add(Item::ConfederationAspiration, key, block, Box::new(Self {}));
+    }
+}
+
+impl DbKind for ConfederationAspiration {
+    fn validate(&self, _key: &Token, block: &Block, data: &Everything) {
+        let mut vd = Validator::new(block, data);
+
+        vd.field_bool("show_in_main_hud");
+        vd.field_bool("is_default");
+        // undocumented
+        // TODO: verify the scope type
+        vd.field_trigger_rooted("is_shown", Tooltipped::No, Scopes::Confederation);
+
+        vd.req_field("level");
+        vd.multi_field_validated_block("level", |block, data| {
+            let mut vd = Validator::new(block, data);
+            for field in &["confederation_leader_modifier", "confederation_member_modifier"] {
+                vd.field_validated_block(field, |block, data| {
+                    let vd = Validator::new(block, data);
+                    validate_modifs(block, data, ModifKinds::Character, vd);
+                });
+            }
+            vd.field_script_value_no_breakdown_rooted("ai_score", Scopes::Character);
+            vd.field_list("parameters");
+            vd.field_bool("can_request_great_project_contributions_from_allies");
+        });
+
+        vd.field_item("illustration", Item::File);
+        vd.field_validated_block("cooldown", |block, data| {
+            let mut vd = Validator::new(block, data);
+            vd.field_integer("days");
+            vd.field_integer("weeks");
+            vd.field_integer("months");
+            vd.field_integer("years");
+        });
+        vd.field_effect_builder("on_changed", Tooltipped::Yes, |key| {
+            let mut sc = ScopeContext::new(Scopes::Character, key);
+            sc.define_name("confederation", Scopes::Confederation, key);
+            sc
+        });
+    }
+}
