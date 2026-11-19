@@ -166,12 +166,12 @@ const OLD_TARGET_FILTERS: &[(&str, &str, &str)] = &[
 // LAST UPDATED CK3 VERSION 1.20.1
 pub const ACTIVITY_STATES: &[&str] = &["passive", "travel", "active"];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from the agent_slot_has_contribution_type trigger doc
 pub const AGENT_SLOT_CONTRIBUTION_TYPE: &[&str] =
     &["secrecy", "success_chance", "success_chance_growth", "success_chance_max", "speed"];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from the create_artifact description in effects.log
 pub const ARTIFACT_HISTORY: &[&str] = &[
     "created_before_history",
@@ -569,7 +569,7 @@ pub const SEXUALITIES: &[&str] = &["heterosexual", "homosexual", "bisexual", "as
 pub const SUPPORT_TYPES: &[&str] =
     &["lectern", "tall", "short_pillow", "tall_pillow", "armorstand", "short"];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from recent_history description in triggers.log
 pub const TITLE_HISTORY_TYPES: &[&str] = &[
     "conquest",
