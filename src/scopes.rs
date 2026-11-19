@@ -25,7 +25,7 @@ bitflags! {
     ///
     /// The available scope types depend on the game.
     /// They are listed in `event_scopes.log` from the game data dumps.
-    // LAST UPDATED CK3 VERSION 1.20.1
+    // LAST UPDATED CK3 VERSION 1.21.0
     // LAST UPDATED VIC3 VERSION 1.8.1
     // LAST UPDATED IR VERSION 2.0.4
     //
@@ -147,6 +147,21 @@ bitflags! {
         #[cfg(feature = "ck3")] const Rite = 1<<77;
         #[cfg(feature = "ck3")] const RiteType = 1<<78;
         #[cfg(feature = "ck3")] const Tenet = 1<<79;
+        // CK3 1.21
+        #[cfg(feature = "ck3")] const Building = 1<<80;
+        #[cfg(feature = "ck3")] const BuildingType = 1<<81;
+        #[cfg(feature = "ck3")] const District = 1<<82;
+        #[cfg(feature = "ck3")] const DistrictType = 1<<83;
+        #[cfg(feature = "ck3")] const Law = 1<<84;
+        #[cfg(feature = "ck3")] const MenAtArms = 1<<85;
+        #[cfg(feature = "ck3")] const Road = 1<<86;
+        #[cfg(feature = "ck3")] const TitleType = 1<<87;
+        #[cfg(feature = "ck3")] const TollLevel = 1<<88;
+        #[cfg(feature = "ck3")] const TradeGoodCategory = 1<<89;
+        #[cfg(feature = "ck3")] const TradeGoodType = 1<<90;
+        #[cfg(feature = "ck3")] const TradeMarket = 1<<91;
+        #[cfg(feature = "ck3")] const TradeMonopoly = 1<<92;
+        #[cfg(feature = "ck3")] const TradeRoute = 1<<93;
 
         #[cfg(feature = "vic3")] const Battle = 1<<16;
         #[cfg(feature = "vic3")] const BattleSide = 1<<17;
