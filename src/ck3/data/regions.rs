@@ -1,8 +1,10 @@
 use crate::block::Block;
+use crate::ck3::modif::ModifKinds;
 use crate::db::{Db, DbKind};
 use crate::everything::Everything;
 use crate::game::GameFlags;
 use crate::item::{Item, ItemLoader};
+use crate::modif::validate_modifs;
 use crate::report::{ErrorKey, err, fatal};
 use crate::token::Token;
 use crate::validate::validate_color;
@@ -53,6 +55,14 @@ impl DbKind for Region {
         vd.field_bool("generate_prosperity_modifiers");
         vd.replaced_field("generate_modifiers", "generate_prosperity_modifiers");
         vd.field_bool("graphical");
+        vd.field_validated_block("province_modifier", |block, data| {
+            let vd = Validator::new(block, data);
+            validate_modifs(block, data, ModifKinds::Province, vd);
+        });
+        vd.field_validated_block("county_modifier", |block, data| {
+            let vd = Validator::new(block, data);
+            validate_modifs(block, data, ModifKinds::County, vd);
+        });
         vd.field_validated_block("color", validate_color);
         vd.advice_field("should_remember_counties_order", "removed in 1.20");
         vd.field_validated_list("counties", |token, data| {
