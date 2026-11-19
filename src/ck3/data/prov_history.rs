@@ -132,6 +132,29 @@ impl ProvinceHistory {
         // TODO: check if building is duchy capital building
         vd.field_item("duchy_capital_building", Item::Building);
 
+        vd.field_validated_block("districts", |block, data| {
+            let mut vd = Validator::new(block, data);
+            vd.multi_field_validated_block("district", |block, data| {
+                let mut vd = Validator::new(block, data);
+                vd.req_field("type");
+                vd.field_item("type", Item::District);
+                vd.field_integer_range("level", 1..);
+                vd.field_list_items("buildings", Item::Building);
+            });
+        });
+        vd.field_validated_block("trade_post", |block, data| {
+            let mut vd = Validator::new(block, data);
+            vd.req_field("type");
+            vd.field_item("type", Item::District);
+            vd.field_integer_range("level", 1..);
+            vd.req_field("owner");
+            vd.field_item("owner", Item::Character);
+            vd.field_list_items("buildings", Item::Building);
+        });
+        vd.multi_field_item("special_district_slot", Item::District);
+        vd.field_item("entrepot_district_slot", Item::District);
+        vd.field_integer_range("province_size", 1..);
+
         vd.field_effect_rooted("effect", Tooltipped::No, Scopes::Province);
     }
 
