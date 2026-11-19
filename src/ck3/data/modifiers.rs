@@ -63,6 +63,7 @@ impl DbKind for Modifier {
                 vd.field_script_value("value", sc);
                 vd.field_item("desc", Item::Localization);
                 vd.field_choice("display_mode", &["default", "scaled", "unscaled"]);
+                vd.field_bool("show_base_value");
             }
         });
         vd.no_warn_remaining();
