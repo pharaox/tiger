@@ -9,8 +9,9 @@ use crate::desc::validate_desc;
 use crate::effect::validate_effect;
 use crate::everything::Everything;
 use crate::game::GameFlags;
+use crate::helpers::TigerHashMap;
 use crate::item::{Item, ItemLoader};
-use crate::report::{ErrorKey, warn};
+use crate::report::{ErrorKey, err, warn};
 use crate::scopes::Scopes;
 use crate::token::Token;
 use crate::tooltipped::Tooltipped;
@@ -54,6 +55,14 @@ impl DbKind for CharacterInteraction {
                 sc.define_name("landed_title", Scopes::LandedTitle, target_type);
             } else if target_type.is("court_position_type") {
                 sc.define_name("target", Scopes::CourtPositionType, target_type);
+            } else if target_type.is("trade_market") {
+                sc.define_name("target", Scopes::TradeMarket, target_type);
+            } else if target_type.is("trade_good_type") {
+                sc.define_name("target", Scopes::TradeGoodType, target_type);
+            } else if target_type.is("trade_good_category") {
+                sc.define_name("target", Scopes::TradeGoodCategory, target_type);
+            } else if target_type.is("district") {
+                sc.define_name("target", Scopes::District, target_type);
             }
         } else if let Some(interface) = block.get_field_value("interface") {
             if interface.is("interfere_in_war") || interface.is("call_ally") {
@@ -284,6 +293,36 @@ impl DbKind for CharacterInteraction {
                 warn(ErrorKey::Validation).msg(msg).loc(key).push();
             }
         });
+        let mut override_governments: TigerHashMap<String, Token> = TigerHashMap::default();
+        vd.multi_field_validated_key_block(
+            "ai_frequency_by_tier_government_override",
+            |key, b, data| {
+                let mut vd = Validator::new(b, data);
+                vd.req_field("government");
+                for token in vd.multi_field_value("government") {
+                    data.verify_exists(Item::GovernmentType, token);
+                    if let Some(other) =
+                        override_governments.insert(token.to_string(), token.clone())
+                    {
+                        let msg = format!("government {token} is in more than one override");
+                        err(ErrorKey::Conflict)
+                            .msg(msg)
+                            .loc(token)
+                            .loc_msg(&other, "first one")
+                            .push();
+                    }
+                }
+                for tier in &["barony", "county", "duchy", "kingdom", "empire", "hegemony"] {
+                    vd.req_field(tier);
+                    vd.field_integer(tier);
+                }
+                if !block.has_key("ai_frequency") && !block.has_key("ai_frequency_by_tier") {
+                    let msg =
+                        "needs `ai_frequency` or `ai_frequency_by_tier` for the other governments";
+                    err(ErrorKey::FieldMissing).msg(msg).loc(key).push();
+                }
+            },
+        );
 
         // This is in character scope with no other named scopes builtin
         vd.field_trigger_rooted("ai_potential", Tooltipped::Yes, Scopes::Character);
@@ -351,7 +390,17 @@ impl DbKind for CharacterInteraction {
 
         vd.field_choice(
             "target_type",
-            &["artifact", "title", "men_at_arms", "court_position_type"],
+            &[
+                "artifact",
+                "title",
+                "men_at_arms",
+                "court_position_type",
+                "trade_market",
+                "trade_good_type",
+                "trade_good_category",
+                // undocumented, but vanilla uses it with `target_filter = trade_post`
+                "district",
+            ],
         );
         vd.field_choice(
             "target_source",
@@ -391,6 +440,13 @@ impl DbKind for CharacterInteraction {
         vd.field_trigger("can_be_picked_title", Tooltipped::Yes, &mut sc.clone());
         vd.field_trigger("can_be_picked_artifact", Tooltipped::Yes, &mut sc.clone());
         vd.field_trigger("can_be_picked_regiment", Tooltipped::Yes, &mut sc.clone());
+        vd.field_trigger("can_be_picked_trade_market", Tooltipped::Yes, &mut sc.clone());
+        vd.field_trigger("can_be_picked_trade_good_type", Tooltipped::Yes, &mut sc.clone());
+        vd.field_trigger(
+            "can_be_picked_trade_good_category_type",
+            Tooltipped::Yes,
+            &mut sc.clone(),
+        );
 
         if let Some(key) = block.get_key("needs_confirmation") {
             let msg = "`needs_confirmation` is deprecated";

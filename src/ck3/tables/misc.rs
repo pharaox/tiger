@@ -6,7 +6,7 @@ use crate::helpers::TigerHashMap;
 
 pub use tiger_tables::ck3::misc::CUSTOM_RELIGION_LOCAS;
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from common/character_interactions/_character_interactions.info
 pub const AI_TARGETS: &[&str] = &[
     "known_secrets",
@@ -66,9 +66,11 @@ pub const AI_TARGETS: &[&str] = &[
     "religious_head_challenger",
     "religious_head_challengers",
     "papabile",
+    "merchants_in_owned_markets",
+    "market_owners_on_routes",
 ];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from common/character_interactions/_character_interactions.info
 pub const TARGET_FILTERS: &[&str] = &[
     "clerical_region",
@@ -96,6 +98,14 @@ pub const TARGET_FILTERS: &[&str] = &[
     "men_at_arms",
     "personal_maa",
     "title_maa",
+    "domain_trade_markets",
+    "trade_markets_traded_in",
+    "all_trade_goods",
+    "all_trade_goods_traded_in",
+    "all_trade_good_categories",
+    "all_trade_good_categories_traded_in",
+    "trade_post",
+    "all_landed",
 ];
 
 /// The new `target_filter` and `target_source` for an old `target_filter`
