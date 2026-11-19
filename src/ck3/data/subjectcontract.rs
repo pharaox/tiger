@@ -199,6 +199,7 @@ impl DbKind for SubjectContractGroup {
             vd.field_bool("should_show_as_suzerain_realm_color");
             vd.field_bool("tributary_heir_succession");
             vd.field_bool("suzerain_heir_succession");
+            vd.field_bool("is_beneficiary_relationship");
         } else {
             vd.ban_field("is_valid_tributary_contract", || "is_tributary = yes");
             vd.ban_field("tributary_can_break_free", || "is_tributary = yes");
@@ -208,6 +209,7 @@ impl DbKind for SubjectContractGroup {
             vd.ban_field("should_show_as_suzerain_realm_color", || "is_tributary = yes");
             vd.ban_field("tributary_heir_succession", || "is_tributary = yes");
             vd.ban_field("suzerain_heir_succession", || "is_tributary = yes");
+            vd.ban_field("is_beneficiary_relationship", || "is_tributary = yes");
         }
     }
 }
