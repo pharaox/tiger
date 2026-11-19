@@ -12,7 +12,7 @@ pub static SOUNDS_SET: LazyLock<TigerHashSet<Lowercase<'static>>> = LazyLock::ne
     set
 });
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from the object browser, under audio events
 const SOUNDS: &[&str] = &[
     "event:/DLC/BP1/MUSIC/moodtrack/mx_BP1Mood_Generic",
