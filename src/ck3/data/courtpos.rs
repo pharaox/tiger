@@ -1,4 +1,5 @@
 use crate::block::Block;
+use crate::ck3::data::buildings::validate_param_modifier;
 use crate::ck3::modif::ModifKinds;
 use crate::ck3::validate::validate_cost;
 use crate::context::ScopeContext;
@@ -77,15 +78,11 @@ impl DbKind for CourtPosition {
             validate_modifs(block, data, ModifKinds::Character, vd);
         });
         vd.field_validated_block("culture_modifier", |block, data| {
-            let mut vd = Validator::new(block, data);
-            vd.field_item("parameter", Item::CultureParameter);
-            validate_modifs(block, data, ModifKinds::Character, vd);
+            validate_param_modifier(block, data, Item::CultureParameter, ModifKinds::Character);
         });
         vd.replaced_field("faith_modifier", "rite_modifier");
         vd.field_validated_block("rite_modifier", |block, data| {
-            let mut vd = Validator::new(block, data);
-            vd.field_item("parameter", Item::DoctrineParameter);
-            validate_modifs(block, data, ModifKinds::Character, vd);
+            validate_param_modifier(block, data, Item::DoctrineParameter, ModifKinds::Character);
         });
 
         vd.field_validated_block("scaling_employer_modifiers", |block, data| {

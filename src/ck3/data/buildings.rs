@@ -337,7 +337,7 @@ pub fn validate_asset(block: &Block, data: &Everything) {
 }
 
 /// A modifier block that applies when a parameter is present, or absent with `not_parameter`.
-fn validate_param_modifier(block: &Block, data: &Everything, itype: Item, kinds: ModifKinds) {
+pub fn validate_param_modifier(block: &Block, data: &Everything, itype: Item, kinds: ModifKinds) {
     let mut vd = Validator::new(block, data);
     vd.req_field_one_of(&["parameter", "not_parameter"]);
     vd.field_item("parameter", itype);
