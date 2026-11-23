@@ -54,6 +54,7 @@ impl DbKind for LawGroup {
         vd.field_trigger_rooted("can_change_law_group", Tooltipped::Yes, Scopes::Character);
         vd.field_trigger_rooted("can_have_group", Tooltipped::No, Scopes::Character);
         vd.field_list_items("required_government_flag", Item::GovernmentFlag);
+        vd.field_trigger_rooted("can_propose", Tooltipped::No, Scopes::Character);
     }
 }
 
@@ -218,6 +219,10 @@ impl DbKind for Law {
             vd.field_bool("limit_to_courtiers");
             vd.field_bool("resign_outside_realm");
             vd.multi_field_item("required_heir_government_types", Item::GovernmentType);
+            vd.field_bool("allow_same_successor");
+            vd.field_bool("take_realm_capital");
+            // undocumented
+            vd.field_bool("use_term_length");
         });
 
         vd.field_script_value_no_breakdown("ai_will_do", &mut sc);
@@ -225,6 +230,32 @@ impl DbKind for Law {
         vd.field_integer("title_allegiance_opinion");
         vd.field_trigger_rooted("potential", Tooltipped::No, Scopes::Character);
         vd.field_trigger_rooted("requires_approve", Tooltipped::No, Scopes::Character);
+        vd.field_script_value_rooted("ai_approval", Scopes::Character);
+        // The docs say bool, but show a block, and vanilla gives triggers
+        vd.field_trigger_rooted("manual_law_change", Tooltipped::No, Scopes::Character);
+        vd.field_trigger_rooted("voting_session", Tooltipped::No, Scopes::Character);
+        vd.field_script_value_rooted("term_length", Scopes::LandedTitle);
+
+        // undocumented
+        vd.field_validated_block("assembly", |block, data| {
+            let mut vd = Validator::new(block, data);
+            for field in &["major", "minor"] {
+                vd.field_validated_block(field, |block, data| {
+                    let mut vd = Validator::new(block, data);
+                    // TODO: verify the sources; these are the ones vanilla uses
+                    vd.field_list_choice("sources", &["liege", "vassals", "courtiers", "baronies"]);
+                    // TODO: verify the scope type
+                    vd.field_trigger_rooted("limit", Tooltipped::No, Scopes::Character);
+                });
+            }
+        });
+        // undocumented
+        vd.field_validated_block("assembly_voting_thresholds", |block, data| {
+            let mut vd = Validator::new(block, data);
+            // TODO: verify the scope type
+            vd.field_script_value_rooted("law_votes", Scopes::Character);
+            vd.field_script_value_rooted("decree_votes", Scopes::Character);
+        });
         // TODO: should be Item::WidgetName, but the name used in vanilla (widget_clan_law) is not
         // recognized by the gui parser because it's hidden in a type declaration.
         vd.field_value("widget_name");

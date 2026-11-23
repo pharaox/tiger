@@ -61,9 +61,11 @@ impl DbKind for HoldingType {
 
         let mut vd = Validator::new(block, data);
         vd.replaced_field("flag", "`parameters` block");
-        vd.req_field("primary_building");
-        vd.field_item("primary_building", Item::Building);
-        vd.field_list_items("buildings", Item::Building);
+        vd.req_field("primary_district");
+        vd.field_item("primary_district", Item::District);
+        vd.field_list_items("districts", Item::District);
+        vd.replaced_field("primary_building", "primary_district");
+        vd.replaced_field("buildings", "districts");
         vd.field_bool("can_be_inherited");
         vd.field_bool("counts_toward_domain_limit_if_disabled");
         vd.field_list_items("required_heir_government_types", Item::GovernmentType);

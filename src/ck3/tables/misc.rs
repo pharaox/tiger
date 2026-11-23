@@ -6,7 +6,7 @@ use crate::helpers::TigerHashMap;
 
 pub use tiger_tables::ck3::misc::CUSTOM_RELIGION_LOCAS;
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from common/character_interactions/_character_interactions.info
 pub const AI_TARGETS: &[&str] = &[
     "known_secrets",
@@ -66,9 +66,11 @@ pub const AI_TARGETS: &[&str] = &[
     "religious_head_challenger",
     "religious_head_challengers",
     "papabile",
+    "merchants_in_owned_markets",
+    "market_owners_on_routes",
 ];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from common/character_interactions/_character_interactions.info
 pub const TARGET_FILTERS: &[&str] = &[
     "clerical_region",
@@ -96,6 +98,14 @@ pub const TARGET_FILTERS: &[&str] = &[
     "men_at_arms",
     "personal_maa",
     "title_maa",
+    "domain_trade_markets",
+    "trade_markets_traded_in",
+    "all_trade_goods",
+    "all_trade_goods_traded_in",
+    "all_trade_good_categories",
+    "all_trade_good_categories_traded_in",
+    "trade_post",
+    "all_landed",
 ];
 
 /// The new `target_filter` and `target_source` for an old `target_filter`
@@ -166,12 +176,12 @@ const OLD_TARGET_FILTERS: &[(&str, &str, &str)] = &[
 // LAST UPDATED CK3 VERSION 1.20.1
 pub const ACTIVITY_STATES: &[&str] = &["passive", "travel", "active"];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from the agent_slot_has_contribution_type trigger doc
 pub const AGENT_SLOT_CONTRIBUTION_TYPE: &[&str] =
     &["secrecy", "success_chance", "success_chance_growth", "success_chance_max", "speed"];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from the create_artifact description in effects.log
 pub const ARTIFACT_HISTORY: &[&str] = &[
     "created_before_history",
@@ -209,7 +219,7 @@ pub const CURRENCIES_CK3: &[&str] = &[
     "barter_goods",
 ];
 
-/// LAST UPDATED CK3 VERSION 1.20.1
+/// LAST UPDATED CK3 VERSION 1.21.0
 /// Taken from `has_dlc_feature` in triggers.log
 pub const DLC_FEATURES_CK3: &[&str] = &[
     "garments_of_the_hre",
@@ -256,10 +266,12 @@ pub const DLC_FEATURES_CK3: &[&str] = &[
     "symbols_of_authority",
     "songs_of_the_realm",
     "by_god_alone",
+    "playable_republics",
+    "silk_and_silver",
 ];
 
 /// A list of music provided by DLCs, for people who don't have them
-/// LAST UPDATED CK3 VERSION 1.20.1
+/// LAST UPDATED CK3 VERSION 1.21.0
 pub const DLC_MUSIC: &[&str] = &[
     // FP1
     "mx_raid",
@@ -451,6 +463,7 @@ pub const DLC_MUSIC: &[&str] = &[
     "group_mp1_european_moodtrack",
     "group_mp1_generic_moodtrack",
     // CE3
+    "mx_cue_anathema",
     "mx_cue_councils_judgement",
     "mx_cue_deus_hoc_vult",
     "mx_cue_the_shepherds_flock",
@@ -461,7 +474,7 @@ pub const DLC_MUSIC: &[&str] = &[
     "group_ce3_mood",
 ];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // taken from the governments .info file
 pub const GOVERNMENT_RULES: &[&str] = &[
     "create_cadet_branches",
@@ -501,7 +514,7 @@ pub const GOVERNMENT_RULES: &[&str] = &[
     "block_alliance_child_marriage",
     "block_alliance_non_dominant_gender_child_marriage",
     "always_use_patronym",
-    "affected_by_development",
+    "affected_by_prosperity",
     "considers_piety_for_title_creation",
     "ask_for_tribute",
     "barter",
@@ -515,6 +528,30 @@ pub const GOVERNMENT_RULES: &[&str] = &[
     "dynasty_named_non_independent_landed_rulers",
     "allow_accolades",
     "allow_as_base_for_baronies",
+    "uses_assembly",
+    "trade_post",
+    "profit_trade_routes",
+    "distribution_trade_routes",
+    // undocumented, but in the game binary
+    "can_have_vassal_suzerain",
+    "can_sponsor_construction",
+];
+
+// LAST UPDATED CK3 VERSION 1.21.0
+// taken from the governments .info file and the government_has_mechanic docs
+pub const GOVERNMENT_MECHANICS: &[&str] = &[
+    "feudal",
+    "mercenary",
+    "holy_order",
+    "clan",
+    "theocracy",
+    "administrative",
+    "landless_adventurer",
+    "herder",
+    "nomad",
+    "mandala",
+    "merchant",
+    "republic",
 ];
 
 // LAST UPDATED CK3 VERSION 1.20.1
@@ -566,7 +603,7 @@ pub const SEXUALITIES: &[&str] = &["heterosexual", "homosexual", "bisexual", "as
 pub const SUPPORT_TYPES: &[&str] =
     &["lectern", "tall", "short_pillow", "tall_pillow", "armorstand", "short"];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from recent_history description in triggers.log
 pub const TITLE_HISTORY_TYPES: &[&str] = &[
     "conquest",
@@ -637,7 +674,7 @@ pub const ARTIFACT_RARITIES: &[&str] = &["common", "masterwork", "famed", "illus
 // LAST UPDATED CK3 VERSION 1.20.1
 pub const OUTBREAK_INTENSITIES: &[&str] = &["minor", "major", "apocalyptic"];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 pub const COMMON_DIRS: &[&str] = &[
     "common/accolade_icons",
     "common/accolade_names",
@@ -675,6 +712,7 @@ pub const COMMON_DIRS: &[&str] = &[
     "common/coat_of_arms/template_lists",
     "common/combat_effects",
     "common/combat_phase_events",
+    "common/confederation_aspirations",
     "common/confederation_types",
     "common/connection_arrows",
     "common/console_groups",
@@ -701,6 +739,7 @@ pub const COMMON_DIRS: &[&str] = &[
     "common/defines",
     "common/diarchies/diarchy_mandates",
     "common/diarchies/diarchy_types",
+    "common/districts",
     "common/dna_data",
     "common/domiciles/buildings",
     "common/domiciles/types",
@@ -727,6 +766,8 @@ pub const COMMON_DIRS: &[&str] = &[
     "common/graphical_unit_types",
     "common/great_projects/types",
     "common/guest_system",
+    "common/holding_sprawl_graphics",
+    "common/holding_sprawl_patterns",
     "common/holdings",
     "common/holy_orders",
     "common/hook_types",
@@ -776,6 +817,8 @@ pub const COMMON_DIRS: &[&str] = &[
     "common/religion/rite_names",
     "common/religion/rite_types",
     "common/religion/tenet_types",
+    "common/roads/road_modifiers",
+    "common/roads/road_types",
     "common/ruler_objective_advice_types",
     "common/schemes/agent_types",
     "common/schemes/pulse_actions",
@@ -809,6 +852,13 @@ pub const COMMON_DIRS: &[&str] = &[
     "common/tax_slots/obligations",
     "common/tax_slots/types",
     "common/terrain_types",
+    "common/title_types",
+    "common/trade/county_potential_trade_goods",
+    "common/trade/trade_good_categories",
+    "common/trade/trade_good_types",
+    "common/trade/trade_market_toll_levels",
+    "common/trade_goods_graphics",
+    "common/trade_tasks",
     "common/traits",
     "common/travel/point_of_interest_types",
     "common/travel/travel_options",

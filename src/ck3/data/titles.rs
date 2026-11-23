@@ -4,8 +4,8 @@ use std::sync::Arc;
 
 use crate::block::Block;
 use crate::ck3::data::provinces::ProvId;
+use crate::ck3::data::title_types::{validate_personal_relation, validate_title_properties};
 use crate::context::ScopeContext;
-use crate::desc::validate_desc;
 use crate::everything::Everything;
 use crate::fileset::{FileEntry, FileHandler};
 use crate::helpers::{TigerHashMap, dup_error};
@@ -16,7 +16,6 @@ use crate::report::{ErrorKey, err, warn};
 use crate::scopes::Scopes;
 use crate::token::Token;
 use crate::tooltipped::Tooltipped;
-use crate::validate::validate_possibly_named_color;
 use crate::validator::Validator;
 use crate::variables::Variables;
 
@@ -240,35 +239,26 @@ impl Title {
         let mut vd = Validator::new(&self.block, data);
         let mut sc = ScopeContext::new(Scopes::Character, &self.key);
 
-        vd.field_validated("color", validate_possibly_named_color);
+        vd.field_item("type", Item::TitleType);
+        validate_title_properties(&mut vd);
         vd.advice_field("color2", "no longer used");
-        vd.field_bool("figurehead");
-        vd.field_bool("allow_domicile");
-        vd.field_bool("definite_form");
-        vd.field_bool("ruler_uses_title_name");
-        vd.field_bool("can_be_named_after_dynasty");
-        vd.field_bool("landless");
-        vd.field_bool("require_landless");
-        vd.field_bool("no_automatic_claims");
-        vd.field_bool("always_follows_primary_heir");
-        vd.field_bool("destroy_if_invalid_heir");
-        vd.field_bool("destroy_on_succession");
-        vd.field_bool("delete_on_destroy");
-        vd.field_bool("delete_on_gain_same_tier");
         vd.field_bool("de_jure_drift_disabled");
         vd.field_bool("ignore_titularity_for_title_weighting");
-        vd.field_bool("noble_family");
-        vd.field_bool("nomad");
-        vd.field_bool("can_use_nomadic_naming");
         vd.field_item("dlc_feature", Item::DlcFeature);
 
-        let mut sc_entry = ScopeContext::new(Scopes::Character, &self.key);
-        sc_entry.define_name("target", Scopes::Character, &self.key);
-        sc_entry.define_name("title", Scopes::LandedTitle, &self.key);
-        sc_entry.define_name("liege", Scopes::Character, &self.key);
-        sc_entry.define_name("vassal", Scopes::Character, &self.key);
-        vd.field_validated_sc("personal_relation_entry", &mut sc_entry, validate_desc);
-        vd.field_trigger_rooted("personal_relation_vassal", Tooltipped::No, Scopes::Character);
+        validate_personal_relation(&mut vd, &self.key);
+
+        if self.tier == Tier::Duchy {
+            if let Some(token) = vd.field_value("market_capital") {
+                data.verify_exists(Item::Title, token);
+                if Tier::try_from(token) != Ok(Tier::Barony) {
+                    let msg = "market capital must be a barony";
+                    err(ErrorKey::TitleTier).msg(msg).loc(token).push();
+                }
+            }
+        } else {
+            vd.ban_field("market_capital", || "duchies");
+        }
 
         vd.advice_field(
             "male_names",

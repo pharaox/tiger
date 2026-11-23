@@ -125,12 +125,35 @@ impl ProvinceHistory {
         {
             data.verify_exists(Item::HoldingType, token);
         }
-        vd.field_list_items("buildings", Item::Building);
-        vd.multi_field_item("special_building_slot", Item::SpecialBuilding);
-        vd.multi_field_item("special_building", Item::SpecialBuilding);
-        // TODO: check if province is duchy capital
-        // TODO: check if building is duchy capital building
-        vd.field_item("duchy_capital_building", Item::Building);
+        // The new part of the 1.21 docs replaces buildings with districts. The old fields are
+        // still in the structure at the top of the docs, but vanilla no longer uses them.
+        vd.replaced_field("buildings", "districts");
+        vd.replaced_field("special_building_slot", "special_district_slot");
+        vd.replaced_field("special_building", "districts");
+        vd.replaced_field("duchy_capital_building", "districts");
+
+        vd.field_validated_block("districts", |block, data| {
+            let mut vd = Validator::new(block, data);
+            vd.multi_field_validated_block("district", |block, data| {
+                let mut vd = Validator::new(block, data);
+                vd.req_field("type");
+                vd.field_item("type", Item::District);
+                vd.field_integer_range("level", 1..);
+                vd.field_list_items("buildings", Item::Building);
+            });
+        });
+        vd.field_validated_block("trade_post", |block, data| {
+            let mut vd = Validator::new(block, data);
+            vd.req_field("type");
+            vd.field_item("type", Item::District);
+            vd.field_integer_range("level", 1..);
+            vd.req_field("owner");
+            vd.field_item("owner", Item::Character);
+            vd.field_list_items("buildings", Item::Building);
+        });
+        vd.multi_field_item("special_district_slot", Item::District);
+        vd.field_item("entrepot_district_slot", Item::District);
+        vd.field_integer_range("province_size", 1..);
 
         vd.field_effect_rooted("effect", Tooltipped::No, Scopes::Province);
     }

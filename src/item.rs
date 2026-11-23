@@ -43,9 +43,6 @@ impl ItemExt for Item {
             | Item::MemoryCategory
             | Item::UnitGfx => Confidence::Weak,
 
-            #[cfg(feature = "ck3")]
-            Item::SpecialBuilding => Confidence::Reasonable,
-
             _ => Confidence::Strong,
         }
     }

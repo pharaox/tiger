@@ -691,6 +691,7 @@ pub fn validate_create_confederation(
     vd.field_validated_sc("name", sc, validate_desc);
     vd.field_target("type", sc, Scopes::ConfederationType);
     vd.field_target("leader", sc, Scopes::DynastyHouse);
+    vd.field_target("leading_title", sc, Scopes::LandedTitle);
     sc.define_name("new_confederation", Scopes::Confederation, key);
 }
 
@@ -710,7 +711,14 @@ pub fn validate_create_dynamic_title(
     vd.field_validated_sc("adj", sc, validate_desc);
     vd.field_validated_sc("pre", sc, validate_desc);
     vd.field_validated_sc("article", sc, validate_desc);
+    vd.field_item_or_target("type", sc, Item::TitleType, Scopes::TitleType);
+    vd.field_target("holder", sc, Scopes::Character);
+    vd.field_bool("suppress_law_messages");
+    // The docs say that `scope:new_title` is kept for backwards compatibility
     sc.define_name("new_title", Scopes::LandedTitle, key);
+    if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
+        sc.define_name_token(name.as_str(), Scopes::LandedTitle, name, Temporary::No);
+    }
 }
 
 pub fn validate_create_nomad_title(
@@ -728,7 +736,8 @@ pub fn validate_create_nomad_title(
     vd.field_validated_sc("pre", sc, validate_desc);
     vd.field_validated_sc("adj", sc, validate_desc);
     vd.field_target("holder", sc, Scopes::Character);
-    vd.field_item("government", Item::GovernmentType);
+    vd.field_item_or_target("government", sc, Item::GovernmentType, Scopes::GovernmentType);
+    vd.field_bool("suppress_law_messages");
     if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
         sc.define_name_token(name.as_str(), Scopes::LandedTitle, name, Temporary::No);
     }
@@ -790,6 +799,7 @@ pub fn validate_create_title_and_vassal_change(
         sc.define_name_token(name.as_str(), Scopes::TitleAndVassalChange, name, Temporary::No);
     }
     vd.field_bool("add_claim_on_loss");
+    vd.field_bool("suppress_law_messages");
 }
 
 pub fn validate_delay_travel_plan(
@@ -1950,7 +1960,8 @@ pub fn validate_create_adventurer_title(
     vd.field_validated_sc("article", sc, validate_desc);
     vd.field_validated_sc("pre", sc, validate_desc);
     vd.field_validated_sc("adj", sc, validate_desc);
-    vd.field_item("government", Item::GovernmentType);
+    vd.field_item_or_target("government", sc, Item::GovernmentType, Scopes::GovernmentType);
+    vd.field_bool("suppress_law_messages");
     if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
         sc.define_name_token(name.as_str(), Scopes::LandedTitle, name, Temporary::No);
     }
@@ -2054,7 +2065,9 @@ pub fn validate_give_noble_family_title(
     vd.field_validated_sc("name", sc, validate_desc);
     vd.field_choice("tier", &["county", "duchy"]);
     vd.field_validated_sc("article", sc, validate_desc);
-    vd.field_item("government", Item::GovernmentType);
+    vd.field_item_or_target("government", sc, Item::GovernmentType, Scopes::GovernmentType);
+    vd.field_bool("suppress_law_messages");
+    vd.field_target("liege", sc, Scopes::Character);
     if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
         sc.define_name_token(name.as_str(), Scopes::LandedTitle, name, Temporary::No);
     }
@@ -2682,7 +2695,8 @@ pub fn validate_create_domicile_title(
     vd.req_field("holder");
     vd.field_target("holder", sc, Scopes::Character);
     vd.req_field("government");
-    vd.field_item("government", Item::GovernmentType);
+    vd.field_item_or_target("government", sc, Item::GovernmentType, Scopes::GovernmentType);
+    vd.field_bool("suppress_law_messages");
     if let Some(token) = block.get_field_value("government")
         && let Some((_, government)) =
             data.database.get_key_block(Item::GovernmentType, token.as_str())
@@ -2855,4 +2869,229 @@ pub fn validate_set_tenet_status(
     vd.field_target("tenet", sc, Scopes::Tenet);
     vd.req_field("status");
     vd.field_choice("status", &["unknown", "known", "prohibited", "permitted", "core"]);
+}
+
+/// Used by `add_competitiveness_modifier_for_character`
+pub fn validate_add_competitiveness_modifier(
+    key: &Token,
+    block: &Block,
+    data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("character");
+    vd.field_target("character", sc, Scopes::Character);
+    vd.req_field("modifier");
+    if let Some(token) = vd.field_value("modifier") {
+        data.verify_exists(Item::Modifier, token);
+        data.database.validate_call(Item::Modifier, token, block, data, sc);
+        data.database.validate_property_use(Item::Modifier, token, data, key, key.as_str());
+    }
+    vd.field_validated_sc("desc", sc, validate_desc);
+    validate_optional_duration(&mut vd, sc);
+}
+
+/// Used by `add_trade_good_price_modifier` and `add_price_modifier_for_character`
+pub fn validate_add_price_modifier(
+    key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    if key.is("add_price_modifier_for_character") {
+        vd.req_field("character");
+        vd.field_target("character", sc, Scopes::Character);
+    }
+    vd.req_field("type");
+    vd.field_choice("type", &["buy_add", "buy_mult", "sell_add", "sell_mult"]);
+    vd.req_field("trade_good_type");
+    vd.field_target("trade_good_type", sc, Scopes::TradeGoodType);
+    vd.req_field("value");
+    vd.field_script_value("value", sc);
+    validate_optional_duration(&mut vd, sc);
+}
+
+/// Used by `add_to_variable_map` and its global and local versions
+pub fn validate_add_to_variable_map(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("name");
+    vd.field_identifier("name", "map name");
+    vd.req_field("key");
+    vd.field_target_ok_this("key", sc, Scopes::all_but_none());
+    vd.req_field("value");
+    vd.field_target_ok_this("value", sc, Scopes::all_but_none());
+    validate_optional_duration(&mut vd, sc);
+}
+
+/// Used by `remove_from_variable_map` and its global and local versions
+pub fn validate_remove_from_variable_map(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("name");
+    vd.field_identifier("name", "map name");
+    vd.req_field("key");
+    vd.field_target_ok_this("key", sc, Scopes::all_but_none());
+}
+
+pub fn validate_add_toll_exception(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("target");
+    vd.field_target("target", sc, Scopes::Character);
+    vd.req_field("toll_level");
+    vd.field_target("toll_level", sc, Scopes::TollLevel);
+    validate_optional_duration(&mut vd, sc);
+}
+
+pub fn validate_add_trade_post_district(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("district");
+    vd.field_item("district", Item::District);
+    vd.req_field("owner");
+    vd.field_target("owner", sc, Scopes::Character);
+}
+
+pub fn validate_assign_trader(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("character");
+    vd.field_target("character", sc, Scopes::Character);
+    vd.req_field("task");
+    vd.field_choice("task", &["manage_competition", "negotiate_deals", "oversee_caravans"]);
+}
+
+/// Used by the effects that build, upgrade, downgrade or remove a random building of a district
+pub fn validate_random_district_building(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("district");
+    // The docs say it can be a saved scope, a variable or a district type key.
+    // TODO: verify the scope type of targets
+    let outscopes = Scopes::District | Scopes::DistrictType;
+    vd.field_item_or_target("district", sc, Item::District, outscopes);
+}
+
+pub fn validate_create_commission_trade_route(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("commissioner");
+    vd.field_target("commissioner", sc, Scopes::Character);
+    vd.req_field("primary_good");
+    vd.field_item_or_target("primary_good", sc, Item::TradeGoodType, Scopes::TradeGoodType);
+    vd.req_field("destination");
+    vd.field_target("destination", sc, Scopes::TradeMarket);
+    validate_optional_duration(&mut vd, sc);
+    if let Some(name) = vd.field_identifier("save_scope_as", "scope name") {
+        sc.define_name_token(name.as_str(), Scopes::TradeRoute, name, Temporary::No);
+    }
+}
+
+pub fn validate_create_trade_monopoly(
+    _key: &Token,
+    block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.field_choice("type", &["exploitative", "normal"]);
+    vd.field_bool("is_complete");
+    vd.field_target("owning_character", sc, Scopes::Character);
+    vd.field_target("owning_confederation", sc, Scopes::Confederation);
+    vd.field_target("owning_title", sc, Scopes::LandedTitle);
+    vd.req_field("trade_market");
+    vd.field_target("trade_market", sc, Scopes::TradeMarket);
+    vd.field_item_or_target(
+        "trade_good_category",
+        sc,
+        Item::TradeGoodCategory,
+        Scopes::TradeGoodCategory,
+    );
+
+    let owners = ["owning_character", "owning_confederation", "owning_title"];
+    let mut first: Option<&Token> = None;
+    for owner in owners {
+        if let Some(key) = block.get_key(owner) {
+            if let Some(first) = first {
+                let msg = format!("`{owner}` and `{first}` are mutually exclusive");
+                err(ErrorKey::Conflict).msg(msg).loc(key).loc_msg(first, "here").push();
+            } else {
+                first = Some(key);
+            }
+        }
+    }
+}
+
+pub fn validate_destroy_trade_route(
+    key: &Token,
+    bv: &BV,
+    data: &Everything,
+    sc: &mut ScopeContext,
+    _tooltipped: Tooltipped,
+) {
+    match bv {
+        BV::Value(token) => {
+            if !token.is("yes") {
+                let msg = format!("expected `{key} = yes` or a block");
+                warn(ErrorKey::Validation).msg(msg).loc(token).push();
+            }
+        }
+        BV::Block(block) => {
+            let mut vd = Validator::new(block, data);
+            vd.req_field("destroyer");
+            vd.field_target("destroyer", sc, Scopes::Character);
+        }
+    }
+}
+
+pub fn validate_set_confederation_aspiration(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    _sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("type");
+    vd.field_item("type", Item::ConfederationAspiration);
 }

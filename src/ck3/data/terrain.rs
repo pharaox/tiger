@@ -44,9 +44,9 @@ impl DbKind for Terrain {
             data.verify_exists_implied(Item::ModifierFormat, &modif, key);
             let modif = format!("{key}_holding_construction_prestige_cost");
             data.verify_exists_implied(Item::ModifierFormat, &modif, key);
-            let modif = format!("{key}_development_growth");
+            let modif = format!("{key}_prosperity_growth");
             data.verify_exists_implied(Item::ModifierFormat, &modif, key);
-            let modif = format!("{key}_development_growth_factor");
+            let modif = format!("{key}_prosperity_growth_factor");
             data.verify_exists_implied(Item::ModifierFormat, &modif, key);
             let modif = format!("{key}_supply_limit");
             data.verify_exists_implied(Item::ModifierFormat, &modif, key);

@@ -1,4 +1,4 @@
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 pub const ON_ACTION_SCOPES: &str = "
 	on_accolade_rank_change = {
 		root = accolade
@@ -430,6 +430,10 @@ pub const ON_ACTION_SCOPES: &str = "
 		concubine = character
 		reason = flag
 	}
+	on_betrothal = {
+		root = character
+		second = character
+	}
 	on_betrothal_broken = {
 		root = character
 		second = character
@@ -828,7 +832,7 @@ pub const ON_ACTION_SCOPES: &str = "
 		recipient = character
 	}
 
-	on_great_building_rebuilt = {
+	on_great_district_rebuilt = {
 		root = character
 		province = province
 	}
@@ -892,4 +896,67 @@ pub const ON_ACTION_SCOPES: &str = "
 		councillor = character
 		councillor_liege = character
 	}
+
+	on_assembly_vote_started = {
+		root = character
+		proposer = character
+		title = landed_title
+		new_law = law
+		current_law = law # may be unset
+	}
+	on_assembly_vote_ended = on_assembly_vote_started
+
+	on_term_ended = {
+		root = character
+		title = landed_title
+		previous_holder = character
+		new_holder = character
+	}
+
+	on_province_size_level_increased = {
+		root = province
+		county = landed_title
+		barony = landed_title
+	}
+	on_province_size_level_decreased = on_province_size_level_increased
+
+	on_trade_route_created = {
+		root = character
+		trade_route = trade_route # may be unset
+		trader = character # may be unset
+	}
+	on_trade_route_edited = {
+		root = character
+		trade_route = trade_route # may be unset
+		trader = character # may be unset
+		primary_good_changed = bool
+	}
+	on_trade_route_destroyed = {
+		root = trade_route
+		destroyer = character # may be unset
+	}
+	on_trader_assigned = {
+		root = character
+		trade_route = trade_route
+	}
+	on_trade_good_category_level_up = {
+		root = landed_title
+		trade_good_category_type = trade_good_category
+	}
+	on_trade_good_category_level_down = on_trade_good_category_level_up
+	on_trade_monopoly_invalidated = {
+		root = trade_monopoly
+	}
+	on_market_changed_toll_level = {
+		root = trade_market
+		new_toll_level = toll_level
+		old_toll_level = toll_level
+	}
+	on_toll_exception_changed = {
+		root = trade_market
+		new_toll_level = toll_level
+		old_toll_level = toll_level
+		character = character
+	}
+	on_toll_exception_ended = on_toll_exception_changed
 ";

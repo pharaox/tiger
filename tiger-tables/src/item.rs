@@ -279,6 +279,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] CohesionLevelParameter,
     #[cfg(feature = "ck3")] CombatEffect,
     #[cfg(feature = "ck3")] CombatPhaseEvent,
+    #[cfg(feature = "ck3")] ConfederationAspiration,
     #[cfg(feature = "ck3")] ConfederationType,
     #[cfg(feature = "ck3")] ConnectionArrow,
     #[cfg(feature = "ck3")] CouncilPosition,
@@ -291,6 +292,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] CourtSceneGroup,
     #[cfg(feature = "ck3")] CourtSceneRole,
     #[cfg(feature = "ck3")] CourtSceneSetting,
+    #[cfg(feature = "ck3")] CountyPotentialTradeGoods,
     #[cfg(feature = "ck3")] CourtType,
     #[cfg(feature = "ck3")] CourtierGuestManagement,
     #[cfg(feature = "ck3")] CultureAesthetic,
@@ -308,6 +310,7 @@ pub enum Item {
     #[cfg(feature = "ck3")] DiarchyMandate,
     #[cfg(feature = "ck3")] DiarchyParameter,
     #[cfg(feature = "ck3")] DiarchyType,
+    #[cfg(feature = "ck3")] District,
     #[cfg(feature = "ck3")] Doctrine,
     #[cfg(feature = "ck3")] DoctrineCategory,
     #[cfg(feature = "ck3")] DoctrineGroup,
@@ -407,6 +410,8 @@ pub enum Item {
     #[cfg(feature = "ck3")] RiteIcon,
     #[cfg(feature = "ck3")] RiteName,
     #[cfg(feature = "ck3")] RiteType,
+    #[cfg(feature = "ck3")] Road,
+    #[cfg(feature = "ck3")] RoadModifiers,
     #[cfg(feature = "ck3")] RulerObjectiveType,
     #[cfg(feature = "ck3")] Scheme,
     #[cfg(feature = "ck3")] SchemePulseAction,
@@ -424,7 +429,6 @@ pub enum Item {
     #[cfg(feature = "ck3")] SituationPhaseParameter,
     #[cfg(feature = "ck3")] SituationSubRegion,
     #[cfg(feature = "ck3")] Skill,
-    #[cfg(feature = "ck3")] SpecialBuilding,
     #[cfg(feature = "ck3")] SpecialGuest,
     #[cfg(feature = "ck3")] SpiritualFulfillmentType,
     #[cfg(feature = "ck3")] Story,
@@ -448,6 +452,10 @@ pub enum Item {
     #[cfg(feature = "ck3")] Tenet,
     #[cfg(feature = "ck3")] Title,
     #[cfg(feature = "ck3")] TitleHistory,
+    #[cfg(feature = "ck3")] TitleType,
+    #[cfg(feature = "ck3")] TollLevel,
+    #[cfg(feature = "ck3")] TradeGoodCategory,
+    #[cfg(feature = "ck3")] TradeGoodType,
     #[cfg(feature = "ck3")] TraitCategory,
     #[cfg(feature = "ck3")] TraitFlag,
     #[cfg(feature = "ck3")] TraitPortraitModifier,
@@ -1353,6 +1361,8 @@ impl Item {
             #[cfg(feature = "ck3")]
             Item::CombatPhaseEvent => "common/combat_phase_events/",
             #[cfg(feature = "ck3")]
+            Item::ConfederationAspiration => "common/confederation_aspirations/",
+            #[cfg(feature = "ck3")]
             Item::ConfederationType => "common/confederation_types/",
             #[cfg(feature = "ck3")]
             Item::ConnectionArrow => "common/connection_arrows/",
@@ -1376,6 +1386,8 @@ impl Item {
             Item::CourtSceneRole => "gfx/court_scene/character_roles/",
             #[cfg(feature = "ck3")]
             Item::CourtSceneSetting => "gfx/court_scene/scene_settings/",
+            #[cfg(feature = "ck3")]
+            Item::CountyPotentialTradeGoods => "common/trade/county_potential_trade_goods/",
             #[cfg(feature = "ck3")]
             Item::CourtType => "common/court_types/",
             #[cfg(feature = "ck3")]
@@ -1411,6 +1423,8 @@ impl Item {
             Item::DiarchyParameter => "common/diarchies/diarchy_types/",
             #[cfg(feature = "ck3")]
             Item::DiarchyType => "common/diarchies/diarchy_types/",
+            #[cfg(feature = "ck3")]
+            Item::District => "common/districts/",
             #[cfg(feature = "ck3")]
             Item::Doctrine => "common/religion/doctrine_types/",
             #[cfg(feature = "ck3")]
@@ -1610,6 +1624,10 @@ impl Item {
             #[cfg(feature = "ck3")]
             Item::RiteType => "common/religion/rite_types/",
             #[cfg(feature = "ck3")]
+            Item::Road => "common/roads/road_types/",
+            #[cfg(feature = "ck3")]
+            Item::RoadModifiers => "common/roads/road_modifiers/",
+            #[cfg(feature = "ck3")]
             Item::RulerObjectiveType => "common/ruler_objective_advice_types/",
             #[cfg(feature = "ck3")]
             Item::SubjectContract => "common/subject_contracts/contracts/",
@@ -1652,8 +1670,6 @@ impl Item {
             #[cfg(feature = "ck3")]
             Item::Skill => "",
             #[cfg(feature = "ck3")]
-            Item::SpecialBuilding => "common/buildings/",
-            #[cfg(feature = "ck3")]
             Item::SpecialGuest => "common/activities/activity_types/",
             #[cfg(feature = "ck3")]
             Item::SpiritualFulfillmentType => "common/spiritual_fulfillment/",
@@ -1691,6 +1707,14 @@ impl Item {
             Item::Title => "common/landed_titles/",
             #[cfg(feature = "ck3")]
             Item::TitleHistory => "history/titles/",
+            #[cfg(feature = "ck3")]
+            Item::TitleType => "common/title_types/",
+            #[cfg(feature = "ck3")]
+            Item::TollLevel => "common/trade/trade_market_toll_levels/",
+            #[cfg(feature = "ck3")]
+            Item::TradeGoodCategory => "common/trade/trade_good_categories/",
+            #[cfg(feature = "ck3")]
+            Item::TradeGoodType => "common/trade/trade_good_types/",
             #[cfg(feature = "ck3")]
             Item::TraitCategory => "",
             #[cfg(feature = "ck3")]

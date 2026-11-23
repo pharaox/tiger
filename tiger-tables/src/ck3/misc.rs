@@ -1,4 +1,4 @@
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from the Faith.random_ values in `data_types_uncategorized.txt`
 pub const CUSTOM_RELIGION_LOCAS: &[&str] = &[
     "AltPriestTermPlural",

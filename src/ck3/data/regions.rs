@@ -1,8 +1,10 @@
 use crate::block::Block;
+use crate::ck3::modif::ModifKinds;
 use crate::db::{Db, DbKind};
 use crate::everything::Everything;
 use crate::game::GameFlags;
 use crate::item::{Item, ItemLoader};
+use crate::modif::validate_modifs;
 use crate::report::{ErrorKey, err, fatal};
 use crate::token::Token;
 use crate::validate::validate_color;
@@ -19,7 +21,8 @@ inventory::submit! {
 
 impl Region {
     pub fn add(db: &mut Db, key: Token, block: Block) {
-        let generates_modifiers = block.get_field_bool("generate_modifiers").unwrap_or(false);
+        let generates_modifiers =
+            block.get_field_bool("generate_prosperity_modifiers").unwrap_or(false);
         let region = Self { generates_modifiers };
         db.add(Item::Region, key, block, Box::new(region));
     }
@@ -42,15 +45,24 @@ impl DbKind for Region {
         // Probably when it's tooltipped for geographical_region or when the gui code does GetName
         data.mark_used(Item::Localization, key.as_str());
 
-        if block.field_value_is("generate_modifiers", "yes") {
-            let modif = format!("{key}_development_growth");
+        if block.field_value_is("generate_prosperity_modifiers", "yes") {
+            let modif = format!("{key}_prosperity_growth");
             data.verify_exists_implied(Item::ModifierFormat, &modif, key);
-            let modif = format!("{key}_development_growth_factor");
+            let modif = format!("{key}_prosperity_growth_factor");
             data.verify_exists_implied(Item::ModifierFormat, &modif, key);
         }
 
-        vd.field_bool("generate_modifiers");
+        vd.field_bool("generate_prosperity_modifiers");
+        vd.replaced_field("generate_modifiers", "generate_prosperity_modifiers");
         vd.field_bool("graphical");
+        vd.field_validated_block("province_modifier", |block, data| {
+            let vd = Validator::new(block, data);
+            validate_modifs(block, data, ModifKinds::Province, vd);
+        });
+        vd.field_validated_block("county_modifier", |block, data| {
+            let vd = Validator::new(block, data);
+            validate_modifs(block, data, ModifKinds::County, vd);
+        });
         vd.field_validated_block("color", validate_color);
         vd.advice_field("should_remember_counties_order", "removed in 1.20");
         vd.field_validated_list("counties", |token, data| {

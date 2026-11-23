@@ -82,6 +82,11 @@ impl DbKind for TaskContractType {
             sc
         });
         vd.field_trigger_rooted("valid_to_continue", Tooltipped::No, Scopes::TaskContract);
+        vd.field_trigger_builder("can_accept_while_traveling", Tooltipped::No, |key| {
+            let mut sc = ScopeContext::new(Scopes::TaskContract, key);
+            sc.define_name("employer", Scopes::Character, key);
+            sc
+        });
         vd.field_trigger_builder("valid_to_keep", Tooltipped::No, |key| {
             let mut sc = ScopeContext::new(Scopes::TaskContract, key);
             sc.define_name("employer", Scopes::Character, key);

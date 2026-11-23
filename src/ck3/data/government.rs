@@ -1,6 +1,6 @@
 use crate::block::Block;
 use crate::ck3::modif::ModifKinds;
-use crate::ck3::tables::misc::GOVERNMENT_RULES;
+use crate::ck3::tables::misc::{GOVERNMENT_MECHANICS, GOVERNMENT_RULES};
 use crate::context::ScopeContext;
 use crate::db::{Db, DbKind};
 use crate::desc::validate_desc;
@@ -75,6 +75,7 @@ impl DbKind for Government {
             // The 1.20 docs describe these under `mechanic_type`, and vanilla moved to it
             vd.replaced_field("religious", "`mechanic_type = theocracy`");
             vd.replaced_field("administrative", "`mechanic_type = administrative`");
+            vd.replaced_field("affected_by_development", "affected_by_prosperity");
         });
 
         // The 1.19 docs called these deprecated outside `government_rules`, and the 1.20 docs
@@ -87,21 +88,8 @@ impl DbKind for Government {
             vd.field_bool(field);
         }
 
-        vd.field_choice(
-            "mechanic_type",
-            &[
-                "feudal",
-                "mercenary",
-                "holy_order",
-                "clan",
-                "theocracy",
-                "administrative",
-                "landless_adventurer",
-                "herder",
-                "nomad",
-                "mandala",
-            ],
-        );
+        // merchant and republic are only in the government_has_mechanic docs
+        vd.field_choice("mechanic_type", GOVERNMENT_MECHANICS);
         // TODO: "All government types listed above should have one default"
         vd.field_bool("is_mechanic_type_default");
 
@@ -139,9 +127,21 @@ impl DbKind for Government {
         vd.field_choice("min_appointment_tier", &["county", "duchy", "kingdom"]);
         vd.field_choice("minimum_provincial_maa_tier", &["county", "duchy", "kingdom"]);
         vd.field_choice(
-            "administrative_title_maa_setup",
-            &["main_tier_and_top_liege", "vassals_and_top_liege", "top_vassals_and_top_liege"],
+            "title_maa_setup",
+            &[
+                "main_tier_and_top_liege",
+                "vassals_and_top_liege",
+                "top_vassals_and_top_liege",
+                "grand_mayor",
+            ],
         );
+        vd.replaced_field("administrative_title_maa_setup", "title_maa_setup");
+        if block.field_value_is("mechanic_type", "administrative")
+            && !block.has_key("title_maa_setup")
+        {
+            let msg = "administrative governments need `title_maa_setup`";
+            err(ErrorKey::FieldMissing).msg(msg).loc(key).push();
+        }
 
         vd.field_numeric("max_dread");
 
@@ -232,8 +232,24 @@ impl DbKind for Government {
             sc
         });
 
+        vd.field_script_value_no_breakdown_rooted("house_power", Scopes::DynastyHouse);
+
         vd.replaced_field("flag", "`flags` list");
         vd.field_list("flags");
+        vd.field_list_choice(
+            "build_queue_reserve_categories",
+            &[
+                "gold",
+                "prestige",
+                "piety",
+                "renown",
+                "influence",
+                "herd",
+                "treasury",
+                "merit",
+                "barter_goods",
+            ],
+        );
     }
 }
 

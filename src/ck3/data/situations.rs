@@ -138,6 +138,7 @@ impl DbKind for Situation {
             vd.field_item("reference", Item::File);
         });
         vd.field_item("situation_group_type", Item::SituationGroupType);
+        vd.field_item("religion", Item::Religion);
         vd.field_list_items("ending_decisions", Item::Decision);
         vd.field_list_items("situation_decisions", Item::Decision);
         vd.field_integer("sort_order");
@@ -145,6 +146,7 @@ impl DbKind for Situation {
         vd.field_validated_value("map_mode", |_, mut vvd| {
             vvd.maybe_is("participant_groups");
             vvd.maybe_is("sub_regions");
+            vvd.maybe_is("participant_groups_inside_realm");
             vvd.item(Item::MapMode);
         });
 
@@ -210,6 +212,7 @@ impl DbKind for Situation {
         // TODO: check that the start phase is part of this situation's phases
         vd.field_item("start_phase", Item::SituationPhase);
         vd.field_bool("use_situation_phase_flat_icons");
+        vd.field_bool("allow_negative_progress");
     }
 }
 
@@ -268,6 +271,10 @@ fn validate_participant_group(key: &Token, block: &Block, data: &Everything, sit
     vd.field_bool("require_domain_in_sub_region");
     vd.field_bool("require_realm_in_sub_region");
     vd.field_bool("require_domicile_in_sub_region");
+
+    // undocumented
+    vd.field_list_items("opposite_participant_group", Item::SituationParticipantGroup);
+    vd.field_integer("opposite_participant_group_opinion");
 
     vd.field_trigger_builder("is_character_valid", Tooltipped::Yes, sc_builder);
     vd.field_effect_builder("on_join", Tooltipped::Yes, sc_with_group);
@@ -344,14 +351,12 @@ fn validate_phase(key: &Token, block: &Block, data: &Everything, situation: &Tok
                 &mut sc_builder2(key),
                 validate_duration,
             );
-            vd.field_validated_block("catalysts", |block, data| {
+            vd.field_validated_block("catalysts", validate_catalysts);
+            vd.multi_field_validated_block("dlc_catalysts", |block, data| {
                 let mut vd = Validator::new(block, data);
-
-                vd.unknown_fields(|key, bv| {
-                    data.verify_exists(Item::SituationCatalyst, key);
-                    let mut sc = ScopeContext::new(Scopes::Situation, key);
-                    validate_script_value_no_breakdown(bv, data, &mut sc);
-                });
+                vd.field_item("dlc_feature", Item::DlcFeature);
+                vd.field_validated_block("dlc_enabled_catalysts", validate_catalysts);
+                vd.field_validated_block("fallback_catalysts", validate_catalysts);
             });
         });
     });
@@ -393,6 +398,16 @@ fn validate_sub_region(key: &Token, block: &Block, data: &Everything, situation:
         untidy(ErrorKey::Deprecated).msg(msg).loc(key).push();
     }
     vd.field_item("capital_province", Item::Province);
+}
+
+/// Catalysts with the script values of how much they add to a future phase.
+fn validate_catalysts(block: &Block, data: &Everything) {
+    let mut vd = Validator::new(block, data);
+    vd.unknown_fields(|key, bv| {
+        data.verify_exists(Item::SituationCatalyst, key);
+        let mut sc = ScopeContext::new(Scopes::Situation, key);
+        validate_script_value_no_breakdown(bv, data, &mut sc);
+    });
 }
 
 fn validate_modifier_set(block: &Block, data: &Everything) {

@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use crate::block::{BV, Block};
+use crate::ck3::data::buildings::validate_param_modifier;
 use crate::ck3::modif::ModifKinds;
 use crate::context::ScopeContext;
 use crate::desc::{validate_desc, validate_desc_map};
@@ -323,17 +324,11 @@ impl Trait {
 }
 
 fn validate_culture_modifier(block: &Block, data: &Everything) {
-    let mut vd = Validator::new(block, data);
-
-    vd.field_item("parameter", Item::CultureParameter);
-    validate_modifs(block, data, ModifKinds::Character, vd);
+    validate_param_modifier(block, data, Item::CultureParameter, ModifKinds::Character);
 }
 
 fn validate_faith_modifier(block: &Block, data: &Everything) {
-    let mut vd = Validator::new(block, data);
-
-    vd.field_item("parameter", Item::DoctrineParameter);
-    validate_modifs(block, data, ModifKinds::Character, vd);
+    validate_param_modifier(block, data, Item::DoctrineParameter, ModifKinds::Character);
 }
 
 fn validate_triggered_opinion(block: &Block, data: &Everything) {

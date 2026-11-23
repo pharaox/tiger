@@ -460,6 +460,7 @@ const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("army", None),
     ("artifact", None),
     ("building", Some(Item::Building)),
+    ("building_instance", None),
     ("character", None),
     ("court_amenities_setting", Some(Item::AmenitySetting)),
     ("court_position_type", Some(Item::CourtPosition)),
@@ -470,6 +471,8 @@ const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("culture_pillar", Some(Item::CulturePillar)),
     ("culture_tradition", Some(Item::CultureTradition)),
     ("decision", Some(Item::Decision)),
+    // TODO: verify that it takes the district type key, like `building`
+    ("district", Some(Item::District)),
     ("doctrine", Some(Item::Doctrine)),
     ("domicile_building", Some(Item::DomicileBuilding)),
     ("dynasty", None),
@@ -524,6 +527,13 @@ const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("tax_slot_obligation", Some(Item::TaxSlotObligation)),
     ("tenet", Some(Item::Tenet)),
     ("terrain", Some(Item::Terrain)),
+    // TODO: verify the format of the value
+    ("trade_good_category_level", None),
+    // TODO: verify that these take the keys, like `building`
+    ("trade_good_category_type", Some(Item::TradeGoodCategory)),
+    ("trade_good_type", Some(Item::TradeGoodType)),
+    ("trade_market", None),
+    ("trade_route", None),
     ("travel_option", Some(Item::TravelOption)),
     ("travel_plan", None),
     ("vassal_stance", Some(Item::VassalStance)),

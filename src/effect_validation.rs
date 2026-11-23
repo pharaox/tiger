@@ -172,7 +172,7 @@ pub fn validate_random_list(
 ) -> bool {
     let caller = Lowercase::new(key.as_str());
     vd.field_integer("pick");
-    vd.field_bool("unique"); // don't know what this does
+    vd.field_bool("unique");
     vd.field_validated_sc("desc", sc, validate_desc);
     let mut has_tooltip = false;
     vd.unknown_block_fields(|key, block| {

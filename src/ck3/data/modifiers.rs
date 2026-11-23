@@ -63,6 +63,7 @@ impl DbKind for Modifier {
                 vd.field_script_value("value", sc);
                 vd.field_item("desc", Item::Localization);
                 vd.field_choice("display_mode", &["default", "scaled", "unscaled"]);
+                vd.field_bool("show_base_value");
             }
         });
         vd.no_warn_remaining();
@@ -88,7 +89,7 @@ impl DbKind for Modifier {
     }
 }
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 /// Get the modifier kinds from property name
 /// See `effects.log` from the game data dumps.
 fn get_modif_kinds(name: &str) -> ModifKinds {
@@ -115,6 +116,16 @@ fn get_modif_kinds(name: &str) -> ModifKinds {
     }
     if name.contains("travel_plan_modifier") {
         return ModifKinds::TravelPlan;
+    }
+    if name.contains("road_modifier") {
+        return ModifKinds::Road;
+    }
+    // TODO: verify the kinds of competitiveness modifiers, which apply to one character in a market
+    if name.contains("trade_market_modifier") || name.contains("competitiveness_modifier") {
+        return ModifKinds::TradeMarket;
+    }
+    if name.contains("trade_route_modifier") {
+        return ModifKinds::TradeRoute;
     }
 
     ModifKinds::empty()
