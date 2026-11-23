@@ -430,7 +430,7 @@ const SCOPE_PREFIX: &[(Scopes, &str, Scopes, ArgumentValue)] = {
         (Scopes::Character, "highest_liege_matching_mechanic", Scopes::Character, UncheckedValue),
         // TODO: check the value against the government rules
         (Scopes::Character, "highest_liege_matching_rule", Scopes::Character, UncheckedValue),
-        (Scopes::None, "holding_type", Scopes::HoldingType, Item(Item::GovernmentType)),
+        (Scopes::None, "holding_type", Scopes::HoldingType, Item(Item::HoldingType)),
         (Scopes::None, "holy_site", Scopes::HolySite, Item(Item::HolySite)),
         (Scopes::None, "holy_site_type", Scopes::HolySiteType, Item(Item::HolySite)),
         (Scopes::None, "house", Scopes::DynastyHouse, Item(Item::House)),
