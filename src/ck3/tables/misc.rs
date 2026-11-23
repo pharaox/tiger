@@ -639,7 +639,7 @@ pub const ARTIFACT_RARITIES: &[&str] = &["common", "masterwork", "famed", "illus
 // LAST UPDATED CK3 VERSION 1.20.1
 pub const OUTBREAK_INTENSITIES: &[&str] = &["minor", "major", "apocalyptic"];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 pub const COMMON_DIRS: &[&str] = &[
     "common/accolade_icons",
     "common/accolade_names",
@@ -677,6 +677,7 @@ pub const COMMON_DIRS: &[&str] = &[
     "common/coat_of_arms/template_lists",
     "common/combat_effects",
     "common/combat_phase_events",
+    "common/confederation_aspirations",
     "common/confederation_types",
     "common/connection_arrows",
     "common/console_groups",
@@ -703,6 +704,7 @@ pub const COMMON_DIRS: &[&str] = &[
     "common/defines",
     "common/diarchies/diarchy_mandates",
     "common/diarchies/diarchy_types",
+    "common/districts",
     "common/dna_data",
     "common/domiciles/buildings",
     "common/domiciles/types",
@@ -729,6 +731,8 @@ pub const COMMON_DIRS: &[&str] = &[
     "common/graphical_unit_types",
     "common/great_projects/types",
     "common/guest_system",
+    "common/holding_sprawl_graphics",
+    "common/holding_sprawl_patterns",
     "common/holdings",
     "common/holy_orders",
     "common/hook_types",
@@ -778,6 +782,8 @@ pub const COMMON_DIRS: &[&str] = &[
     "common/religion/rite_names",
     "common/religion/rite_types",
     "common/religion/tenet_types",
+    "common/roads/road_modifiers",
+    "common/roads/road_types",
     "common/ruler_objective_advice_types",
     "common/schemes/agent_types",
     "common/schemes/pulse_actions",
@@ -811,6 +817,13 @@ pub const COMMON_DIRS: &[&str] = &[
     "common/tax_slots/obligations",
     "common/tax_slots/types",
     "common/terrain_types",
+    "common/title_types",
+    "common/trade/county_potential_trade_goods",
+    "common/trade/trade_good_categories",
+    "common/trade/trade_good_types",
+    "common/trade/trade_market_toll_levels",
+    "common/trade_goods_graphics",
+    "common/trade_tasks",
     "common/traits",
     "common/travel/point_of_interest_types",
     "common/travel/travel_options",
