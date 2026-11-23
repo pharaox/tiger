@@ -5,19 +5,22 @@ use bitflags::bitflags;
 use crate::{ck3::tables::modifs::lookup_modif, modif};
 
 bitflags! {
-    // LAST UPDATED CK3 1.20.1
+    // LAST UPDATED CK3 1.21.0
     // Taken from the game's `modifers.log`
     // Remember to update the display_fmt functions when ModifKindsCk3 changes.
     #[derive(Debug, Copy, Clone)]
     #[rustfmt::skip]
     pub struct ModifKinds: u32 {
-        const Character  = 1<<0;
-        const Province   = 1<<3;
-        const County     = 1<<5;
-        const Terrain    = 1<<6;
-        const Culture    = 1<<7;
-        const Scheme     = 1<<8;
-        const TravelPlan = 1<<9;
+        const Character   = 1<<0;
+        const TradeRoute  = 1<<1;
+        const TradeMarket = 1<<2;
+        const Province    = 1<<3;
+        const Road        = 1<<4;
+        const County      = 1<<5;
+        const Terrain     = 1<<6;
+        const Culture     = 1<<7;
+        const Scheme      = 1<<8;
+        const TravelPlan  = 1<<9;
     }
 }
 
@@ -54,6 +57,15 @@ impl Display for ModifKinds {
         }
         if self.contains(ModifKinds::TravelPlan) {
             vec.push("travel plan");
+        }
+        if self.contains(ModifKinds::TradeRoute) {
+            vec.push("trade route");
+        }
+        if self.contains(ModifKinds::TradeMarket) {
+            vec.push("trade market");
+        }
+        if self.contains(ModifKinds::Road) {
+            vec.push("road");
         }
         write!(f, "{}", vec.join(", "))
     }
