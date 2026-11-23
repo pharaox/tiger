@@ -444,13 +444,15 @@ pub(crate) static COMPLEX_TOOLTIPS_CK3: LazyLock<TigerHashMap<&'static str, Opti
 /// Handling of `#TOOLTIP:tag:value` formatting in localization. The table contains the tag strings
 /// and the corresponding item type of the value. If the item type is `None`, it means the value is
 /// a runtime id which cannot be validated statically.
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // The list of tag types can be found in localization/english/tooltip_structs_l_english.yml
 // The table entries were verified by deleting the `#TOOLTIP:` part of the entries and viewing
 // examples of them in-game.
 // Tags left out have their value checked as a localization key. That is right for `GLOSSARY`.
 // `CONTRACT` and `SITUATION_MODIFIER_NAMED_SET` get only code-supplied values in vanilla, and
 // with a database key the game shows the raw text (in-game test, 1.20.1.2).
+// TODO: verify the 1.21 tags in game. `TRADE_GOOD_CATEGORY_LEVEL` is left out until it is known
+// what its value is.
 const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("accolade", None),
     ("accolade_type", Some(Item::AccoladeType)),
@@ -460,6 +462,7 @@ const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("army", None),
     ("artifact", None),
     ("building", Some(Item::Building)),
+    ("building_instance", None),
     ("character", None),
     ("court_amenities_setting", Some(Item::AmenitySetting)),
     ("court_position_type", Some(Item::CourtPosition)),
@@ -470,6 +473,8 @@ const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("culture_pillar", Some(Item::CulturePillar)),
     ("culture_tradition", Some(Item::CultureTradition)),
     ("decision", Some(Item::Decision)),
+    // TODO: 1.21 Some(Item::DistrictType) once common/districts is loaded
+    ("district", None),
     ("doctrine", Some(Item::Doctrine)),
     ("domicile_building", Some(Item::DomicileBuilding)),
     ("dynasty", None),
@@ -524,6 +529,12 @@ const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("tax_slot_obligation", Some(Item::TaxSlotObligation)),
     ("tenet", Some(Item::Tenet)),
     ("terrain", Some(Item::Terrain)),
+    // TODO: 1.21 Some(Item::TradeGoodCategory) once common/trade is loaded
+    ("trade_good_category_type", None),
+    // TODO: 1.21 Some(Item::TradeGoodType) once common/trade is loaded
+    ("trade_good_type", None),
+    ("trade_market", None),
+    ("trade_route", None),
     ("travel_option", Some(Item::TravelOption)),
     ("travel_plan", None),
     ("vassal_stance", Some(Item::VassalStance)),

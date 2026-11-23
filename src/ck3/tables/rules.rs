@@ -8,7 +8,7 @@
 /// `root` is the root of the scope context. Other fields are added named scopes.
 ///
 /// For ease of updating, the rules are in the order they are found in the game files.
-// LAST UPDATED CK3 VERSION 1.20.1.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Taken from information in common/scripted_rules/
 pub const SCRIPTED_RULES: &str = "
 	can_command_troops = {
@@ -34,11 +34,6 @@ pub const SCRIPTED_RULES: &str = "
 	}
 
 	can_create_rite = {
-		root = character
-	}
-
-	faith_creation = {
-		tooltipped = yes
 		root = character
 	}
 
@@ -146,7 +141,7 @@ pub const SCRIPTED_RULES: &str = "
 		root = character
 	}
 
-	approves_of_succession_law_change = {
+	approves_of_law_change = {
 		tooltipped = no
 		root = character
 	}
@@ -403,6 +398,23 @@ pub const SCRIPTED_RULES: &str = "
 		root = character
 	}
 	can_build_in_same_realm = {
+		root = character
+	}
+
+	can_build_external_trade_post = {
+		root = character
+		province = province
+	}
+
+	can_be_trader = {
+		root = character
+	}
+
+	can_hire_mercenaries = {
+		root = character
+	}
+
+	can_hire_holy_orders = {
 		root = character
 	}
 

@@ -261,7 +261,7 @@ pub const DLC_FEATURES_CK3: &[&str] = &[
 ];
 
 /// A list of music provided by DLCs, for people who don't have them
-/// LAST UPDATED CK3 VERSION 1.20.1
+/// LAST UPDATED CK3 VERSION 1.21.0
 pub const DLC_MUSIC: &[&str] = &[
     // FP1
     "mx_raid",
@@ -461,6 +461,21 @@ pub const DLC_MUSIC: &[&str] = &[
     "mx_mood_the_conclave",
     "group_ce3_cue",
     "group_ce3_mood",
+    // EP5
+    "main_theme_track_005_gdp",
+    "mx_cue_the_rise_of_a_nation",
+    "mx_mood_a_path_beyond_the_map",
+    "mx_mood_a_merchants_tale",
+    "mx_mood_discovering_new_routes",
+    "mx_mood_rumors_from_the_east",
+    "mx_mood_caravan_at_dawn",
+    "mx_mood_a_bargain_struck",
+    "mx_mood_the_merchant_and_the_emperor",
+    "mx_mood_silk_before_the_throne",
+    "group_ep5_cue",
+    "group_ep5_mood_west",
+    "group_ep5_mood_mena",
+    "group_ep5_mood_east",
 ];
 
 // LAST UPDATED CK3 VERSION 1.20.1
