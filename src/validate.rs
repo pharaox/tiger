@@ -361,6 +361,26 @@ pub fn precheck_iterator_fields(
             validate_script_value(value, data, sc);
         }
     }
+    #[cfg(feature = "ck3")]
+    if Game::is_ck3()
+        && matches!(
+            name,
+            "potential_trade_ally_in_market"
+                | "potential_trade_rival_in_market"
+                | "potential_trade_ally_on_routes"
+                | "potential_trade_rival_on_routes"
+        )
+    {
+        if let Some(target) = block.get_field_value("target") {
+            validate_target_ok_this(target, data, sc, Scopes::Character);
+        }
+        if let Some(market) = block.get_field_value("trade_market") {
+            validate_target_ok_this(market, data, sc, Scopes::TradeMarket);
+        }
+        if let Some(good) = block.get_field_value("trade_good_type") {
+            validate_target_ok_this(good, data, sc, Scopes::TradeGoodType);
+        }
+    }
 
     #[cfg(feature = "hoi4")]
     if Game::is_hoi4()
@@ -505,6 +525,14 @@ pub fn validate_inside_iterator(
         if let Some(token) = vd.field_value("variable") {
             sc.replace_global_list_entry(token);
         }
+    } else if name == "key_in_variable_map"
+        || name == "key_in_local_variable_map"
+        || name == "key_in_global_variable_map"
+    {
+        vd.req_field("variable");
+        vd.ban_field("list", || format!("{listtype}_in_list"));
+        // TODO: check that the variable map exists
+        vd.field_value("variable");
     } else {
         vd.ban_field("list", || format!("{listtype}_in_list"));
         vd.ban_field("variable", || {
@@ -743,13 +771,46 @@ pub fn validate_inside_iterator(
             });
         }
 
-        if name == "desired_tenet" || name == "undesired_tenet" {
+        if name == "desired_tenet" || name == "undesired_tenet" || name == "top_trade_good_in_range"
+        {
             vd.field_integer("selection_count");
+        } else {
+            vd.ban_field("selection_count", || {
+                format!(
+                    "`{listtype}_desired_tenet`, `{listtype}_undesired_tenet` or `{listtype}_top_trade_good_in_range`"
+                )
+            });
+        }
+        if name == "desired_tenet" || name == "undesired_tenet" {
             vd.field_numeric("threshold");
         } else {
             let only_for = || format!("`{listtype}_desired_tenet` or `{listtype}_undesired_tenet`");
-            vd.ban_field("selection_count", only_for);
             vd.ban_field("threshold", only_for);
+        }
+
+        if name == "potential_trade_ally_in_market" || name == "potential_trade_rival_in_market" {
+            vd.req_field("target");
+            vd.field_value("target"); // prechecked
+        } else {
+            vd.ban_field("target", || {
+                format!(
+                    "`{listtype}_potential_trade_ally_in_market` or `{listtype}_potential_trade_rival_in_market`"
+                )
+            });
+        }
+        if name == "potential_trade_ally_on_routes" || name == "potential_trade_rival_on_routes" {
+            vd.field_value("trade_market"); // prechecked
+        } else {
+            vd.ban_field("trade_market", || {
+                format!(
+                    "`{listtype}_potential_trade_ally_on_routes` or `{listtype}_potential_trade_rival_on_routes`"
+                )
+            });
+        }
+        if name.as_str().starts_with("potential_trade_") {
+            vd.field_value("trade_good_type"); // prechecked
+        } else {
+            vd.ban_field("trade_good_type", || "the `potential_trade_` iterators");
         }
 
         if name == "desired_tenet" {
