@@ -10,6 +10,9 @@ pub fn needs_prefix(arg: &str, data: &Everything, scopes: Scopes) -> Option<&'st
     if scopes == Scopes::ActivityType && data.item_exists(Item::ActivityType, arg) {
         return Some("activity_type");
     }
+    if scopes == Scopes::BuildingType && data.item_exists(Item::Building, arg) {
+        return Some("building_type");
+    }
     if scopes == Scopes::Character && data.item_exists(Item::Character, arg) {
         return Some("character");
     }
@@ -58,8 +61,14 @@ pub fn needs_prefix(arg: &str, data: &Everything, scopes: Scopes) -> Option<&'st
     if scopes == Scopes::DynastyHouse && data.item_exists(Item::House, arg) {
         return Some("house");
     }
+    if scopes == Scopes::Law && data.item_exists(Item::Law, arg) {
+        return Some("law");
+    }
     if scopes == Scopes::LegendType && data.item_exists(Item::LegendType, arg) {
         return Some("legend_type");
+    }
+    if scopes == Scopes::MenAtArms && data.item_exists(Item::MenAtArms, arg) {
+        return Some("men_at_arms");
     }
     if scopes == Scopes::Province && data.item_exists(Item::Province, arg) {
         return Some("province");
