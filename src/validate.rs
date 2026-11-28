@@ -665,7 +665,11 @@ pub fn validate_inside_iterator(
             vd.multi_field_item("type", Item::Relation);
         }
 
-        if name == "active_dynasty" {
+        if name == "active_dynasty"
+            || name == "built_buildings"
+            || name == "built_regular_district"
+            || name == "district_building"
+        {
             vd.field_bool("include_inactive");
         }
 

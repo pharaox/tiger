@@ -1691,6 +1691,8 @@ const SPECIAL_MODIF_LOC_TABLE: &[(&str, &str)] = &[
     ("build_piety_cost", "MOD_BUILDING_CONSTRUCTION_PIETY_COST"),
     ("build_prestige_cost", "MOD_BUILDING_CONSTRUCTION_PRESTIGE_COST"),
     ("build_herd_cost", "MOD_BUILDING_CONSTRUCTION_HERD_COST"),
+    ("domicile_build_speed", "MOD_DOMICILE_CONSTRUCTION_SPEED"),
+    ("great_project_build_speed", "MOD_GREAT_PROJECT_CONSTRUCTION_SPEED"),
     ("holding_build_speed", "MOD_HOLDING_CONSTRUCTION_SPEED"),
     ("holding_build_gold_cost", "MOD_HOLDING_CONSTRUCTION_GOLD_COST"),
     ("holding_build_piety_cost", "MOD_HOLDING_CONSTRUCTION_PIETY_COST"),

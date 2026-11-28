@@ -2889,7 +2889,6 @@ pub fn validate_add_competitiveness_modifier_for_character(
         data.database.validate_property_use(Item::Modifier, token, data, key, key.as_str());
     }
     vd.field_validated_sc("desc", sc, validate_desc);
-    vd.field_validated_sc("duration_desc", sc, validate_desc);
     validate_optional_duration(&mut vd, sc);
 }
 
@@ -2943,6 +2942,7 @@ pub fn validate_add_toll_exception(
 ) {
     vd.req_field("target");
     vd.field_target("target", sc, Scopes::Character);
+    vd.req_field("toll_level");
     vd.field_target("toll_level", sc, Scopes::TollLevel);
     validate_optional_duration(&mut vd, sc);
 }

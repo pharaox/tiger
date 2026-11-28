@@ -451,8 +451,7 @@ pub(crate) static COMPLEX_TOOLTIPS_CK3: LazyLock<TigerHashMap<&'static str, Opti
 // Tags left out have their value checked as a localization key. That is right for `GLOSSARY`.
 // `CONTRACT` and `SITUATION_MODIFIER_NAMED_SET` get only code-supplied values in vanilla, and
 // with a database key the game shows the raw text (in-game test, 1.20.1.2).
-// TODO: verify the 1.21 tags in game. `TRADE_GOOD_CATEGORY_LEVEL` is left out until it is known
-// what its value is.
+// TODO: verify the 1.21 tags in game.
 const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("accolade", None),
     ("accolade_type", Some(Item::AccoladeType)),
@@ -529,6 +528,8 @@ const COMPLEX_TOOLTIPS: &[(&str, Option<Item>)] = &[
     ("tax_slot_obligation", Some(Item::TaxSlotObligation)),
     ("tenet", Some(Item::Tenet)),
     ("terrain", Some(Item::Terrain)),
+    // TODO: verify the value, which vanilla only passes in from code
+    ("trade_good_category_level", None),
     // TODO: 1.21 Some(Item::TradeGoodCategory) once common/trade is loaded
     ("trade_good_category_type", None),
     // TODO: 1.21 Some(Item::TradeGoodType) once common/trade is loaded

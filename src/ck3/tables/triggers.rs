@@ -350,12 +350,12 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (
         Scopes::District.union(Scopes::Province),
         "can_start_building_construction_for_owner",
-        UncheckedTodo,
+        ScopeOrItem(Scopes::BuildingType, Item::Building),
     ),
     (
         Scopes::District.union(Scopes::Province),
         "can_start_building_construction_for_owner_and_afford",
-        UncheckedTodo,
+        ScopeOrItem(Scopes::BuildingType, Item::Building),
     ),
     (
         Scopes::Character,
@@ -1136,11 +1136,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     ),
     (Scopes::Domicile, "has_ongoing_domicile_construction", Boolean),
     (Scopes::District.union(Scopes::Province), "has_ongoing_holding_construction", Boolean),
-    (
-        Scopes::District.union(Scopes::Province),
-        "has_ongoing_trade_post_construction",
-        UncheckedTodo,
-    ),
+    (Scopes::District.union(Scopes::Province), "has_ongoing_trade_post_construction", Boolean),
     (Scopes::LandedTitle, "has_ongoing_voting_session", Boolean),
     (Scopes::Character, "has_only_dead_children", Boolean),
     (
@@ -3062,7 +3058,7 @@ const TRIGGER_COMPLEX: &[(Scopes, &str, ArgumentValue, Scopes)] = {
             Scope(Scopes::LandedTitle),
             Scopes::Value,
         ),
-        (Scopes::LandedTitle, "county_opinion_target", Scope(Scopes::Character), Scopes::Value),
+        (Scopes::LandedTitle, "county_opinion_target", Removed("1.21", ""), Scopes::Value),
         (Scopes::Culture, "cultural_acceptance", Scope(Scopes::Culture), Scopes::Value),
         (Scopes::Province, "days_since_province_infection", Scope(Scopes::Epidemic), Scopes::Value),
         (Scopes::Faith, "faith_hostility_level", Scope(Scopes::Faith), Scopes::Value),
@@ -3132,6 +3128,8 @@ const TRIGGER_COMPLEX: &[(Scopes, &str, ArgumentValue, Scopes)] = {
             Item(Item::MenAtArms),
             Scopes::Value,
         ),
+        // TODO: check that the argument is a modifier type
+        (Scopes::Character, "modifier_value", UncheckedValue, Scopes::Value),
         // (Scopes::Character, "morph_gene_attribute", Item(Item::GeneCategory), Item(Item::GeneAttribute), Scopes::Value),
         (Scopes::Character, "morph_gene_value", Item(Item::GeneCategory), Scopes::Value),
         (
