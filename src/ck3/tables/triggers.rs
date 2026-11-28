@@ -423,7 +423,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
         "county_control_rate_modifier",
         Removed(
             "1.12",
-            "replaced by monthly_county_control_decline_factor and monthly_county_control_growth_factor",
+            "replaced by monthly_county_control_decline_factor and monthly_county_control_growth_factor, which were removed in 1.21",
         ),
     ),
     // TODO: 1.21 ScopeOrItem(Scopes::DistrictType, Item::DistrictType) once common/districts is loaded
@@ -1483,7 +1483,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
         Block(&[("target", Scope(Scopes::Character)), ("+value", CompareValueWarnEq)]),
     ),
     (Scopes::DynastyHouse, "house_power", Removed("1.21", "replaced by `house_power_score`")),
-    (Scopes::DynastyHouse, "house_power_score", CompareValue),
+    (Scopes::DynastyHouse, "house_power_score", CompareValueWarnEq),
     (Scopes::DynastyHouse, "house_unity_value", CompareValueWarnEq),
     (Scopes::Character, "important_action_is_valid_but_invisible", Item(Item::ImportantAction)),
     (Scopes::Character, "important_action_is_visible", Item(Item::ImportantAction)),
@@ -2119,7 +2119,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
         "modifier_value",
         Block(&[("type", UncheckedValue), ("+value", CompareValue)]),
     ),
-    // TODO: verify the values; the docs give none, vanilla uses these two
+    // The values of `create_trade_monopoly`'s `type`
     (Scopes::TradeMonopoly, "monopoly_type", Choice(&["normal", "exploitative"])),
     (Scopes::Character, "month_of_year_of_birth", CompareValue),
     (Scopes::Character, "monthly_character_balance", CompareValueWarnEq),
@@ -2784,7 +2784,7 @@ const TRIGGER: &[(Scopes, &str, Trigger)] = &[
     (Scopes::Army, "total_army_siege_value", CompareValue),
     (Scopes::Army, "total_army_toughness", CompareValue),
     (Scopes::Epidemic, "total_infected_provinces", CompareValueWarnEq),
-    (Scopes::Province, "total_monthly_tax_income", CompareValue),
+    (Scopes::Province, "total_monthly_tax_income", CompareValueWarnEq),
     (
         Scopes::TradeMarket,
         "trade_category_need",

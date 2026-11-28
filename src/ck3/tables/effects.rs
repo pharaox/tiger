@@ -139,13 +139,13 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     ),
     (Scopes::Accolade, "add_glory", ScriptValue),
     (Scopes::Character, "add_gold", NonNegativeValue),
-    // TODO: check that these have type = great_building
     (Scopes::Province, "add_great_building", Removed("1.21", "replaced by `add_great_district`")),
     (
         Scopes::Province,
         "add_great_building_slot",
         Removed("1.21", "replaced by `add_great_district_slot`"),
     ),
+    // TODO: check that these are great districts
     // TODO: 1.21 ScopeOrItem(Scopes::DistrictType, Item::DistrictType) once common/districts is loaded
     (Scopes::Province, "add_great_district", Unchecked),
     // TODO: 1.21 ScopeOrItem(Scopes::DistrictType, Item::DistrictType) once common/districts is loaded
@@ -280,8 +280,8 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
         Vb(validate_current_phase_guest_subset),
     ),
     (Scopes::None, "add_to_global_variable_list", Vb(validate_add_to_variable_list)),
-    // TODO: figure out the parameters for this
     (Scopes::None, "add_to_global_variable_map", Vb(validate_add_to_variable_map)),
+    // TODO: figure out the parameters for this
     (Scopes::Activity, "add_to_guest_subset", Vb(validate_guest_subset)),
     (Scopes::all(), "add_to_list", Vbv(validate_add_to_list)),
     (Scopes::None, "add_to_local_variable_list", Vb(validate_add_to_variable_list)),
@@ -851,7 +851,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (
         Scopes::TradeMarket,
         "remove_all_competitiveness_modifier_instances_for_character",
-        ItemTarget("modifier", Item::Modifier, "character", Scopes::Character),
+        Vb(validate_remove_competitiveness_modifier),
     ),
     (Scopes::LandedTitle, "remove_all_county_modifier_instances", Item(Item::Modifier)),
     (Scopes::Dynasty, "remove_all_dynasty_modifier_instances", Item(Item::Modifier)),
@@ -890,7 +890,7 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (
         Scopes::TradeMarket,
         "remove_competitiveness_modifier_for_character",
-        ItemTarget("modifier", Item::Modifier, "character", Scopes::Character),
+        Vb(validate_remove_competitiveness_modifier),
     ),
     (Scopes::Character, "remove_concubine", Scope(Scopes::Character)),
     (Scopes::Confederation, "remove_confederation_member", Scope(Scopes::Character)),
@@ -1194,13 +1194,13 @@ const SCOPE_EFFECT: &[(Scopes, &str, Effect)] = &[
     (Scopes::None, "set_generated_bisexuality_chance", ScriptValue),
     (Scopes::None, "set_generated_homosexuality_chance", ScriptValue),
     (Scopes::None, "set_global_variable", Vbv(validate_set_variable)),
-    // TODO: check that these have type = great_building
     (Scopes::Province, "set_great_building", Removed("1.21", "replaced by `set_great_district`")),
     (
         Scopes::Province,
         "set_great_building_slot",
         Removed("1.21", "replaced by `set_great_district_slot`"),
     ),
+    // TODO: check that these are great districts
     // TODO: 1.21 ScopeOrItem(Scopes::DistrictType, Item::DistrictType) once common/districts is loaded
     (Scopes::Province, "set_great_district", Unchecked),
     // TODO: 1.21 ScopeOrItem(Scopes::DistrictType, Item::DistrictType) once common/districts is loaded

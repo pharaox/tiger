@@ -537,7 +537,7 @@ pub fn validate_inside_iterator(
         vd.ban_field("list", || format!("{listtype}_in_list"));
         vd.ban_field("variable", || {
             format!(
-                "`{listtype}_in_list`, `{listtype}_in_local_list`, or `{listtype}_in_global_list`"
+                "`{listtype}_in_list`, `{listtype}_in_local_list`, `{listtype}_in_global_list`, or the `{listtype}_key_in_*variable_map` iterators"
             )
         });
     }
@@ -802,14 +802,9 @@ pub fn validate_inside_iterator(
                 )
             });
         }
+        // Not banned elsewhere: `trade_market` is also a link from landed titles.
         if name == "potential_trade_ally_on_routes" || name == "potential_trade_rival_on_routes" {
             vd.field_value("trade_market"); // prechecked
-        } else {
-            vd.ban_field("trade_market", || {
-                format!(
-                    "`{listtype}_potential_trade_ally_on_routes` or `{listtype}_potential_trade_rival_on_routes`"
-                )
-            });
         }
         if name.as_str().starts_with("potential_trade_") {
             vd.field_value("trade_good_type"); // prechecked

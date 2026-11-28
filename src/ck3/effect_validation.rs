@@ -705,7 +705,7 @@ pub fn validate_create_dynamic_title(
 ) {
     vd.req_field("tier");
     vd.req_field("name");
-    vd.field_choice("tier", &["duchy", "kingdom", "empire", "hegemony"]);
+    vd.field_choice("tier", &["county", "duchy", "kingdom", "empire", "hegemony"]);
     vd.field_validated_sc("name", sc, validate_desc);
     vd.advice_field("adjective", "changed to adj in 1.13");
     vd.field_validated_sc("adj", sc, validate_desc);
@@ -2892,6 +2892,21 @@ pub fn validate_add_competitiveness_modifier_for_character(
     validate_optional_duration(&mut vd, sc);
 }
 
+/// Used by `remove_competitiveness_modifier_for_character` and its `remove_all_` version
+pub fn validate_remove_competitiveness_modifier(
+    _key: &Token,
+    _block: &Block,
+    _data: &Everything,
+    sc: &mut ScopeContext,
+    mut vd: Validator,
+    _tooltipped: Tooltipped,
+) {
+    vd.req_field("character");
+    vd.field_target("character", sc, Scopes::Character);
+    vd.req_field("modifier");
+    vd.field_item("modifier", Item::Modifier);
+}
+
 pub fn validate_add_trade_good_price_modifier(
     key: &Token,
     _block: &Block,
@@ -2988,7 +3003,8 @@ pub fn validate_district_building_effect(
 ) {
     vd.req_field("district");
     // TODO: 1.21 field_item_or_target with Item::DistrictType once common/districts is loaded.
-    // The docs say it takes a saved scope, a variable or a district type key.
+    // The docs say it takes a saved scope, a variable or a district type key. Vanilla passes
+    // district scopes too (`holding_district` saved as a scope, in `00_city_buildings.txt`).
     vd.field_value("district");
 }
 
@@ -3023,13 +3039,13 @@ pub fn validate_create_trade_monopoly(
 ) {
     vd.field_choice("type", &["normal", "exploitative"]);
     vd.field_bool("is_complete");
-    vd.exclusive_fields(&["owning_character", "owning_confederation", "owning_title"]);
-    vd.field_target("owning_character", sc, Scopes::Character);
-    vd.field_target("owning_confederation", sc, Scopes::Confederation);
-    vd.field_target("owning_title", sc, Scopes::LandedTitle);
+    vd.req_field_one_of(&["owning_character", "owning_confederation", "owning_title"]);
+    vd.field_target_ok_this("owning_character", sc, Scopes::Character);
+    vd.field_target_ok_this("owning_confederation", sc, Scopes::Confederation);
+    vd.field_target_ok_this("owning_title", sc, Scopes::LandedTitle);
     vd.req_field("trade_market");
-    vd.field_target("trade_market", sc, Scopes::TradeMarket);
-    vd.field_target("trade_good_category", sc, Scopes::TradeGoodCategory);
+    vd.field_target_ok_this("trade_market", sc, Scopes::TradeMarket);
+    vd.field_target_ok_this("trade_good_category", sc, Scopes::TradeGoodCategory);
 }
 
 pub fn validate_destroy_trade_route(
