@@ -632,7 +632,7 @@ pub const TRAIT_CATEGORIES: &[&str] = &[
     "winter_commander",
 ];
 
-// LAST UPDATED CK3 VERSION 1.20.1
+// LAST UPDATED CK3 VERSION 1.21.0
 // Gathered from vanilla game files, both the use of the `travel_danger_type` trigger and what's in
 // the localization files for `travel_danger_type_*`
 pub const DANGER_TYPES: &[&str] = &[
@@ -643,7 +643,7 @@ pub const DANGER_TYPES: &[&str] = &[
     "army",
     "occupation",
     "county_control",
-    "county_opinion",
+    "popular_opinion",
     "owner_opinion",
     "epidemic",
 ];
